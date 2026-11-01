@@ -112,7 +112,7 @@ services:
     restart: unless-stopped
 
   meilisearch:
-    image: getmeili/meilisearch:v1.11
+    image: getmeili/meilisearch:v1.56
     environment:
       MEILI_MASTER_KEY: ${MEILISEARCH_KEY:-aurum-meili-master-key-local}
       MEILI_ENV: development
