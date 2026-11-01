@@ -298,7 +298,7 @@ function walk(dir) {
       if (!table) continue;
       const encrypted = [...src.matchAll(/'([a-z_]+)' => 'encrypted(?::[a-z]+)?'/g)].map((x) => x[1]);
       models[table] = {
-        model: `${p.split('/Domain/')[1].split('/')[0]}\\${cls}`,
+        model: `${p.split('/Domain/')[1].split('/')[0]}\\Models\\${cls}`,
         belongsToTenant: /\buse BelongsToTenant\b|BelongsToTenant;/.test(src) && /BelongsToTenant/.test(src.split('{').slice(1).join('{')),
         shared: /SharedWithTenant/.test(src.split('{').slice(1).join('{')),
         translatable: /HasTranslations/.test(src.split('{').slice(1).join('{')),

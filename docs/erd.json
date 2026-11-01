@@ -240,7 +240,7 @@
     "softDeletes": true,
     "source": "0001_01_01_000000_create_users_table.php",
     "scope": "global / system",
-    "model": "Identity\\User"
+    "model": "Identity\\Models\\User"
   },
   {
     "name": "password_reset_tokens",
@@ -488,7 +488,7 @@
     "softDeletes": true,
     "source": "0001_01_01_000000_create_users_table.php",
     "scope": "global / system",
-    "model": "Tenancy\\Tenant"
+    "model": "Tenancy\\Models\\Tenant"
   },
   {
     "name": "tenant_user",
@@ -570,7 +570,7 @@
     "softDeletes": false,
     "source": "0001_01_01_000000_create_users_table.php",
     "scope": "tenant (global scope)",
-    "model": "Tenancy\\Membership"
+    "model": "Tenancy\\Models\\Membership"
   },
   {
     "name": "invitations",
@@ -698,7 +698,7 @@
     "softDeletes": false,
     "source": "0001_01_01_000000_create_users_table.php",
     "scope": "tenant (global scope)",
-    "model": "Tenancy\\Invitation"
+    "model": "Tenancy\\Models\\Invitation"
   },
   {
     "name": "devices",
@@ -805,7 +805,7 @@
     "softDeletes": false,
     "source": "0001_01_01_000000_create_users_table.php",
     "scope": "user-owned",
-    "model": "Identity\\Device"
+    "model": "Identity\\Models\\Device"
   },
   {
     "name": "magic_links",
@@ -872,7 +872,7 @@
     "softDeletes": false,
     "source": "0001_01_01_000000_create_users_table.php",
     "scope": "global / system",
-    "model": "Identity\\MagicLink"
+    "model": "Identity\\Models\\MagicLink"
   },
   {
     "name": "activity_logs",
@@ -983,7 +983,7 @@
     "softDeletes": false,
     "source": "0001_01_01_000000_create_users_table.php",
     "scope": "tenant column (explicit where)",
-    "model": "Identity\\ActivityLog"
+    "model": "Identity\\Models\\ActivityLog"
   },
   {
     "name": "feature_flags",
@@ -1060,7 +1060,7 @@
     "softDeletes": false,
     "source": "0001_01_01_000000_create_users_table.php",
     "scope": "global / system",
-    "model": "Tenancy\\FeatureFlag"
+    "model": "Tenancy\\Models\\FeatureFlag"
   },
   {
     "name": "translations",
@@ -1127,7 +1127,7 @@
     "softDeletes": false,
     "source": "0001_01_01_000000_create_users_table.php",
     "scope": "global / system",
-    "model": "Tenancy\\Translation"
+    "model": "Tenancy\\Models\\Translation"
   },
   {
     "name": "coach_profiles",
@@ -1333,7 +1333,7 @@
     "softDeletes": false,
     "source": "0001_01_01_000000_create_users_table.php",
     "scope": "tenant (global scope)",
-    "model": "Tenancy\\CoachProfile"
+    "model": "Tenancy\\Models\\CoachProfile"
   },
   {
     "name": "client_profiles",
@@ -1555,7 +1555,7 @@
     "softDeletes": true,
     "source": "0001_01_01_000000_create_users_table.php",
     "scope": "tenant (global scope)",
-    "model": "Tenancy\\ClientProfile"
+    "model": "Tenancy\\Models\\ClientProfile"
   },
   {
     "name": "client_groups",
@@ -1610,7 +1610,7 @@
     "softDeletes": false,
     "source": "0001_01_01_000000_create_users_table.php",
     "scope": "tenant (global scope)",
-    "model": "Tenancy\\ClientGroup"
+    "model": "Tenancy\\Models\\ClientGroup"
   },
   {
     "name": "client_group_members",
@@ -2336,7 +2336,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000100_create_workout_tables.php",
     "scope": "global / system",
-    "model": "Workouts\\MuscleGroup"
+    "model": "Workouts\\Models\\MuscleGroup"
   },
   {
     "name": "equipment",
@@ -2371,7 +2371,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000100_create_workout_tables.php",
     "scope": "global / system",
-    "model": "Workouts\\Equipment"
+    "model": "Workouts\\Models\\Equipment"
   },
   {
     "name": "exercises",
@@ -2625,7 +2625,7 @@
     "softDeletes": true,
     "source": "2026_01_01_000100_create_workout_tables.php",
     "scope": "shared library (tenant_id NULL = global)",
-    "model": "Workouts\\Exercise"
+    "model": "Workouts\\Models\\Exercise"
   },
   {
     "name": "exercise_alternatives",
@@ -2820,7 +2820,7 @@
     "softDeletes": true,
     "source": "2026_01_01_000100_create_workout_tables.php",
     "scope": "shared library (tenant_id NULL = global)",
-    "model": "Workouts\\Workout"
+    "model": "Workouts\\Models\\Workout"
   },
   {
     "name": "workout_blocks",
@@ -2919,7 +2919,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000100_create_workout_tables.php",
     "scope": "via workouts",
-    "model": "Workouts\\WorkoutBlock"
+    "model": "Workouts\\Models\\WorkoutBlock"
   },
   {
     "name": "workout_exercises",
@@ -3003,7 +3003,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000100_create_workout_tables.php",
     "scope": "via workout_blocks",
-    "model": "Workouts\\WorkoutExercise"
+    "model": "Workouts\\Models\\WorkoutExercise"
   },
   {
     "name": "workout_set_templates",
@@ -3115,7 +3115,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000100_create_workout_tables.php",
     "scope": "via workout_exercises",
-    "model": "Workouts\\WorkoutSetTemplate"
+    "model": "Workouts\\Models\\WorkoutSetTemplate"
   },
   {
     "name": "programs",
@@ -3256,7 +3256,7 @@
     "softDeletes": true,
     "source": "2026_01_01_000100_create_workout_tables.php",
     "scope": "shared library (tenant_id NULL = global)",
-    "model": "Workouts\\Program"
+    "model": "Workouts\\Models\\Program"
   },
   {
     "name": "program_weeks",
@@ -3319,7 +3319,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000100_create_workout_tables.php",
     "scope": "via programs",
-    "model": "Workouts\\ProgramWeek"
+    "model": "Workouts\\Models\\ProgramWeek"
   },
   {
     "name": "program_days",
@@ -3398,7 +3398,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000100_create_workout_tables.php",
     "scope": "via program_weeks",
-    "model": "Workouts\\ProgramDay"
+    "model": "Workouts\\Models\\ProgramDay"
   },
   {
     "name": "program_assignments",
@@ -3510,7 +3510,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000100_create_workout_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Workouts\\ProgramAssignment"
+    "model": "Workouts\\Models\\ProgramAssignment"
   },
   {
     "name": "workout_sessions",
@@ -3674,7 +3674,7 @@
     "softDeletes": true,
     "source": "2026_01_01_000100_create_workout_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Workouts\\WorkoutSession"
+    "model": "Workouts\\Models\\WorkoutSession"
   },
   {
     "name": "session_sets",
@@ -3816,7 +3816,7 @@
     "softDeletes": true,
     "source": "2026_01_01_000100_create_workout_tables.php",
     "scope": "via workout_sessions",
-    "model": "Workouts\\SessionSet"
+    "model": "Workouts\\Models\\SessionSet"
   },
   {
     "name": "personal_records",
@@ -3936,7 +3936,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000100_create_workout_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Workouts\\PersonalRecord"
+    "model": "Workouts\\Models\\PersonalRecord"
   },
   {
     "name": "foods",
@@ -4152,7 +4152,7 @@
     "softDeletes": true,
     "source": "2026_01_01_000200_create_nutrition_habit_checkin_tables.php",
     "scope": "shared library (tenant_id NULL = global)",
-    "model": "Nutrition\\Food"
+    "model": "Nutrition\\Models\\Food"
   },
   {
     "name": "recipes",
@@ -4323,7 +4323,7 @@
     "softDeletes": true,
     "source": "2026_01_01_000200_create_nutrition_habit_checkin_tables.php",
     "scope": "shared library (tenant_id NULL = global)",
-    "model": "Nutrition\\Recipe"
+    "model": "Nutrition\\Models\\Recipe"
   },
   {
     "name": "recipe_items",
@@ -4389,7 +4389,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000200_create_nutrition_habit_checkin_tables.php",
     "scope": "via recipes",
-    "model": "Nutrition\\RecipeItem"
+    "model": "Nutrition\\Models\\RecipeItem"
   },
   {
     "name": "nutrition_targets",
@@ -4521,7 +4521,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000200_create_nutrition_habit_checkin_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Nutrition\\NutritionTarget"
+    "model": "Nutrition\\Models\\NutritionTarget"
   },
   {
     "name": "meal_plans",
@@ -4638,7 +4638,7 @@
     "softDeletes": true,
     "source": "2026_01_01_000200_create_nutrition_habit_checkin_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Nutrition\\MealPlan"
+    "model": "Nutrition\\Models\\MealPlan"
   },
   {
     "name": "meal_plan_days",
@@ -4689,7 +4689,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000200_create_nutrition_habit_checkin_tables.php",
     "scope": "via meal_plans",
-    "model": "Nutrition\\MealPlanDay"
+    "model": "Nutrition\\Models\\MealPlanDay"
   },
   {
     "name": "meals",
@@ -4747,7 +4747,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000200_create_nutrition_habit_checkin_tables.php",
     "scope": "via meal_plan_days",
-    "model": "Nutrition\\Meal"
+    "model": "Nutrition\\Models\\Meal"
   },
   {
     "name": "meal_items",
@@ -4815,7 +4815,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000200_create_nutrition_habit_checkin_tables.php",
     "scope": "via meals",
-    "model": "Nutrition\\MealItem"
+    "model": "Nutrition\\Models\\MealItem"
   },
   {
     "name": "food_logs",
@@ -4997,7 +4997,7 @@
     "softDeletes": true,
     "source": "2026_01_01_000200_create_nutrition_habit_checkin_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Nutrition\\FoodLog"
+    "model": "Nutrition\\Models\\FoodLog"
   },
   {
     "name": "water_logs",
@@ -5075,7 +5075,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000200_create_nutrition_habit_checkin_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Nutrition\\WaterLog"
+    "model": "Nutrition\\Models\\WaterLog"
   },
   {
     "name": "food_favorites",
@@ -5202,7 +5202,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000200_create_nutrition_habit_checkin_tables.php",
     "scope": "shared library (tenant_id NULL = global)",
-    "model": "Habits\\Habit"
+    "model": "Habits\\Models\\Habit"
   },
   {
     "name": "habit_assignments",
@@ -5324,7 +5324,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000200_create_nutrition_habit_checkin_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Habits\\HabitAssignment"
+    "model": "Habits\\Models\\HabitAssignment"
   },
   {
     "name": "habit_logs",
@@ -5403,7 +5403,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000200_create_nutrition_habit_checkin_tables.php",
     "scope": "via habit_assignments",
-    "model": "Habits\\HabitLog"
+    "model": "Habits\\Models\\HabitLog"
   },
   {
     "name": "checkin_forms",
@@ -5487,7 +5487,7 @@
     "softDeletes": true,
     "source": "2026_01_01_000200_create_nutrition_habit_checkin_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Checkins\\CheckinForm"
+    "model": "Checkins\\Models\\CheckinForm"
   },
   {
     "name": "checkin_schedules",
@@ -5596,7 +5596,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000200_create_nutrition_habit_checkin_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Checkins\\CheckinSchedule"
+    "model": "Checkins\\Models\\CheckinSchedule"
   },
   {
     "name": "checkin_responses",
@@ -5748,7 +5748,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000200_create_nutrition_habit_checkin_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Checkins\\CheckinResponse"
+    "model": "Checkins\\Models\\CheckinResponse"
   },
   {
     "name": "checkin_comments",
@@ -5807,7 +5807,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000200_create_nutrition_habit_checkin_tables.php",
     "scope": "via checkin_responses",
-    "model": "Checkins\\CheckinComment"
+    "model": "Checkins\\Models\\CheckinComment"
   },
   {
     "name": "body_metrics",
@@ -5904,7 +5904,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000200_create_nutrition_habit_checkin_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Progress\\BodyMetric"
+    "model": "Progress\\Models\\BodyMetric"
   },
   {
     "name": "progress_photos",
@@ -6007,7 +6007,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000200_create_nutrition_habit_checkin_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Progress\\ProgressPhoto"
+    "model": "Progress\\Models\\ProgressPhoto"
   },
   {
     "name": "conversations",
@@ -6098,7 +6098,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000300_create_communication_calendar_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Messaging\\Conversation"
+    "model": "Messaging\\Models\\Conversation"
   },
   {
     "name": "conversation_participants",
@@ -6176,7 +6176,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000300_create_communication_calendar_tables.php",
     "scope": "via conversations",
-    "model": "Messaging\\ConversationParticipant"
+    "model": "Messaging\\Models\\ConversationParticipant"
   },
   {
     "name": "messages",
@@ -6286,7 +6286,7 @@
     "softDeletes": true,
     "source": "2026_01_01_000300_create_communication_calendar_tables.php",
     "scope": "via conversations",
-    "model": "Messaging\\Message"
+    "model": "Messaging\\Models\\Message"
   },
   {
     "name": "message_attachments",
@@ -6372,7 +6372,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000300_create_communication_calendar_tables.php",
     "scope": "via messages",
-    "model": "Messaging\\MessageAttachment"
+    "model": "Messaging\\Models\\MessageAttachment"
   },
   {
     "name": "message_reactions",
@@ -6435,7 +6435,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000300_create_communication_calendar_tables.php",
     "scope": "via messages",
-    "model": "Messaging\\MessageReaction"
+    "model": "Messaging\\Models\\MessageReaction"
   },
   {
     "name": "message_templates",
@@ -6490,7 +6490,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000300_create_communication_calendar_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Messaging\\MessageTemplate"
+    "model": "Messaging\\Models\\MessageTemplate"
   },
   {
     "name": "scheduled_messages",
@@ -6580,7 +6580,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000300_create_communication_calendar_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Messaging\\ScheduledMessage"
+    "model": "Messaging\\Models\\ScheduledMessage"
   },
   {
     "name": "automations",
@@ -6664,7 +6664,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000300_create_communication_calendar_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Messaging\\Automation"
+    "model": "Messaging\\Models\\Automation"
   },
   {
     "name": "automation_runs",
@@ -6737,7 +6737,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000300_create_communication_calendar_tables.php",
     "scope": "via automations",
-    "model": "Messaging\\AutomationRun"
+    "model": "Messaging\\Models\\AutomationRun"
   },
   {
     "name": "notifications",
@@ -6890,7 +6890,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000300_create_communication_calendar_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Community\\CommunitySpace"
+    "model": "Community\\Models\\CommunitySpace"
   },
   {
     "name": "posts",
@@ -7002,7 +7002,7 @@
     "softDeletes": true,
     "source": "2026_01_01_000300_create_communication_calendar_tables.php",
     "scope": "via community_spaces",
-    "model": "Community\\Post"
+    "model": "Community\\Models\\Post"
   },
   {
     "name": "comments",
@@ -7075,7 +7075,7 @@
     "softDeletes": true,
     "source": "2026_01_01_000300_create_communication_calendar_tables.php",
     "scope": "via posts",
-    "model": "Community\\Comment"
+    "model": "Community\\Models\\Comment"
   },
   {
     "name": "reactions",
@@ -7149,7 +7149,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000300_create_communication_calendar_tables.php",
     "scope": "user-owned",
-    "model": "Community\\Reaction"
+    "model": "Community\\Models\\Reaction"
   },
   {
     "name": "content_reports",
@@ -7233,7 +7233,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000300_create_communication_calendar_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Community\\ContentReport"
+    "model": "Community\\Models\\ContentReport"
   },
   {
     "name": "challenges",
@@ -7332,7 +7332,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000300_create_communication_calendar_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Community\\Challenge"
+    "model": "Community\\Models\\Challenge"
   },
   {
     "name": "challenge_entries",
@@ -7414,7 +7414,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000300_create_communication_calendar_tables.php",
     "scope": "via challenges",
-    "model": "Community\\ChallengeEntry"
+    "model": "Community\\Models\\ChallengeEntry"
   },
   {
     "name": "user_badges",
@@ -7472,7 +7472,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000300_create_communication_calendar_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Community\\UserBadge"
+    "model": "Community\\Models\\UserBadge"
   },
   {
     "name": "locations",
@@ -7536,7 +7536,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000300_create_communication_calendar_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Calendar\\Location"
+    "model": "Calendar\\Models\\Location"
   },
   {
     "name": "availability_rules",
@@ -7629,7 +7629,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000300_create_communication_calendar_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Calendar\\AvailabilityRule"
+    "model": "Calendar\\Models\\AvailabilityRule"
   },
   {
     "name": "booking_settings",
@@ -7748,7 +7748,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000300_create_communication_calendar_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Calendar\\BookingSetting"
+    "model": "Calendar\\Models\\BookingSetting"
   },
   {
     "name": "events",
@@ -7945,7 +7945,7 @@
     "softDeletes": true,
     "source": "2026_01_01_000300_create_communication_calendar_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Calendar\\Event"
+    "model": "Calendar\\Models\\Event"
   },
   {
     "name": "bookings",
@@ -8067,7 +8067,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000300_create_communication_calendar_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Calendar\\Booking"
+    "model": "Calendar\\Models\\Booking"
   },
   {
     "name": "credit_ledger",
@@ -8173,7 +8173,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000300_create_communication_calendar_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Calendar\\CreditLedgerEntry"
+    "model": "Calendar\\Models\\CreditLedgerEntry"
   },
   {
     "name": "saas_plans",
@@ -8296,7 +8296,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "global / system",
-    "model": "Billing\\SaasPlan"
+    "model": "Billing\\Models\\SaasPlan"
   },
   {
     "name": "saas_subscriptions",
@@ -8483,7 +8483,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "tenant column (explicit where)",
-    "model": "Billing\\SaasSubscription"
+    "model": "Billing\\Models\\SaasSubscription"
   },
   {
     "name": "saas_invoices",
@@ -8583,7 +8583,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "tenant column (explicit where)",
-    "model": "Billing\\SaasInvoice"
+    "model": "Billing\\Models\\SaasInvoice"
   },
   {
     "name": "usage_meters",
@@ -8660,7 +8660,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "tenant column (explicit where)",
-    "model": "Billing\\UsageMeter"
+    "model": "Billing\\Models\\UsageMeter"
   },
   {
     "name": "payment_gateways",
@@ -8756,7 +8756,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Payments\\PaymentGateway"
+    "model": "Payments\\Models\\PaymentGateway"
   },
   {
     "name": "products",
@@ -8874,7 +8874,7 @@
     "softDeletes": true,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Payments\\Product"
+    "model": "Payments\\Models\\Product"
   },
   {
     "name": "prices",
@@ -9000,7 +9000,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Payments\\Price"
+    "model": "Payments\\Models\\Price"
   },
   {
     "name": "coupons",
@@ -9135,7 +9135,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Payments\\Coupon"
+    "model": "Payments\\Models\\Coupon"
   },
   {
     "name": "orders",
@@ -9360,7 +9360,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Payments\\Order"
+    "model": "Payments\\Models\\Order"
   },
   {
     "name": "order_items",
@@ -9434,7 +9434,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "via orders",
-    "model": "Payments\\OrderItem"
+    "model": "Payments\\Models\\OrderItem"
   },
   {
     "name": "payments",
@@ -9572,7 +9572,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Payments\\Payment"
+    "model": "Payments\\Models\\Payment"
   },
   {
     "name": "refunds",
@@ -9651,7 +9651,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Payments\\Refund"
+    "model": "Payments\\Models\\Refund"
   },
   {
     "name": "client_subscriptions",
@@ -9907,7 +9907,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Payments\\ClientSubscription"
+    "model": "Payments\\Models\\ClientSubscription"
   },
   {
     "name": "invoices",
@@ -10108,7 +10108,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Payments\\Invoice"
+    "model": "Payments\\Models\\Invoice"
   },
   {
     "name": "invoice_sequences",
@@ -10247,7 +10247,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "tenant column (explicit where)",
-    "model": "Payments\\WebhookEvent"
+    "model": "Payments\\Models\\WebhookEvent"
   },
   {
     "name": "analytics_daily",
@@ -10387,7 +10387,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Payments\\AnalyticsDaily"
+    "model": "Payments\\Models\\AnalyticsDaily"
   },
   {
     "name": "commission_rules",
@@ -10451,7 +10451,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Payments\\CommissionRule"
+    "model": "Payments\\Models\\CommissionRule"
   },
   {
     "name": "lead_stages",
@@ -10514,7 +10514,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Crm\\LeadStage"
+    "model": "Crm\\Models\\LeadStage"
   },
   {
     "name": "leads",
@@ -10661,7 +10661,7 @@
     "softDeletes": true,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Crm\\Lead"
+    "model": "Crm\\Models\\Lead"
   },
   {
     "name": "lead_activities",
@@ -10741,7 +10741,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "via leads",
-    "model": "Crm\\LeadActivity"
+    "model": "Crm\\Models\\LeadActivity"
   },
   {
     "name": "contract_templates",
@@ -10804,7 +10804,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Crm\\ContractTemplate"
+    "model": "Crm\\Models\\ContractTemplate"
   },
   {
     "name": "contracts",
@@ -10942,7 +10942,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Crm\\Contract"
+    "model": "Crm\\Models\\Contract"
   },
   {
     "name": "ai_settings",
@@ -11063,7 +11063,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Ai\\AiSetting"
+    "model": "Ai\\Models\\AiSetting"
   },
   {
     "name": "ai_requests",
@@ -11191,7 +11191,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "tenant column (explicit where)",
-    "model": "Ai\\AiRequest"
+    "model": "Ai\\Models\\AiRequest"
   },
   {
     "name": "ai_outputs",
@@ -11368,7 +11368,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Ai\\AiOutput"
+    "model": "Ai\\Models\\AiOutput"
   },
   {
     "name": "integrations",
@@ -11520,7 +11520,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "tenant column (explicit where)",
-    "model": "Integrations\\Integration"
+    "model": "Integrations\\Models\\Integration"
   },
   {
     "name": "health_samples",
@@ -11643,7 +11643,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "user-owned",
-    "model": "Integrations\\HealthSample"
+    "model": "Integrations\\Models\\HealthSample"
   },
   {
     "name": "health_daily",
@@ -11720,7 +11720,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "user-owned",
-    "model": "Integrations\\HealthDaily"
+    "model": "Integrations\\Models\\HealthDaily"
   },
   {
     "name": "webhook_endpoints",
@@ -11807,7 +11807,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Integrations\\WebhookEndpoint"
+    "model": "Integrations\\Models\\WebhookEndpoint"
   },
   {
     "name": "webhook_deliveries",
@@ -11929,7 +11929,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "via webhook_endpoints",
-    "model": "Integrations\\WebhookDelivery"
+    "model": "Integrations\\Models\\WebhookDelivery"
   },
   {
     "name": "reviews",
@@ -12051,7 +12051,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "tenant (global scope)",
-    "model": "Marketing\\Review"
+    "model": "Marketing\\Models\\Review"
   },
   {
     "name": "blog_posts",
@@ -12180,7 +12180,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "global / system",
-    "model": "Marketing\\BlogPost"
+    "model": "Marketing\\Models\\BlogPost"
   },
   {
     "name": "marketing_leads",
@@ -12250,7 +12250,7 @@
     "softDeletes": false,
     "source": "2026_01_01_000400_create_business_ai_integration_tables.php",
     "scope": "global / system",
-    "model": "Marketing\\MarketingLead"
+    "model": "Marketing\\Models\\MarketingLead"
   },
   {
     "name": "sync_mutations",
@@ -12335,7 +12335,7 @@
     "softDeletes": false,
     "source": "2026_02_01_100000_add_phase2_workout_columns.php",
     "scope": "tenant (global scope)",
-    "model": "Workouts\\SyncMutation"
+    "model": "Workouts\\Models\\SyncMutation"
   },
   {
     "name": "poll_votes",
@@ -12397,7 +12397,7 @@
     "softDeletes": false,
     "source": "2026_02_01_300000_add_phase4_communication_calendar_columns.php",
     "scope": "via posts",
-    "model": "Community\\PollVote"
+    "model": "Community\\Models\\PollVote"
   },
   {
     "name": "review_requests",
@@ -12468,7 +12468,7 @@
     "softDeletes": false,
     "source": "2026_02_01_600000_add_integrations_marketplace_columns.php",
     "scope": "tenant (global scope)",
-    "model": "Marketing\\ReviewRequest"
+    "model": "Marketing\\Models\\ReviewRequest"
   },
   {
     "name": "calendar_event_links",
@@ -12530,6 +12530,6 @@
     "softDeletes": false,
     "source": "2026_02_01_600000_add_integrations_marketplace_columns.php",
     "scope": "via events",
-    "model": "Integrations\\CalendarEventLink"
+    "model": "Integrations\\Models\\CalendarEventLink"
   }
 ]
