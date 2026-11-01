@@ -15,7 +15,7 @@ module.exports = {
       const conversation = data(await z.request({
         method: 'POST',
         url: `${baseUrl(bundle)}/conversations`,
-        body: { type: 'direct', participant_ids: [bundle.inputData.client_id] },
+        body: { type: 'direct', user_id: bundle.inputData.client_id },
       }));
       const response = await z.request({
         method: 'POST',

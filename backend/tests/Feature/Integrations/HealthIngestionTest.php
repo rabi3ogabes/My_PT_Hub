@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Http;
 use App\Domain\Habits\Models\Habit;
 use App\Domain\Habits\Models\HabitAssignment;
 use App\Domain\Habits\Models\HabitLog;
@@ -11,6 +10,7 @@ use App\Domain\Integrations\Models\Integration;
 use App\Domain\Integrations\Services\HealthIngestionService;
 use App\Domain\Integrations\Services\ReadinessService;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Http;
 use Tests\Fixtures\Integrations\Fixture;
 
 beforeEach(function () {

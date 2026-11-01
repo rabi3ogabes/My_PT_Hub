@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Support\Facades\Http;
 use App\Domain\Identity\Models\User;
 use App\Domain\Marketing\Models\Review;
 use App\Domain\Marketing\Models\ReviewRequest;
@@ -8,6 +7,7 @@ use App\Domain\Marketing\Services\ReviewService;
 use App\Domain\Tenancy\Models\CoachProfile;
 use App\Domain\Tenancy\Models\Membership;
 use App\Notifications\Marketplace\ReviewRequestNotification;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\URL;
 

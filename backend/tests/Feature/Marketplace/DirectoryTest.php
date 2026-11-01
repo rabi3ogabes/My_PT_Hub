@@ -1,12 +1,12 @@
 <?php
 
-use Illuminate\Support\Facades\Http;
 use App\Domain\Calendar\Models\AvailabilityRule;
 use App\Domain\Marketing\Models\Review;
 use App\Domain\Payments\Models\Price;
 use App\Domain\Payments\Models\Product;
 use App\Domain\Tenancy\Models\CoachProfile;
 use App\Domain\Tenancy\Models\Tenant;
+use Illuminate\Support\Facades\Http;
 
 beforeEach(function () {
     Http::preventStrayRequests();
