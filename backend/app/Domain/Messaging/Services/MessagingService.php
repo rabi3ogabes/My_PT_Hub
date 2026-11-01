@@ -224,6 +224,7 @@ final class MessagingService
         }
 
         $message->update(['body' => $body, 'edited_at' => now()]);
+        $message->loadMissing('conversation');
         $this->loadForResource($message);
         broadcast(new MessageUpdated($message->conversation_id, MessageResource::forViewer($message, null)))->toOthers();
         $this->broadcastConversation($message->conversation, 'edited', $message);
@@ -241,6 +242,7 @@ final class MessagingService
             return $this->loadForResource($message);
         }
 
+        $message->loadMissing(['conversation', 'attachments']);
         DB::transaction(function () use ($message) {
             foreach ($message->attachments as $attachment) {
                 Storage::disk($attachment->disk)->delete($attachment->path);
