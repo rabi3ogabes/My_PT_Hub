@@ -13,7 +13,7 @@ ARG PHP_VERSION=8.3
 ARG NODE_VERSION=22
 
 # ---------------------------------------------------------------- composer deps
-FROM composer:2.8 AS vendor
+FROM composer:2.10 AS vendor
 WORKDIR /app
 COPY backend/composer.json backend/composer.lock ./
 # Extensions are present in the runtime image; the composer image does not need them.
