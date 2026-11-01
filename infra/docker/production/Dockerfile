@@ -75,7 +75,7 @@ ENTRYPOINT ["tini", "--", "aurum-entrypoint"]
 CMD ["php-fpm", "--nodaemonize"]
 
 # ---------------------------------------------------------------- web (nginx)
-FROM alpine:3.20 AS web
+FROM alpine:3.24 AS web
 RUN apk add --no-cache nginx nginx-mod-http-brotli curl gettext \
     && mkdir -p /run/nginx /var/cache/nginx \
     && ln -sf /dev/stdout /var/log/nginx/access.log \
