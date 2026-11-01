@@ -1,0 +1,20 @@
+.DS_Store
+.idea/
+.vscode/
+*.log
+# Flutter / Dart
+**/.dart_tool/
+**/build/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/ios/Pods/
+**/android/.gradle/
+**/android/local.properties
+**/*.iml
+# Secrets
+**/google-services.json
+**/GoogleService-Info.plist
+**/*.jks
+**/*.keystore
+**/key.properties
+.env
