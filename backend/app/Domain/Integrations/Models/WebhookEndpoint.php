@@ -12,12 +12,15 @@ class WebhookEndpoint extends BaseModel
 
     protected $table = 'webhook_endpoints';
 
+    protected $hidden = ['secret'];
+
     protected function casts(): array
     {
         return [
             'secret' => 'encrypted',
             'events' => 'array',
             'is_active' => 'boolean',
+            'disabled_at' => 'datetime',
         ];
     }
 
@@ -26,5 +29,10 @@ class WebhookEndpoint extends BaseModel
         return $this->hasMany(WebhookDelivery::class);
     }
 
-    protected $hidden = ['secret'];
+    public function subscribesTo(string $event): bool
+    {
+        $events = $this->events ?? [];
+
+        return in_array('*', $events, true) || in_array($event, $events, true);
+    }
 }

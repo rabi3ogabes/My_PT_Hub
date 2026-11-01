@@ -1,0 +1,15 @@
+targets:
+  $default:
+    builders:
+      json_serializable:
+        options:
+          field_rename: snake
+          explicit_to_json: true
+          include_if_null: true
+      freezed:
+        options:
+          format: true
+      drift_dev:
+        options:
+          store_date_time_values_as_text: false
+          named_parameters: true

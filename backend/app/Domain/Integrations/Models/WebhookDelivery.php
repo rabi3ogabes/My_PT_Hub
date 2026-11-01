@@ -14,6 +14,10 @@ class WebhookDelivery extends BaseModel
         return [
             'payload' => 'array',
             'next_retry_at' => 'datetime',
+            'delivered_at' => 'datetime',
+            'attempts' => 'integer',
+            'response_code' => 'integer',
+            'duration_ms' => 'integer',
         ];
     }
 

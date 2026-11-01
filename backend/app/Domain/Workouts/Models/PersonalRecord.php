@@ -18,6 +18,7 @@ class PersonalRecord extends BaseModel
         return [
             'value' => 'float',
             'previous_value' => 'float',
+            'weight_kg' => 'float',
             'achieved_at' => 'datetime',
         ];
     }
@@ -25,6 +26,11 @@ class PersonalRecord extends BaseModel
     public function exercise(): BelongsTo
     {
         return $this->belongsTo(Exercise::class);
+    }
+
+    public function session(): BelongsTo
+    {
+        return $this->belongsTo(WorkoutSession::class, 'workout_session_id');
     }
 
     public function client(): BelongsTo

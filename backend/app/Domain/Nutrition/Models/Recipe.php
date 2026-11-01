@@ -2,6 +2,7 @@
 
 namespace App\Domain\Nutrition\Models;
 
+use App\Domain\Nutrition\Support\SearchText;
 use App\Domain\Shared\Models\BaseModel;
 use App\Domain\Shared\Models\HasTranslations;
 use App\Domain\Shared\Tenancy\SharedWithTenant;
@@ -16,6 +17,13 @@ class Recipe extends BaseModel
 
     /** @var list<string> */
     protected array $translatable = ['name', 'description', 'steps'];
+
+    protected static function booted(): void
+    {
+        static::saving(function (Recipe $recipe): void {
+            $recipe->search_text = SearchText::build($recipe->name ?? [], $recipe->tags ?? [], (string) $recipe->cuisine);
+        });
+    }
 
     protected function casts(): array
     {

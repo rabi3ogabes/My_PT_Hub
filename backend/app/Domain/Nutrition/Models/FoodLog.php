@@ -37,6 +37,11 @@ class FoodLog extends BaseModel
         return $this->belongsTo(Recipe::class);
     }
 
+    public function mealItem(): BelongsTo
+    {
+        return $this->belongsTo(MealItem::class);
+    }
+
     public function client(): BelongsTo
     {
         return $this->belongsTo(User::class, 'client_id');

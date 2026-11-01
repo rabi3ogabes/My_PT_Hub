@@ -7,10 +7,11 @@ use App\Domain\Shared\Models\BaseModel;
 use App\Domain\Shared\Tenancy\BelongsToTenant;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class WorkoutSession extends BaseModel
 {
-    use BelongsToTenant;
+    use BelongsToTenant, SoftDeletes;
 
     protected $table = 'workout_sessions';
 
@@ -20,6 +21,8 @@ class WorkoutSession extends BaseModel
             'started_at' => 'datetime',
             'ended_at' => 'datetime',
             'total_volume_kg' => 'float',
+            'duration_seconds' => 'integer',
+            'perceived_effort' => 'integer',
         ];
     }
 
@@ -35,7 +38,22 @@ class WorkoutSession extends BaseModel
 
     public function sets(): HasMany
     {
-        return $this->hasMany(SessionSet::class)->orderBy('completed_at');
+        return $this->hasMany(SessionSet::class)->orderBy('set_number')->orderBy('completed_at')->orderBy('id');
+    }
+
+    public function personalRecords(): HasMany
+    {
+        return $this->hasMany(PersonalRecord::class);
+    }
+
+    public function programAssignment(): BelongsTo
+    {
+        return $this->belongsTo(ProgramAssignment::class);
+    }
+
+    public function isCompleted(): bool
+    {
+        return $this->status === 'completed';
     }
 
     public function programDay(): BelongsTo

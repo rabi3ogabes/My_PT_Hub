@@ -15,6 +15,14 @@ class Conversation extends BaseModel
 
     protected $table = 'conversations';
 
+    /**
+     * Viewer-specific data computed by MessagingService::present() (unread_count,
+     * is_muted, roles). Not persisted.
+     *
+     * @var array<string, mixed>
+     */
+    public array $presentation = [];
+
     protected function casts(): array
     {
         return [
@@ -39,6 +47,6 @@ class Conversation extends BaseModel
 
     public function latestMessage(): HasOne
     {
-        return $this->hasOne(Message::class)->latestOfMany();
+        return $this->hasOne(Message::class)->latestOfMany('created_at');
     }
 }

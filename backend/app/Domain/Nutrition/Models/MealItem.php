@@ -25,11 +25,12 @@ class MealItem extends BaseModel
 
     public function food(): BelongsTo
     {
-        return $this->belongsTo(Food::class);
+        // Soft-deleted foods stay visible in plans: a planned item must never disappear.
+        return $this->belongsTo(Food::class)->withTrashed();
     }
 
     public function recipe(): BelongsTo
     {
-        return $this->belongsTo(Recipe::class);
+        return $this->belongsTo(Recipe::class)->withTrashed();
     }
 }

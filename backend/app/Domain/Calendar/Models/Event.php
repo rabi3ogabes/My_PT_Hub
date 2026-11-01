@@ -15,12 +15,18 @@ class Event extends BaseModel
 
     protected $table = 'events';
 
+    /** True for an in-memory copy representing one occurrence of a recurring series (never persisted). */
+    public bool $isOccurrence = false;
+
     protected function casts(): array
     {
         return [
             'starts_at' => 'datetime',
             'ends_at' => 'datetime',
             'exdates' => 'array',
+            'recurrence_id' => 'datetime',
+            'capacity' => 'integer',
+            'credits_cost' => 'integer',
         ];
     }
 

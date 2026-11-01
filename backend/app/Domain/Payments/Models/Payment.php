@@ -25,6 +25,16 @@ class Payment extends BaseModel
         return $this->belongsTo(Order::class);
     }
 
+    public function subscription(): BelongsTo
+    {
+        return $this->belongsTo(ClientSubscription::class, 'client_subscription_id');
+    }
+
+    public function refundedMinor(): int
+    {
+        return (int) $this->refunds()->where('status', 'succeeded')->sum('amount_minor');
+    }
+
     public function refunds(): HasMany
     {
         return $this->hasMany(Refund::class);

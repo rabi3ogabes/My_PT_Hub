@@ -30,6 +30,11 @@ class Invoice extends BaseModel
         return $this->belongsTo(Order::class);
     }
 
+    public function creditNoteFor(): BelongsTo
+    {
+        return $this->belongsTo(Invoice::class, 'credit_note_for_id');
+    }
+
     public function client(): BelongsTo
     {
         return $this->belongsTo(User::class, 'client_id');

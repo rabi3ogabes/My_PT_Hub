@@ -21,6 +21,8 @@ class Order extends BaseModel
             'fulfilled_at' => 'datetime',
             'meta' => 'array',
             'tax_rate' => 'float',
+            'access_expires_at' => 'datetime',
+            'revoked_at' => 'datetime',
         ];
     }
 
@@ -47,5 +49,20 @@ class Order extends BaseModel
     public function coupon(): BelongsTo
     {
         return $this->belongsTo(Coupon::class);
+    }
+
+    public function subscription(): BelongsTo
+    {
+        return $this->belongsTo(ClientSubscription::class, 'client_subscription_id');
+    }
+
+    public function invoices(): HasMany
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
+    public function isPaid(): bool
+    {
+        return in_array($this->status, ['paid', 'partially_refunded'], true);
     }
 }

@@ -18,12 +18,18 @@ class ProgramAssignment extends BaseModel
         return [
             'start_date' => 'date',
             'paused_at' => 'date',
+            'shift_days' => 'integer',
         ];
     }
 
     public function program(): BelongsTo
     {
         return $this->belongsTo(Program::class);
+    }
+
+    public function assigner(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_by');
     }
 
     public function client(): BelongsTo

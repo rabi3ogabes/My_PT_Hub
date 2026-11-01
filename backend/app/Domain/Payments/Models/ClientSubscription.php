@@ -22,7 +22,24 @@ class ClientSubscription extends BaseModel
             'cancel_at_period_end' => 'boolean',
             'cancelled_at' => 'datetime',
             'paused_at' => 'datetime',
+            'next_retry_at' => 'datetime',
+            'pause_requested_at' => 'datetime',
+            'ended_at' => 'datetime',
+            'revoked_at' => 'datetime',
+            'gateway_payment_method' => 'encrypted',
         ];
+    }
+
+    protected $hidden = ['gateway_payment_method'];
+
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Order::class);
+    }
+
+    public function gateway(): BelongsTo
+    {
+        return $this->belongsTo(PaymentGateway::class, 'payment_gateway_id');
     }
 
     public function client(): BelongsTo
