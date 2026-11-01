@@ -2,7 +2,7 @@
 # Aurum — nginx with gzip + brotli (Alpine's nginx-mod-http-brotli dynamic module).
 # Dev: serves the bind-mounted backend/public. Production: the `web` target in
 # infra/docker/production/Dockerfile reuses these configs and bakes in /public.
-FROM alpine:3.20
+FROM alpine:3.24
 
 RUN apk add --no-cache nginx nginx-mod-http-brotli curl \
     && mkdir -p /run/nginx /var/cache/nginx \
