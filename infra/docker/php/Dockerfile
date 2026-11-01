@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1.7
 # Aurum — local development PHP-FPM image (used by docker-compose.yml for
 # app, reverb, horizon and scheduler). Production uses infra/docker/production/Dockerfile.
-FROM php:8.3-fpm-bookworm
+FROM php:8.5-fpm-bookworm
 
 ARG UID=1000
 ARG GID=1000
