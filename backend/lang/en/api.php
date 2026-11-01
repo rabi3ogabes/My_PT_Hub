@@ -14,4 +14,5 @@ return [
     'invitation_invalid' => 'This invitation is no longer valid. Ask your coach for a new one.',
     'invitation_email_mismatch' => 'This invitation was sent to a different email address.',
     'last_owner' => 'A workspace must keep at least one owner.',
+    'tenant_suspended' => 'This workspace is temporarily suspended. Please contact support.',
 ];

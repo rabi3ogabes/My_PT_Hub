@@ -73,9 +73,12 @@ final class EventSeriesService
         return $copy;
     }
 
-    public function assertOccurrence(Event $master, CarbonInterface $start): void
+    /**
+     * @param  bool  $includeExcluded  also accept instants removed by EXDATE (e.g. materialized occurrences)
+     */
+    public function assertOccurrence(Event $master, CarbonInterface $start, bool $includeExcluded = false): void
     {
-        if ($master->rrule === null || ! $this->rrule->isOccurrence($master->starts_at, $master->timezone, $master->rrule, $master->exdates, $start)) {
+        if ($master->rrule === null || ! $this->rrule->isOccurrence($master->starts_at, $master->timezone, $master->rrule, $includeExcluded ? null : $master->exdates, $start)) {
             throw ApiException::invalid('not_an_occurrence', __('calendar.errors.not_an_occurrence'), ['starts_at' => [__('calendar.errors.not_an_occurrence')]]);
         }
     }
@@ -170,7 +173,7 @@ final class EventSeriesService
             }
 
             // future: end the current series before the occurrence and start a new series there.
-            $this->assertOccurrence($event, $occurrence);
+            $this->assertOccurrence($event, $occurrence, includeExcluded: true);
             $originalRule = $event->rrule;
             $parsed = $this->rrule->parse($originalRule);
             $newRule = $data['rrule'] ?? $originalRule;
@@ -220,9 +223,15 @@ final class EventSeriesService
                     throw ApiException::invalid('validation_failed', __('calendar.errors.occurrence_required'), ['occurrence_starts_at' => [__('calendar.errors.occurrence_required')]]);
                 }
                 $occurrence = CarbonImmutable::instance($occurrence)->utc();
-                $this->assertOccurrence($event, $occurrence);
+                $this->assertOccurrence($event, $occurrence, includeExcluded: true);
                 if ($scope === 'this') {
-                    $this->addExdate($event, $occurrence);
+                    $child = Event::query()->where('series_id', $event->id)->where('recurrence_id', $occurrence)->first();
+                    if ($child) {
+                        $removed[] = $child;
+                    } else {
+                        $this->assertOccurrence($event, $occurrence);
+                        $this->addExdate($event, $occurrence);
+                    }
                 } else {
                     array_push($removed, ...Event::query()->where('series_id', $event->id)->where('recurrence_id', '>=', $occurrence)->get()->all());
                     if ($this->rrule->countBefore($event->starts_at, $event->timezone, $event->rrule, $occurrence) === 0) {

@@ -1,0 +1,53 @@
+version: 2
+updates:
+  - package-ecosystem: composer
+    directory: /backend
+    schedule: { interval: weekly, day: monday, time: "05:00", timezone: Asia/Qatar }
+    open-pull-requests-limit: 10
+    cooldown: { default-days: 5 }
+    groups:
+      laravel: { patterns: ["laravel/*", "livewire/*", "filament/*"] }
+      spatie: { patterns: ["spatie/*"] }
+      dev-tools: { dependency-type: development }
+    labels: [dependencies, backend]
+
+  - package-ecosystem: npm
+    directory: /backend
+    schedule: { interval: weekly, day: monday, time: "05:00", timezone: Asia/Qatar }
+    cooldown: { default-days: 5 }
+    groups:
+      frontend: { patterns: ["*"] }
+    labels: [dependencies, web]
+
+  - package-ecosystem: pub
+    directories: [/packages/core, /apps/client, /apps/coach]
+    schedule: { interval: weekly, day: monday, time: "05:00", timezone: Asia/Qatar }
+    open-pull-requests-limit: 10
+    cooldown: { default-days: 5 }
+    groups:
+      firebase: { patterns: ["firebase_*"] }
+      riverpod: { patterns: ["*riverpod*"] }
+      codegen: { patterns: ["build_runner", "freezed*", "json_*", "drift*", "retrofit*"] }
+    labels: [dependencies, mobile]
+
+  - package-ecosystem: bundler
+    directory: /infra/fastlane
+    schedule: { interval: monthly }
+    labels: [dependencies, release]
+
+  - package-ecosystem: docker
+    directories: [/infra/docker/php, /infra/docker/nginx, /infra/docker/production]
+    schedule: { interval: weekly }
+    labels: [dependencies, infra]
+
+  - package-ecosystem: docker-compose
+    directory: /
+    schedule: { interval: monthly }
+    labels: [dependencies, infra]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly }
+    groups:
+      actions: { patterns: ["*"] }
+    labels: [dependencies, ci]

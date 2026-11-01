@@ -1,0 +1,6 @@
+Welcome to Aurum 1.0.
+• Log a set in one tap: last session's weights are prefilled.
+• Rest timer on your lock screen while your music keeps playing.
+• Log a full meal from your plan, scan barcodes, or snap a photo.
+• Message your coach and send weekly check-ins with private photos.
+• Works offline and syncs the moment you are back online.

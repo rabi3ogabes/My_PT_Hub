@@ -1,0 +1,63 @@
+<?php
+
+return [
+    'metrics' => [
+        'steps' => 'Pas',
+        'workouts' => 'Séances terminées',
+        'habit_streak' => 'Série d’habitudes (jours)',
+        'volume' => 'Volume d’entraînement (kg)',
+        'custom' => 'Personnalisé',
+    ],
+    'report_reasons' => [
+        'spam' => 'Spam',
+        'harassment' => 'Harcèlement ou intimidation',
+        'hate' => 'Discours haineux',
+        'nudity' => 'Nudité ou contenu sexuel',
+        'violence' => 'Violence',
+        'misinformation' => 'Information de santé trompeuse',
+        'self_harm' => 'Automutilation',
+        'other' => 'Autre chose',
+    ],
+    'badges' => [
+        'awarded' => ['title' => 'Nouveau badge débloqué', 'body' => 'Vous avez obtenu « :badge ». Continuez comme ça !'],
+        'names' => [
+            'first_workout' => 'Première séance',
+            'streak_7' => 'Série de 7 jours',
+            'streak_30' => 'Série de 30 jours',
+            'streak_100' => 'Série de 100 jours',
+            'pr_10' => '10 records personnels',
+            'checkin_streak_4' => 'Quatre bilans d’affilée',
+            'challenge_finisher' => 'Défi relevé',
+        ],
+        'descriptions' => [
+            'first_workout' => 'Vous avez terminé votre première séance.',
+            'streak_7' => 'Entraînement ou habitude validés sept jours d’affilée.',
+            'streak_30' => 'Actif trente jours d’affilée.',
+            'streak_100' => 'Cent jours d’affilée : une régularité d’élite.',
+            'pr_10' => 'Dix records personnels établis.',
+            'checkin_streak_4' => 'Quatre bilans envoyés d’affilée.',
+            'challenge_finisher' => 'Objectif d’un défi atteint.',
+        ],
+    ],
+    'notifications' => [
+        'comment' => ['title' => 'Nouveau commentaire', 'body' => ':name a commenté votre publication.'],
+    ],
+    'errors' => [
+        'space_not_found' => 'Espace communautaire introuvable.',
+        'post_not_found' => 'Publication introuvable.',
+        'announcement_only' => 'Seule l’équipe de coaching peut publier dans cet espace.',
+        'moderators_only' => 'Seuls les modérateurs peuvent effectuer cette action.',
+        'not_owner' => 'Vous ne pouvez supprimer que vos propres publications.',
+        'body_required' => 'Veuillez écrire quelque chose.',
+        'media_required' => 'Veuillez ajouter une photo ou une vidéo.',
+        'workout_not_found' => 'Choisissez l’une de vos séances terminées.',
+        'invalid_option' => 'Cette option de sondage n’existe pas.',
+        'poll_closed' => 'Ce sondage est clôturé.',
+        'group_not_found' => 'Groupe de clients introuvable.',
+        'program_not_found' => 'Programme introuvable.',
+        'invalid_dates' => 'La date de fin doit être identique ou postérieure à la date de début.',
+        'challenge_ended' => 'Ce défi est terminé.',
+        'challenge_not_open' => 'Ce défi ne vous est pas ouvert.',
+        'badges_forbidden' => 'Vous ne pouvez pas consulter ces badges.',
+    ],
+];

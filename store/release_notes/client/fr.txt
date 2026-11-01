@@ -1,0 +1,6 @@
+Bienvenue dans Aurum 1.0.
+• Notez une série d'un geste : vos charges précédentes sont préremplies.
+• Minuteur de repos sur l'écran verrouillé, votre musique continue.
+• Enregistrez un repas de votre plan, scannez un code-barres ou prenez une photo.
+• Écrivez à votre coach et envoyez votre bilan avec photos privées.
+• Fonctionne hors ligne et se synchronise dès le retour du réseau.

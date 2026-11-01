@@ -47,3 +47,9 @@ it('scopes model queries to the active tenant context', function () {
     expect($this->inTenant($tenantA, fn () => ClientProfile::count()))->toBe(1)
         ->and($this->inTenant($tenantB, fn () => ClientProfile::count()))->toBe(1);
 });
+
+it('blocks members of a suspended workspace', function () {
+    [$tenant, $owner] = $this->createCoachTenant();
+    $tenant->update(['settings' => array_merge($tenant->settings ?? [], ['suspended_at' => now()->toIso8601String()])]);
+    expectApiError($this->actingAsIn($owner, $tenant)->getJson('/api/v1/tenant'), 423, 'tenant_suspended');
+});

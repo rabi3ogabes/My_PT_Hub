@@ -48,8 +48,8 @@ class TenantsTable
                 TernaryFilter::make('suspended')
                     ->label(__('Suspended'))
                     ->queries(
-                        true: fn (Builder $q): Builder => $q->whereNotNull('settings->suspended_at'),
-                        false: fn (Builder $q): Builder => $q->whereNull('settings->suspended_at'),
+                        true: fn (Builder $query): Builder => $query->whereNotNull('settings->suspended_at'),
+                        false: fn (Builder $query): Builder => $query->whereNull('settings->suspended_at'),
                     ),
                 TrashedFilter::make(),
             ])

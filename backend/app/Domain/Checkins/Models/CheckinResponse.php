@@ -31,6 +31,16 @@ class CheckinResponse extends BaseModel
         return $this->belongsTo(CheckinForm::class, 'checkin_form_id');
     }
 
+    public function schedule(): BelongsTo
+    {
+        return $this->belongsTo(CheckinSchedule::class, 'checkin_schedule_id');
+    }
+
+    public function reviewer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'reviewed_by');
+    }
+
     public function client(): BelongsTo
     {
         return $this->belongsTo(User::class, 'client_id');

@@ -1,0 +1,64 @@
+# Aurum production stack for ONE colour (blue or green). deploy.sh runs it as
+#   docker compose -p aurum-<colour> -f compose.prod.yml up -d
+# Postgres (managed or dedicated host), Redis and object storage are external;
+# their endpoints come from /opt/aurum/shared/.env (written by provisioning, never in git).
+name: aurum-${COLOUR:?COLOUR is required}
+
+x-app: &app
+  image: ${REGISTRY:?}/aurum-app:${TAG:?}
+  env_file: /opt/aurum/shared/.env
+  environment:
+    APP_RELEASE: ${TAG}
+    DEPLOY_COLOUR: ${COLOUR}
+  volumes:
+    - /opt/aurum/shared/storage/app:/var/www/html/storage/app
+  networks: [internal, edge]
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options: { max-size: "20m", max-file: "5" }
+
+services:
+  app:
+    <<: *app
+    deploy:
+      resources:
+        limits: { memory: 2g }
+
+  web:
+    image: ${REGISTRY:?}/aurum-web:${TAG:?}
+    environment:
+      PHP_UPSTREAM: app:9000
+      REVERB_UPSTREAM: reverb:8080
+      SERVER_NAME: _
+    depends_on: [app]
+    networks:
+      internal: {}
+      edge:
+        aliases: ["web-${COLOUR}"]
+    restart: unless-stopped
+
+  # Workers are started only after traffic has switched (deploy.sh --profile workers)
+  # so that exactly one colour processes queues / schedules at a time.
+  horizon:
+    <<: *app
+    command: ["php", "artisan", "horizon"]
+    stop_signal: SIGTERM
+    stop_grace_period: 90s
+    profiles: [workers]
+
+  scheduler:
+    <<: *app
+    command: ["php", "artisan", "schedule:work"]
+    profiles: [workers]
+
+  reverb:
+    <<: *app
+    command: ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8080"]
+    profiles: [workers]
+
+networks:
+  internal: {}
+  edge:
+    external: true
+    name: aurum-edge

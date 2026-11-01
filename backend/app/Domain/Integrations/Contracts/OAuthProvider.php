@@ -4,6 +4,7 @@ namespace App\Domain\Integrations\Contracts;
 
 use App\Domain\Identity\Models\User;
 use App\Domain\Integrations\Data\TokenSet;
+use App\Domain\Integrations\Exceptions\ProviderAuthException;
 use App\Domain\Integrations\Models\Integration;
 
 /** A provider the user connects through an OAuth authorization-code flow. */
@@ -29,7 +30,7 @@ interface OAuthProvider
      */
     public function connect(string $code, array $context = []): TokenSet;
 
-    /** @throws \App\Domain\Integrations\Exceptions\ProviderAuthException when the grant is no longer valid */
+    /** @throws ProviderAuthException when the grant is no longer valid */
     public function refresh(Integration $integration): TokenSet;
 
     /** Best-effort revocation at the provider (deauthorize / delete subscriptions). */

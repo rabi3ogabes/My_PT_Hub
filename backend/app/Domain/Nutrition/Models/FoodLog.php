@@ -29,12 +29,12 @@ class FoodLog extends BaseModel
 
     public function food(): BelongsTo
     {
-        return $this->belongsTo(Food::class);
+        return $this->belongsTo(Food::class)->withTrashed();
     }
 
     public function recipe(): BelongsTo
     {
-        return $this->belongsTo(Recipe::class);
+        return $this->belongsTo(Recipe::class)->withTrashed();
     }
 
     public function mealItem(): BelongsTo

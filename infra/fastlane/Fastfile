@@ -1,0 +1,382 @@
+# Aurum — fastlane lanes for the client app, the coach app and white-label builds.
+#
+# Run from the infra/ directory:
+#   cd infra && BUNDLE_GEMFILE=fastlane/Gemfile bundle exec fastlane <lane> [options]
+#
+# Lanes
+#   beta              app:client|coach [platform:ios|android|all]   → TestFlight + Play internal
+#   release           app:client|coach [platform:...] [rollout:0.1] → App Store review (phased) + Play production (staged)
+#   rollout           app:client|coach percent:0.5                   → raise the Play staged rollout (crash-gated)
+#   build_whitelabel  tenant:<slug> [platform:...]                   → branded client app → TestFlight + Play internal
+#   metadata          app:client|coach                               → push store/ listings to both stores
+#
+# Required environment (CI secrets): see .github/workflows/mobile-release.yml.
+
+require "base64"
+require "json"
+require "fileutils"
+
+ROOT = File.expand_path("../..", __dir__)
+STORE_DIR = File.join(ROOT, "store")
+LOCALES = {
+  # store/<app>/<locale>  → [App Store Connect locale(s), Google Play locale(s)]
+  "en" => [%w[en-US en-GB], %w[en-US en-GB]],
+  "ar" => [%w[ar-SA], %w[ar]],
+  "fr" => [%w[fr-FR fr-CA], %w[fr-FR fr-CA]],
+  "es" => [%w[es-ES es-MX], %w[es-ES es-419]],
+}.freeze
+
+APPS = {
+  "client" => { dir: "apps/client", ios_id: "coach.aurum.client", android_id: "coach.aurum.client", scheme: "prod" },
+  "coach"  => { dir: "apps/coach",  ios_id: "coach.aurum.coach",  android_id: "coach.aurum.coach",  scheme: "prod" },
+}.freeze
+
+default_platform(:ios)
+
+before_all do
+  ENV["FASTLANE_SKIP_UPDATE_CHECK"] = "1"
+  ENV["FASTLANE_HIDE_CHANGELOG"] = "1"
+  setup_ci if ENV["CI"] == "true"
+end
+
+# ------------------------------------------------------------------ helpers
+def app_config(options)
+  key = (options[:app] || ENV["AURUM_APP"] || "client").to_s
+  ENV["AURUM_APP"] = key
+  APPS.fetch(key) { UI.user_error!("Unknown app '#{key}'. Use app:client or app:coach") }.merge(key: key)
+end
+
+def platforms(options)
+  value = (options[:platform] || "all").to_s
+  value == "all" ? %w[ios android] : [value]
+end
+
+def build_number
+  # Monotonic across both platforms: GitHub run number offset keeps it above historic builds.
+  (ENV["BUILD_NUMBER"] || ENV["GITHUB_RUN_NUMBER"] || Time.now.strftime("%y%m%d%H%M")).to_i + ENV.fetch("BUILD_NUMBER_OFFSET", "1000").to_i
+end
+
+def version_name(app_dir)
+  pubspec = File.read(File.join(ROOT, app_dir, "pubspec.yaml"))
+  pubspec[/^version:\s*([0-9]+\.[0-9]+\.[0-9]+)/, 1] || UI.user_error!("No semantic version in #{app_dir}/pubspec.yaml")
+end
+
+def dart_defines_file(app_dir, flavor)
+  file = File.join(ROOT, app_dir, "config", "flavors", "#{flavor}.json")
+  File.exist?(file) ? "--dart-define-from-file=#{file}" : ""
+end
+
+def write_secret_file(env_key, path)
+  value = ENV[env_key]
+  return false if value.nil? || value.empty?
+  FileUtils.mkdir_p(File.dirname(path))
+  File.binwrite(path, Base64.decode64(value))
+  true
+end
+
+def changelog_for(locale, app = ENV.fetch("AURUM_APP", "client"))
+  file = File.join(ROOT, "store", "release_notes", app, "#{locale}.txt")
+  File.exist?(file) ? File.read(file).strip[0, 4000] : nil
+end
+
+def flutter_build(app_dir, args)
+  Dir.chdir(File.join(ROOT, app_dir)) do
+    sh("flutter", "pub", "get")
+    sh("bash", "-c", "grep -q build_runner pubspec.yaml && dart run build_runner build --delete-conflicting-outputs || true")
+    sh("flutter build #{args}")
+  end
+end
+
+def ios_build(app:, bundle_id:, flavor:)
+  app_dir = app[:dir]
+  match(type: "appstore", app_identifier: [bundle_id], readonly: ENV["CI"] == "true")
+  update_code_signing_settings(
+    use_automatic_signing: false,
+    path: File.join(ROOT, app_dir, "ios", "Runner.xcodeproj"),
+    team_id: ENV["APPLE_TEAM_ID"],
+    bundle_identifier: bundle_id,
+    profile_name: "match AppStore #{bundle_id}",
+    code_sign_identity: "Apple Distribution",
+    build_configurations: ["Release-#{flavor}", "Release"],
+  )
+  flutter_build(app_dir, [
+    "ipa --release",
+    "--flavor #{flavor}",
+    dart_defines_file(app_dir, flavor),
+    "--build-number=#{build_number}",
+    "--build-name=#{version_name(app_dir)}",
+    "--obfuscate --split-debug-info=build/symbols/ios",
+    "--export-options-plist=#{File.join(ROOT, 'infra/fastlane/ExportOptions.plist')}",
+  ].reject(&:empty?).join(" "))
+  Dir[File.join(ROOT, app_dir, "build/ios/ipa/*.ipa")].max_by { |f| File.mtime(f) }
+end
+
+def android_build(app:, flavor:)
+  app_dir = app[:dir]
+  keystore = File.join(ROOT, app_dir, "android", "upload-keystore.jks")
+  if write_secret_file("ANDROID_KEYSTORE_B64", keystore)
+    File.write(File.join(ROOT, app_dir, "android", "key.properties"), <<~PROPS)
+      storePassword=#{ENV.fetch('ANDROID_KEYSTORE_PASSWORD')}
+      keyPassword=#{ENV.fetch('ANDROID_KEY_PASSWORD')}
+      keyAlias=#{ENV.fetch('ANDROID_KEY_ALIAS', 'upload')}
+      storeFile=#{keystore}
+    PROPS
+  end
+  flutter_build(app_dir, [
+    "appbundle --release",
+    "--flavor #{flavor}",
+    dart_defines_file(app_dir, flavor),
+    "--build-number=#{build_number}",
+    "--build-name=#{version_name(app_dir)}",
+    "--obfuscate --split-debug-info=build/symbols/android",
+  ].reject(&:empty?).join(" "))
+  Dir[File.join(ROOT, app_dir, "build/app/outputs/bundle/#{flavor}Release/*.aab")].first ||
+    UI.user_error!("No .aab produced for flavor #{flavor}")
+end
+
+def app_store_api_key
+  return nil unless ENV["ASC_KEY_ID"]
+  app_store_connect_api_key(
+    key_id: ENV.fetch("ASC_KEY_ID"),
+    issuer_id: ENV.fetch("ASC_ISSUER_ID"),
+    key_content: ENV.fetch("ASC_KEY_P8_B64"),
+    is_key_content_base64: true,
+    in_house: false,
+  )
+end
+
+def play_key_path
+  path = File.join(ROOT, "infra/fastlane/play-service-account.json")
+  write_secret_file("PLAY_SERVICE_ACCOUNT_JSON_B64", path)
+  path
+end
+
+# Builds fastlane deliver/supply metadata folders from store/<app>/<locale>/*.txt.
+def prepare_metadata(source_dir, target_root)
+  ios_dir = File.join(target_root, "ios")
+  android_dir = File.join(target_root, "android")
+  FileUtils.rm_rf(target_root)
+  LOCALES.each do |locale, (ios_locales, play_locales)|
+    src = File.join(source_dir, locale)
+    next unless Dir.exist?(src)
+    read = ->(name) { File.exist?(File.join(src, name)) ? File.read(File.join(src, name)).strip : nil }
+    ios_locales.each do |l|
+      dir = File.join(ios_dir, l)
+      FileUtils.mkdir_p(dir)
+      { "name.txt" => read.("title.txt"), "subtitle.txt" => read.("subtitle.txt"), "keywords.txt" => read.("keywords.txt"),
+        "description.txt" => read.("full_description.txt"), "promotional_text.txt" => read.("short_description.txt"),
+        "release_notes.txt" => changelog_for(locale), "privacy_url.txt" => "https://aurum.coach/#{locale}/legal/privacy",
+        "support_url.txt" => "https://aurum.coach/#{locale}/help", "marketing_url.txt" => "https://aurum.coach/#{locale}" }.each do |file, value|
+        File.write(File.join(dir, file), value) if value
+      end
+    end
+    play_locales.each do |l|
+      dir = File.join(android_dir, l)
+      FileUtils.mkdir_p(File.join(dir, "changelogs"))
+      { "title.txt" => read.("title.txt"), "short_description.txt" => read.("short_description.txt"),
+        "full_description.txt" => read.("full_description.txt") }.each do |file, value|
+        File.write(File.join(dir, file), value) if value
+      end
+      notes = changelog_for(locale)
+      File.write(File.join(dir, "changelogs", "default.txt"), notes[0, 500]) if notes
+    end
+  end
+  { ios: ios_dir, android: android_dir }
+end
+
+def upload_ios_beta(ipa, bundle_id)
+  upload_to_testflight(
+    api_key: app_store_api_key,
+    ipa: ipa,
+    app_identifier: bundle_id,
+    skip_waiting_for_build_processing: true,
+    distribute_external: false,
+    changelog: changelog_for("en"),
+  )
+end
+
+def upload_android(aab, package, track:, rollout: nil, metadata_path: nil)
+  upload_to_play_store(
+    json_key: play_key_path,
+    package_name: package,
+    aab: aab,
+    track: track,
+    rollout: rollout&.to_s,
+    release_status: rollout ? "inProgress" : "completed",
+    metadata_path: metadata_path,
+    skip_upload_metadata: metadata_path.nil?,
+    skip_upload_images: true,
+    skip_upload_screenshots: true,
+  )
+end
+
+# ------------------------------------------------------------------ lanes
+desc "Build and ship to TestFlight + Play internal track (app:client|coach, platform:ios|android|all)"
+lane :beta do |options|
+  app = app_config(options)
+  flavor = options[:flavor] || app[:scheme]
+  platforms(options).each do |platform|
+    if platform == "ios"
+      ipa = ios_build(app: app, bundle_id: app[:ios_id], flavor: flavor)
+      upload_ios_beta(ipa, app[:ios_id])
+    else
+      aab = android_build(app: app, flavor: flavor)
+      upload_android(aab, app[:android_id], track: "internal")
+    end
+  end
+end
+
+desc "Production release: App Store (phased release) + Play production staged rollout (default 10 %)"
+lane :release do |options|
+  app = app_config(options)
+  flavor = options[:flavor] || app[:scheme]
+  rollout = (options[:rollout] || 0.1).to_f
+  metadata = prepare_metadata(File.join(STORE_DIR, app[:key]), File.join(ROOT, "build", "fastlane-metadata", app[:key]))
+  platforms(options).each do |platform|
+    if platform == "ios"
+      ipa = ios_build(app: app, bundle_id: app[:ios_id], flavor: flavor)
+      upload_to_app_store(
+        api_key: app_store_api_key,
+        ipa: ipa,
+        app_identifier: app[:ios_id],
+        metadata_path: metadata[:ios],
+        skip_screenshots: true,
+        submit_for_review: true,
+        automatic_release: false,
+        phased_release: true,
+        force: true,
+        precheck_include_in_app_purchases: false,
+        submission_information: {
+          add_id_info_uses_idfa: false,
+          export_compliance_uses_encryption: true,
+          export_compliance_encryption_updated: false,
+          export_compliance_is_exempt: true,
+          content_rights_contains_third_party_content: false,
+        },
+      )
+    else
+      aab = android_build(app: app, flavor: flavor)
+      upload_android(aab, app[:android_id], track: "production", rollout: rollout, metadata_path: metadata[:android])
+    end
+  end
+end
+
+desc "Raise Play staged rollout (percent:0.5 or 1.0). CI runs scripts/crash_gate.sh first."
+lane :rollout do |options|
+  app = app_config(options)
+  percent = options.fetch(:percent).to_f
+  UI.user_error!("percent must be in (0, 1]") unless percent > 0 && percent <= 1
+  upload_to_play_store(
+    json_key: play_key_path,
+    package_name: app[:android_id],
+    track: "production",
+    rollout: percent >= 1.0 ? nil : percent.to_s,
+    release_status: percent >= 1.0 ? "completed" : "inProgress",
+    skip_upload_aab: true, skip_upload_apk: true, skip_upload_metadata: true,
+    skip_upload_changelogs: true, skip_upload_images: true, skip_upload_screenshots: true,
+  )
+end
+
+desc "Push localized listings from store/<app> to App Store Connect and Google Play"
+lane :metadata do |options|
+  app = app_config(options)
+  metadata = prepare_metadata(File.join(STORE_DIR, app[:key]), File.join(ROOT, "build", "fastlane-metadata", app[:key]))
+  deliver(api_key: app_store_api_key, app_identifier: app[:ios_id], metadata_path: metadata[:ios],
+          skip_binary_upload: true, skip_screenshots: true, force: true, run_precheck_before_submit: true)
+  upload_to_play_store(json_key: play_key_path, package_name: app[:android_id], metadata_path: metadata[:android],
+                       skip_upload_aab: true, skip_upload_apk: true, skip_upload_images: true, skip_upload_screenshots: true)
+end
+
+desc "Branded client app for a Studio tenant: build_whitelabel tenant:<slug> [platform:ios|android|all]"
+lane :build_whitelabel do |options|
+  slug = options[:tenant].to_s
+  UI.user_error!("Pass tenant:<slug>") if slug.empty?
+  config_file = File.join(ROOT, "infra/whitelabel/tenants/#{slug}.json")
+  UI.user_error!("Missing #{config_file}") unless File.exist?(config_file)
+  tenant = JSON.parse(File.read(config_file))
+  flavor = tenant.fetch("flavor")
+
+  # 1. Generate flavor config, icons/splash configs and store metadata skeleton.
+  Dir.chdir(ROOT) { sh("dart", "run", "infra/whitelabel/generate.dart", slug) }
+
+  app = APPS.fetch("client")
+  Dir.chdir(File.join(ROOT, app[:dir])) do
+    sh("flutter", "pub", "get")
+    # Without -f the plugin discovers every flutter_launcher_icons-<flavor>.yaml and writes per-flavor icon sets.
+    sh("dart", "run", "flutter_launcher_icons")
+    sh("dart", "run", "flutter_native_splash:create", "--path=flutter_native_splash-#{flavor}.yaml", "--flavor=#{flavor}")
+  end
+
+  # 2. Per-app Firebase configuration from the WL_FIREBASE_CONFIGS_JSON secret:
+  #    {"<slug>": {"google_services_json_b64": "...", "google_service_info_plist_b64": "..."}}
+  firebase = JSON.parse(ENV.fetch("WL_FIREBASE_CONFIGS_JSON", "{}")).fetch(slug, {})
+  {
+    "google_services_json_b64" => File.join(ROOT, app[:dir], "android/app/src/#{flavor}/google-services.json"),
+    "google_service_info_plist_b64" => File.join(ROOT, app[:dir], "ios/config/#{flavor}/GoogleService-Info.plist"),
+  }.each do |key, path|
+    next if firebase[key].to_s.empty?
+    FileUtils.mkdir_p(File.dirname(path))
+    File.binwrite(path, Base64.decode64(firebase[key]))
+  end
+
+  ios_id = tenant.dig("ios", "bundle_id")
+  android_id = tenant.dig("android", "package")
+  ENV["MATCH_GIT_BRANCH"] = tenant.dig("publishing", "mode") == "own_account" ? slug : ENV.fetch("MATCH_GIT_BRANCH", "main")
+
+  platforms(options).each do |platform|
+    if platform == "ios"
+      ensure_ios_flavor(File.join(ROOT, app[:dir], "ios/Runner.xcodeproj"), flavor)
+      ipa = ios_build(app: app, bundle_id: ios_id, flavor: flavor)
+      upload_ios_beta(ipa, ios_id)
+    else
+      aab = android_build(app: app, flavor: flavor)
+      upload_android(aab, android_id, track: "internal")
+    end
+  end
+
+  UI.success("#{tenant['app_name']} (#{slug}) shipped to internal testing")
+end
+
+# Creates Debug-/Release-<flavor> build configurations based on the generated
+# ios/Flutter/<flavor>-Debug.xcconfig / <flavor>-Release.xcconfig and a shared scheme named <flavor>. Idempotent.
+def ensure_ios_flavor(project_path, flavor)
+  require "xcodeproj"
+  project = Xcodeproj::Project.open(project_path)
+  runner = project.targets.find { |t| t.name == "Runner" } || UI.user_error!("Runner target not found")
+  flutter_group = project.main_group.find_subpath("Flutter", true)
+  xcconfig_for = lambda do |kind|
+    name = "#{flavor}-#{kind}.xcconfig"
+    project.files.find { |f| f.path&.end_with?(name) } || flutter_group.new_reference(name)
+  end
+  { "Debug" => "Debug", "Release" => "Release", "Profile" => "Release" }.each do |base, kind|
+    name = "#{base}-#{flavor}"
+    next if project.build_configurations.any? { |c| c.name == name }
+    type = base == "Debug" ? :debug : :release
+    source = project.build_configurations.find { |c| c.name == base }
+    project_config = project.add_build_configuration(name, type)
+    project_config.build_settings.update(source.build_settings)
+    target_source = runner.build_configurations.find { |c| c.name == base }
+    target_config = runner.add_build_configuration(name, type)
+    target_config.build_settings.update(target_source.build_settings)
+    target_config.base_configuration_reference = xcconfig_for.call(kind)
+  end
+  project.save
+
+  scheme_path = File.join(project_path, "xcshareddata", "xcschemes", "#{flavor}.xcscheme")
+  unless File.exist?(scheme_path)
+    scheme = Xcodeproj::XCScheme.new
+    scheme.add_build_target(runner)
+    scheme.set_launch_target(runner)
+    scheme.launch_action.build_configuration = "Debug-#{flavor}"
+    scheme.profile_action.build_configuration = "Profile-#{flavor}"
+    scheme.analyze_action.build_configuration = "Debug-#{flavor}"
+    scheme.archive_action.build_configuration = "Release-#{flavor}"
+    scheme.save_as(project_path, flavor, true)
+  end
+end
+
+error do |lane, exception|
+  if ENV["SLACK_WEBHOOK_URL"]
+    slack(message: "fastlane #{lane} failed: #{exception.message}", success: false, slack_url: ENV["SLACK_WEBHOOK_URL"])
+  end
+end

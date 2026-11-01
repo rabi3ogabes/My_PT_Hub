@@ -1,0 +1,20 @@
+# Code signing via fastlane match (certificates + provisioning profiles stored
+# encrypted in a private git repository; MATCH_PASSWORD decrypts them).
+#
+# One distribution certificate signs the Aurum apps and every white-label app
+# published under Aurum's account (mode 1). Tenants publishing under their own
+# Apple account (mode 2) use their own team + match repo branch: MATCH_GIT_BRANCH=<slug>.
+
+git_url(ENV.fetch("MATCH_GIT_URL"))
+git_branch(ENV.fetch("MATCH_GIT_BRANCH", "main"))
+storage_mode("git")
+type("appstore")
+
+app_identifier([
+  "coach.aurum.client",
+  "coach.aurum.coach",
+  *ENV.fetch("MATCH_EXTRA_APP_IDENTIFIERS", "").split(",").map(&:strip).reject(&:empty?),
+])
+
+team_id(ENV["APPLE_TEAM_ID"]) if ENV["APPLE_TEAM_ID"]
+readonly(ENV["CI"] == "true")

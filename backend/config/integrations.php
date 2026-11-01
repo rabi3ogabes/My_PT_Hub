@@ -1,5 +1,16 @@
 <?php
 
+use App\Domain\Integrations\Providers\Calendar\GoogleCalendarProvider;
+use App\Domain\Integrations\Providers\Calendar\MicrosoftCalendarProvider;
+use App\Domain\Integrations\Providers\Health\FitbitProvider;
+use App\Domain\Integrations\Providers\Health\GarminProvider;
+use App\Domain\Integrations\Providers\Health\OuraProvider;
+use App\Domain\Integrations\Providers\Health\PolarProvider;
+use App\Domain\Integrations\Providers\Health\StravaProvider;
+use App\Domain\Integrations\Providers\Health\WhoopProvider;
+use App\Domain\Integrations\Providers\Health\WithingsProvider;
+use App\Domain\Integrations\Providers\Video\ZoomProvider;
+
 /*
 |--------------------------------------------------------------------------
 | Integrations & marketplace configuration (Phase 7 / Phase 8 §4)
@@ -27,16 +38,16 @@ return [
     'providers' => [
         'apple_health' => ['category' => 'health', 'method' => 'device', 'audience' => ['client']],
         'health_connect' => ['category' => 'health', 'method' => 'device', 'audience' => ['client']],
-        'garmin' => ['category' => 'health', 'method' => 'oauth', 'audience' => ['client'], 'driver' => App\Domain\Integrations\Providers\Health\GarminProvider::class, 'webhook_token' => env('GARMIN_WEBHOOK_TOKEN')],
-        'fitbit' => ['category' => 'health', 'method' => 'oauth', 'audience' => ['client'], 'driver' => App\Domain\Integrations\Providers\Health\FitbitProvider::class, 'subscriber_id' => env('FITBIT_SUBSCRIBER_ID', '1')],
-        'strava' => ['category' => 'health', 'method' => 'oauth', 'audience' => ['client'], 'driver' => App\Domain\Integrations\Providers\Health\StravaProvider::class, 'subscription_id' => env('STRAVA_SUBSCRIPTION_ID')],
-        'oura' => ['category' => 'health', 'method' => 'oauth', 'audience' => ['client'], 'driver' => App\Domain\Integrations\Providers\Health\OuraProvider::class, 'verification_token' => env('OURA_VERIFICATION_TOKEN')],
-        'whoop' => ['category' => 'health', 'method' => 'oauth', 'audience' => ['client'], 'driver' => App\Domain\Integrations\Providers\Health\WhoopProvider::class],
-        'withings' => ['category' => 'health', 'method' => 'oauth', 'audience' => ['client'], 'driver' => App\Domain\Integrations\Providers\Health\WithingsProvider::class, 'webhook_token' => env('WITHINGS_WEBHOOK_TOKEN')],
-        'polar' => ['category' => 'health', 'method' => 'oauth', 'audience' => ['client'], 'driver' => App\Domain\Integrations\Providers\Health\PolarProvider::class, 'webhook_secret' => env('POLAR_WEBHOOK_SECRET')],
-        'google_calendar' => ['category' => 'calendar', 'method' => 'oauth', 'audience' => ['staff'], 'driver' => App\Domain\Integrations\Providers\Calendar\GoogleCalendarProvider::class],
-        'outlook' => ['category' => 'calendar', 'method' => 'oauth', 'audience' => ['staff'], 'driver' => App\Domain\Integrations\Providers\Calendar\MicrosoftCalendarProvider::class],
-        'zoom' => ['category' => 'video', 'method' => 'oauth', 'audience' => ['staff'], 'driver' => App\Domain\Integrations\Providers\Video\ZoomProvider::class],
+        'garmin' => ['category' => 'health', 'method' => 'oauth', 'audience' => ['client'], 'driver' => GarminProvider::class, 'webhook_token' => env('GARMIN_WEBHOOK_TOKEN')],
+        'fitbit' => ['category' => 'health', 'method' => 'oauth', 'audience' => ['client'], 'driver' => FitbitProvider::class, 'subscriber_id' => env('FITBIT_SUBSCRIBER_ID', '1')],
+        'strava' => ['category' => 'health', 'method' => 'oauth', 'audience' => ['client'], 'driver' => StravaProvider::class, 'subscription_id' => env('STRAVA_SUBSCRIPTION_ID')],
+        'oura' => ['category' => 'health', 'method' => 'oauth', 'audience' => ['client'], 'driver' => OuraProvider::class, 'verification_token' => env('OURA_VERIFICATION_TOKEN')],
+        'whoop' => ['category' => 'health', 'method' => 'oauth', 'audience' => ['client'], 'driver' => WhoopProvider::class],
+        'withings' => ['category' => 'health', 'method' => 'oauth', 'audience' => ['client'], 'driver' => WithingsProvider::class, 'webhook_token' => env('WITHINGS_WEBHOOK_TOKEN')],
+        'polar' => ['category' => 'health', 'method' => 'oauth', 'audience' => ['client'], 'driver' => PolarProvider::class, 'webhook_secret' => env('POLAR_WEBHOOK_SECRET')],
+        'google_calendar' => ['category' => 'calendar', 'method' => 'oauth', 'audience' => ['staff'], 'driver' => GoogleCalendarProvider::class],
+        'outlook' => ['category' => 'calendar', 'method' => 'oauth', 'audience' => ['staff'], 'driver' => MicrosoftCalendarProvider::class],
+        'zoom' => ['category' => 'video', 'method' => 'oauth', 'audience' => ['staff'], 'driver' => ZoomProvider::class],
         'whatsapp' => ['category' => 'messaging', 'method' => 'optin', 'audience' => ['client', 'staff']],
     ],
 

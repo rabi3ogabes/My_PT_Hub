@@ -15,6 +15,13 @@ class Post extends BaseModel
 
     protected $table = 'posts';
 
+    /**
+     * Viewer-specific data computed by CommunityService::present(). Not persisted.
+     *
+     * @var array<string, mixed>
+     */
+    public array $presentation = [];
+
     protected function casts(): array
     {
         return [

@@ -1,0 +1,5 @@
+{{version}} : {{un bénéfice en titre, 60 caractères max}}
+• {{Nouveau : ce que vous pouvez faire maintenant}}
+• {{Plus rapide, chiffré : « La liste clients s'ouvre 40 % plus vite »}}
+• {{Correctif formulé en résultat : « Le minuteur reste sur l'écran verrouillé »}}
+Jamais « corrections de bugs ». Aurum vous plaît ? Une note aide d'autres coachs.

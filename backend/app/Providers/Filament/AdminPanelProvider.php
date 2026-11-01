@@ -2,6 +2,8 @@
 
 namespace App\Providers\Filament;
 
+use App\Domain\Billing\Models\SaasPlan;
+use App\Domain\Tenancy\Models\FeatureFlag;
 use Filament\Enums\ThemeMode;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -16,6 +18,7 @@ use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 /**
@@ -25,6 +28,30 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
  */
 class AdminPanelProvider extends PanelProvider
 {
+    public function boot(): void
+    {
+        // PlanGate caches flags (60 s) and plans (300 s); admin edits must apply immediately.
+        $forgetFlag = function (FeatureFlag $flag): void {
+            Cache::forget('flag:'.$flag->getAttribute('key'));
+            if ($flag->getOriginal('key')) {
+                Cache::forget('flag:'.$flag->getOriginal('key'));
+            }
+        };
+        FeatureFlag::saved($forgetFlag);
+        FeatureFlag::deleted($forgetFlag);
+
+        $forgetPlan = function (SaasPlan $plan): void {
+            Cache::forget('plan:'.$plan->getAttribute('code'));
+            $original = $plan->getOriginal('features');
+            $original = is_array($original) ? $original : (json_decode((string) $original, true) ?: []);
+            foreach (array_unique(array_merge($plan->features ?? [], $original)) as $feature) {
+                Cache::forget('plan-feature:'.$feature);
+            }
+        };
+        SaasPlan::saved($forgetPlan);
+        SaasPlan::deleted($forgetPlan);
+    }
+
     public function panel(Panel $panel): Panel
     {
         return $panel
@@ -42,6 +69,7 @@ class AdminPanelProvider extends PanelProvider
                 'info' => Color::hex('#5B8DEF'),
             ])
             ->font('Manrope')
+            ->monoFont('JetBrains Mono')
             ->darkMode()
             ->defaultThemeMode(ThemeMode::Dark)
             ->spa()

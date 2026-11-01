@@ -1,0 +1,24 @@
+# BuildKit uses this file for infra/docker/production/Dockerfile (context = repo root).
+**/.git
+**/.github
+**/node_modules
+**/.DS_Store
+apps/
+packages/core/
+docs/
+store/
+backend/vendor
+backend/.env
+backend/.env.*
+!backend/.env.example
+backend/storage/logs/*
+backend/storage/framework/cache/*
+backend/storage/framework/sessions/*
+backend/storage/framework/views/*
+backend/storage/app/*
+backend/bootstrap/cache/*.php
+backend/public/build
+backend/public/hot
+backend/database/*.sqlite
+backend/tests
+backend/.phpunit.cache

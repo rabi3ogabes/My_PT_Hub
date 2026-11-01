@@ -1,0 +1,177 @@
+# Aurum — local development stack.
+#
+#   cp backend/.env.docker.example backend/.env && make up && make install && make fresh
+#
+# Web + API      http://localhost:8000        (nginx → php-fpm)
+# Reverb (WS)    ws://localhost:8080          (also proxied at http://localhost:8000/app)
+# Mailpit        http://localhost:8025
+# MinIO console  http://localhost:9001        (aurum / aurum-secret)
+# Meilisearch    http://localhost:7700
+# Horizon        http://localhost:8000/horizon
+name: aurum
+
+x-app: &app
+  build:
+    context: ./infra/docker
+    dockerfile: php/Dockerfile
+    args:
+      UID: ${UID:-1000}
+      GID: ${GID:-1000}
+  image: aurum/php-dev:8.3
+  working_dir: /var/www/html
+  volumes:
+    - ./backend:/var/www/html
+    - ./packages:/var/www/packages:ro
+  env_file:
+    - path: ./backend/.env
+      required: false
+  environment:
+    DB_HOST: postgres
+    REDIS_HOST: redis
+    MAIL_HOST: mailpit
+  depends_on:
+    postgres:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+  restart: unless-stopped
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+
+services:
+  app:
+    <<: *app
+    healthcheck:
+      test: ["CMD-SHELL", "php-fpm -t >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  web:
+    build:
+      context: ./infra/docker/nginx
+    image: aurum/nginx-dev:1
+    ports:
+      - "${APP_PORT:-8000}:80"
+    volumes:
+      - ./backend/public:/var/www/html/public:ro
+      - ./backend/storage/app/public:/var/www/html/storage/app/public:ro
+    depends_on:
+      app:
+        condition: service_started
+    restart: unless-stopped
+
+  reverb:
+    <<: *app
+    command: ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8080", "--debug"]
+    ports:
+      - "${REVERB_PORT_PUBLIC:-8080}:8080"
+
+  horizon:
+    <<: *app
+    command: ["php", "artisan", "horizon"]
+    stop_signal: SIGTERM
+    stop_grace_period: 60s
+
+  scheduler:
+    <<: *app
+    command: ["php", "artisan", "schedule:work"]
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: aurum
+      POSTGRES_USER: aurum
+      POSTGRES_PASSWORD: aurum
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C.UTF-8"
+    command: ["postgres", "-c", "shared_preload_libraries=pg_stat_statements", "-c", "pg_stat_statements.track=all", "-c", "log_min_duration_statement=250"]
+    ports:
+      - "${FORWARD_DB_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./infra/docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aurum -d aurum"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    ports:
+      - "${FORWARD_REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.11
+    environment:
+      MEILI_MASTER_KEY: ${MEILISEARCH_KEY:-aurum-meili-master-key-local}
+      MEILI_ENV: development
+      MEILI_NO_ANALYTICS: "true"
+    ports:
+      - "${FORWARD_MEILISEARCH_PORT:-7700}:7700"
+    volumes:
+      - meili-data:/meili_data
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--spider", "http://127.0.0.1:7700/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  mailpit:
+    image: axllent/mailpit:v1.21
+    ports:
+      - "${FORWARD_MAILPIT_PORT:-1025}:1025"
+      - "${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025"
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: "1"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "1"
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:RELEASE.2024-12-18T13-15-44Z
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-aurum}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-aurum-secret}
+    ports:
+      - "${FORWARD_MINIO_PORT:-9000}:9000"
+      - "${FORWARD_MINIO_CONSOLE_PORT:-9001}:9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  # One-shot: creates the media buckets with the right policies, then exits.
+  minio-bootstrap:
+    image: minio/mc:RELEASE.2024-11-21T17-21-54Z
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-aurum}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-aurum-secret}
+    entrypoint: ["/bin/sh", "/bootstrap.sh"]
+    volumes:
+      - ./infra/docker/minio/bootstrap.sh:/bootstrap.sh:ro
+    restart: "no"
+
+volumes:
+  postgres-data:
+  redis-data:
+  meili-data:
+  minio-data:

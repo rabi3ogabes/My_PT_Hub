@@ -340,13 +340,18 @@ class WorkoutBuilder
                 $e->save();
 
                 foreach (array_values($ex['sets'] ?? []) as $si => $set) {
+                    $min = $set['reps_min'] ?? null;
+                    $max = $set['reps_max'] ?? $min;
+                    if ($min !== null && $max !== null && $max < $min) {
+                        [$min, $max] = [$max, $min];
+                    }
                     $setRows[] = [
                         'id' => $reuse('sets', $set['id'] ?? null),
                         'workout_exercise_id' => $e->id,
                         'position' => $si + 1,
                         'set_type' => $set['set_type'] ?? 'working',
-                        'reps_min' => $set['reps_min'] ?? null,
-                        'reps_max' => $set['reps_max'] ?? ($set['reps_min'] ?? null),
+                        'reps_min' => $min,
+                        'reps_max' => $max,
                         'weight_kg' => $set['weight_kg'] ?? null,
                         'percent_1rm' => $set['percent_1rm'] ?? null,
                         'rpe' => $set['rpe'] ?? null,

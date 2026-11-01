@@ -4,6 +4,7 @@ namespace App\Domain\Integrations\Contracts;
 
 use App\Domain\Calendar\Models\Event;
 use App\Domain\Integrations\Data\BusyBlock;
+use App\Domain\Integrations\Exceptions\InvalidWebhookSignature;
 use App\Domain\Integrations\Models\Integration;
 use Carbon\CarbonInterface;
 use Illuminate\Http\Request;
@@ -37,7 +38,7 @@ interface CalendarProvider extends OAuthProvider
      *
      * @return list<string>
      *
-     * @throws \App\Domain\Integrations\Exceptions\InvalidWebhookSignature
+     * @throws InvalidWebhookSignature
      */
     public function handleWebhook(Request $request): array;
 }

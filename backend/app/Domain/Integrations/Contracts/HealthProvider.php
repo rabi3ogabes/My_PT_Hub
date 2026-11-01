@@ -4,6 +4,7 @@ namespace App\Domain\Integrations\Contracts;
 
 use App\Domain\Integrations\Data\SampleData;
 use App\Domain\Integrations\Data\WebhookNotification;
+use App\Domain\Integrations\Exceptions\InvalidWebhookSignature;
 use App\Domain\Integrations\Models\Integration;
 use Carbon\CarbonInterface;
 use Illuminate\Http\Request;
@@ -28,7 +29,7 @@ interface HealthProvider extends OAuthProvider
      *
      * @return list<WebhookNotification>
      *
-     * @throws \App\Domain\Integrations\Exceptions\InvalidWebhookSignature
+     * @throws InvalidWebhookSignature
      */
     public function handleWebhook(Request $request): array;
 

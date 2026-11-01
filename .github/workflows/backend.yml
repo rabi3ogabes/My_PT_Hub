@@ -1,0 +1,168 @@
+name: Backend
+
+on:
+  push:
+    branches: [main]
+    paths: ['backend/**', 'docs/openapi.yaml', 'infra/scripts/**', '.github/workflows/backend.yml']
+  pull_request:
+    paths: ['backend/**', 'docs/openapi.yaml', 'infra/scripts/**', '.github/workflows/backend.yml']
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: backend
+
+env:
+  PHP_VERSION: '8.3'
+  PHP_EXTENSIONS: pdo_pgsql, pgsql, redis, intl, gd, zip, pcntl, bcmath, exif, sockets
+  COMPOSER_NO_INTERACTION: 1
+
+jobs:
+  lint:
+    name: Pint + OpenAPI coverage
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          coverage: none
+          tools: composer:v2
+      - name: Cache composer
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer
+          key: composer-${{ runner.os }}-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+      - run: composer install --prefer-dist --no-progress
+      - name: Pint (check)
+        run: vendor/bin/pint --test
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: OpenAPI is complete and up to date
+        working-directory: .
+        run: node infra/scripts/openapi/generate.mjs --check
+      - name: Redocly lint
+        working-directory: .
+        run: npx -y @redocly/cli@1.34.5 lint docs/openapi.yaml
+
+  larastan:
+    name: Larastan (level 8)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          coverage: none
+          tools: composer:v2
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer
+          key: composer-${{ runner.os }}-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+      - run: composer install --prefer-dist --no-progress
+      - name: Install Larastan on the fly (not committed to composer.json)
+        run: composer require --dev "larastan/larastan:^3.0" --no-progress --with-all-dependencies
+      - name: Write phpstan config
+        run: |
+          cat > "$RUNNER_TEMP/phpstan.neon" <<NEON
+          includes:
+            - ${GITHUB_WORKSPACE}/backend/vendor/larastan/larastan/extension.neon
+          parameters:
+            level: 8
+            paths:
+              - ${GITHUB_WORKSPACE}/backend/app
+            tmpDir: ${RUNNER_TEMP}/phpstan
+          NEON
+      - name: Analyse
+        run: vendor/bin/phpstan analyse -c "$RUNNER_TEMP/phpstan.neon" --memory-limit=2G --error-format=github --no-progress
+
+  pest:
+    name: Pest (Postgres 16 + Redis 7)
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: aurum_testing
+          POSTGRES_USER: aurum
+          POSTGRES_PASSWORD: aurum
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U aurum -d aurum_testing"
+          --health-interval 5s --health-timeout 5s --health-retries 20
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 3s --health-retries 20
+    env:
+      APP_ENV: testing
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: aurum_testing
+      DB_USERNAME: aurum
+      DB_PASSWORD: aurum
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: 6379
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          coverage: pcov
+          tools: composer:v2
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/composer
+          key: composer-${{ runner.os }}-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: composer-${{ runner.os }}-
+      - run: composer install --prefer-dist --no-progress
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+      - name: Build front-end (Blade views reference the Vite manifest)
+        run: npm ci --no-audit --no-fund && npm run build
+      - name: Run Pest
+        run: php artisan test --coverage-clover="$RUNNER_TEMP/clover.xml" --log-junit="$RUNNER_TEMP/junit.xml"
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pest-reports
+          path: |
+            ${{ runner.temp }}/junit.xml
+            ${{ runner.temp }}/clover.xml
+          if-no-files-found: ignore
+
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_VERSION }}
+          extensions: ${{ env.PHP_EXTENSIONS }}
+          coverage: none
+          tools: composer:v2
+      - run: composer audit --locked --no-dev
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm audit --omit=dev --audit-level=high

@@ -1,0 +1,62 @@
+/// Aurum shared core: design system, networking, models, offline sync,
+/// localization, state and routing helpers used by the client and coach apps.
+library;
+
+// Design system
+export 'src/design/app_tokens.dart';
+export 'src/design/au_theme.dart';
+export 'src/design/au_theme_data.dart';
+export 'src/design/au_typography.dart';
+export 'src/design/components/au_basics.dart';
+export 'src/design/components/au_button.dart';
+export 'src/design/components/au_card.dart';
+export 'src/design/components/au_controls.dart';
+export 'src/design/components/au_overlays.dart';
+export 'src/design/components/au_progress.dart';
+export 'src/design/components/au_set_row.dart';
+export 'src/design/components/au_states.dart';
+export 'src/design/components/au_text_field.dart';
+export 'src/design/haptics.dart';
+// Localization
+export 'src/l10n/gen/au_localizations.dart';
+// Models
+export 'src/models/models.dart';
+// Networking
+export 'src/network/api_client.dart';
+export 'src/network/api_failure.dart';
+export 'src/network/envelope.dart';
+export 'src/network/interceptors/auth_interceptor.dart';
+export 'src/network/interceptors/debug_log_interceptor.dart';
+export 'src/network/interceptors/envelope_interceptor.dart';
+export 'src/network/interceptors/headers_interceptor.dart';
+export 'src/network/interceptors/retry_interceptor.dart';
+// Offline
+export 'src/offline/connectivity.dart';
+export 'src/offline/database.dart';
+export 'src/offline/session_store.dart';
+export 'src/offline/sync_engine.dart';
+// Repositories
+export 'src/repositories/auth_repository.dart';
+export 'src/repositories/base_repository.dart';
+export 'src/repositories/client_repositories.dart';
+export 'src/repositories/messaging_repository.dart';
+// Routing
+export 'src/routing/routing.dart';
+// Services
+export 'src/services/analytics.dart';
+export 'src/services/firebase_services.dart';
+export 'src/services/local_notifications.dart';
+export 'src/services/platform_services.dart';
+// State
+export 'src/state/auth_controller.dart';
+export 'src/state/core_providers.dart';
+export 'src/state/preferences_controllers.dart';
+// Storage
+export 'src/storage/app_prefs.dart';
+export 'src/storage/token_store.dart';
+// Utilities
+export 'src/util/clock.dart';
+export 'src/util/json_converters.dart';
+export 'src/util/money_format.dart';
+export 'src/util/ulid.dart';
+export 'src/util/units.dart';

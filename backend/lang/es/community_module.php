@@ -1,0 +1,63 @@
+<?php
+
+return [
+    'metrics' => [
+        'steps' => 'Pasos',
+        'workouts' => 'Entrenamientos completados',
+        'habit_streak' => 'Racha de hábitos (días)',
+        'volume' => 'Volumen de entrenamiento (kg)',
+        'custom' => 'Personalizado',
+    ],
+    'report_reasons' => [
+        'spam' => 'Spam',
+        'harassment' => 'Acoso o intimidación',
+        'hate' => 'Discurso de odio',
+        'nudity' => 'Desnudos o contenido sexual',
+        'violence' => 'Violencia',
+        'misinformation' => 'Información de salud engañosa',
+        'self_harm' => 'Autolesiones',
+        'other' => 'Otro motivo',
+    ],
+    'badges' => [
+        'awarded' => ['title' => 'Nueva insignia desbloqueada', 'body' => 'Has conseguido «:badge». ¡Sigue así!'],
+        'names' => [
+            'first_workout' => 'Primer entrenamiento',
+            'streak_7' => 'Racha de 7 días',
+            'streak_30' => 'Racha de 30 días',
+            'streak_100' => 'Racha de 100 días',
+            'pr_10' => '10 récords personales',
+            'checkin_streak_4' => 'Cuatro revisiones seguidas',
+            'challenge_finisher' => 'Reto superado',
+        ],
+        'descriptions' => [
+            'first_workout' => 'Completaste tu primer entrenamiento.',
+            'streak_7' => 'Entrenaste o cumpliste un hábito siete días seguidos.',
+            'streak_30' => 'Te mantuviste activo treinta días seguidos.',
+            'streak_100' => 'Cien días seguidos: constancia de élite.',
+            'pr_10' => 'Estableciste diez récords personales.',
+            'checkin_streak_4' => 'Enviaste cuatro revisiones seguidas.',
+            'challenge_finisher' => 'Alcanzaste el objetivo de un reto.',
+        ],
+    ],
+    'notifications' => [
+        'comment' => ['title' => 'Nuevo comentario', 'body' => ':name ha comentado tu publicación.'],
+    ],
+    'errors' => [
+        'space_not_found' => 'Espacio de la comunidad no encontrado.',
+        'post_not_found' => 'Publicación no encontrada.',
+        'announcement_only' => 'Solo el equipo de entrenamiento puede publicar en este espacio.',
+        'moderators_only' => 'Solo los moderadores pueden hacer esto.',
+        'not_owner' => 'Solo puedes eliminar tus propias publicaciones.',
+        'body_required' => 'Escribe algo.',
+        'media_required' => 'Añade una foto o un vídeo.',
+        'workout_not_found' => 'Elige uno de tus entrenamientos completados.',
+        'invalid_option' => 'Esta opción de la encuesta no existe.',
+        'poll_closed' => 'Esta encuesta está cerrada.',
+        'group_not_found' => 'Grupo de clientes no encontrado.',
+        'program_not_found' => 'Programa no encontrado.',
+        'invalid_dates' => 'La fecha de fin debe ser igual o posterior a la de inicio.',
+        'challenge_ended' => 'Este reto ha terminado.',
+        'challenge_not_open' => 'Este reto no está abierto para ti.',
+        'badges_forbidden' => 'No puedes ver estas insignias.',
+    ],
+];

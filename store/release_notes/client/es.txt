@@ -1,0 +1,6 @@
+Bienvenido a Aurum 1.0.
+• Registra una serie con un toque: los pesos de la última sesión ya aparecen.
+• Temporizador de descanso en la pantalla de bloqueo y tu música sigue.
+• Registra una comida de tu plan, escanea el código de barras o haz una foto.
+• Escribe a tu entrenador y envía tu revisión con fotos privadas.
+• Funciona sin conexión y se sincroniza en cuanto vuelves a tener red.

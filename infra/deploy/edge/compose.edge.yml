@@ -1,0 +1,24 @@
+# Long-lived edge proxy shared by both colours. Started once at provisioning:
+#   docker network create aurum-edge && docker compose -f compose.edge.yml up -d
+# Caddy terminates TLS (automatic certificates; behind Cloudflare use Full (strict)).
+name: aurum-edge
+
+services:
+  caddy:
+    image: caddy:2.8-alpine
+    ports: ["80:80", "443:443", "443:443/udp"]
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - /opt/aurum/shared/active_upstream.caddy:/etc/caddy/active_upstream.caddy:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks: [aurum-edge]
+    restart: unless-stopped
+
+volumes:
+  caddy-data:
+  caddy-config:
+
+networks:
+  aurum-edge:
+    external: true

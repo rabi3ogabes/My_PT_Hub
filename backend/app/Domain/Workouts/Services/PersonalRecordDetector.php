@@ -12,7 +12,7 @@ use Illuminate\Support\Collection;
  * that started before it:
  * - e1rm:   best Epley estimate (reps 1–15)
  * - weight: heaviest weight lifted for at least one rep
- * - reps:   most reps at a weight ≥ any previous set at that weight
+ * - reps:   more reps at a weight than any previous set at that weight or heavier
  * - volume: total kg × reps on the exercise within the session
  * Re-running is idempotent: the session's records are recomputed from scratch.
  * The first time an exercise is logged a baseline record (previous_value null) is stored
@@ -98,18 +98,21 @@ class PersonalRecordDetector
             $out[] = ['type' => 'weight', 'value' => $best['value'], 'previous' => $firstTime ? null : $prevBest, 'set_id' => $best['set']->id, 'weight_kg' => $best['set']->weight_kg];
         }
 
-        // Reps at weight: the heaviest set whose reps beat every previous set at ≥ that weight.
+        // Reps at weight: the heaviest set whose reps beat every previous set at ≥ that weight
+        // (requires history at that weight — a brand-new heaviest weight is a weight PR instead).
         $repPr = null;
-        foreach ($current->filter(fn (SessionSet $s) => ($s->reps ?? 0) > 0)->sortByDesc(fn (SessionSet $s) => [(float) ($s->weight_kg ?? 0), $s->reps]) as $set) {
+        $ordered = $current->filter(fn (SessionSet $s) => ($s->reps ?? 0) > 0)
+            ->sort(fn (SessionSet $a, SessionSet $b) => [(float) ($b->weight_kg ?? 0), (int) $b->reps] <=> [(float) ($a->weight_kg ?? 0), (int) $a->reps]);
+        foreach ($ordered as $set) {
             $w = (float) ($set->weight_kg ?? 0);
+            if ($firstTime) {
+                $repPr = ['type' => 'reps', 'value' => (float) $set->reps, 'previous' => null, 'set_id' => $set->id, 'weight_kg' => $w];
+                break;
+            }
             $prevReps = $this->maxOf($previous->filter(fn (SessionSet $p) => (float) ($p->weight_kg ?? 0) >= $w - 0.001), fn (SessionSet $p) => $p->reps ? (float) $p->reps : null);
-            if ($firstTime || $prevReps === null || $set->reps > $prevReps) {
-                if ($repPr === null || $w > $repPr['weight_kg'] || ($w === $repPr['weight_kg'] && $set->reps > $repPr['value'])) {
-                    $repPr = ['type' => 'reps', 'value' => (float) $set->reps, 'previous' => $firstTime ? null : $prevReps, 'set_id' => $set->id, 'weight_kg' => $w];
-                }
-                if ($firstTime) {
-                    break; // heaviest set is the baseline
-                }
+            if ($prevReps !== null && $set->reps > $prevReps) {
+                $repPr = ['type' => 'reps', 'value' => (float) $set->reps, 'previous' => $prevReps, 'set_id' => $set->id, 'weight_kg' => $w];
+                break;
             }
         }
         if ($repPr) {

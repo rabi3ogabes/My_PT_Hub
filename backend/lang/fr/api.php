@@ -14,4 +14,5 @@ return [
     'invitation_invalid' => 'Cette invitation n’est plus valide. Demandez-en une nouvelle à votre coach.',
     'invitation_email_mismatch' => 'Cette invitation a été envoyée à une autre adresse e-mail.',
     'last_owner' => 'Un espace doit conserver au moins un propriétaire.',
+    'tenant_suspended' => 'Cet espace est temporairement suspendu. Veuillez contacter le support.',
 ];

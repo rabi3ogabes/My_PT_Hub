@@ -1,0 +1,187 @@
+name: Mobile release
+
+# main             → beta: TestFlight + Play internal for both apps
+# tag client-v*.*.* / coach-v*.*.* → release: App Store review (phased) + Play production at 10 %
+# workflow_dispatch rollout       → crash-gated staged rollout 10 % → 50 % → 100 %
+# workflow_dispatch whitelabel    → branded client app for a Studio tenant
+on:
+  push:
+    branches: [main]
+    paths: ['apps/**', 'packages/**', 'infra/fastlane/**', 'store/**']
+    tags: ['client-v*.*.*', 'coach-v*.*.*']
+  workflow_dispatch:
+    inputs:
+      action:
+        description: What to run
+        type: choice
+        options: [beta, rollout, whitelabel, metadata]
+        default: beta
+      app:
+        description: App
+        type: choice
+        options: [client, coach]
+        default: client
+      percent:
+        description: Rollout fraction for `rollout` (0.5 or 1.0)
+        default: '0.5'
+      tenant:
+        description: Tenant slug for `whitelabel` (infra/whitelabel/tenants/<slug>.json)
+        default: ''
+      platform:
+        description: Platform
+        type: choice
+        options: [all, ios, android]
+        default: all
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mobile-release-${{ github.ref }}-${{ inputs.action || 'push' }}
+  cancel-in-progress: false
+
+env:
+  FLUTTER_VERSION: '3.47.0'
+  RUBY_VERSION: '3.3'
+  CI: 'true'
+  BUNDLE_GEMFILE: ${{ github.workspace }}/infra/fastlane/Gemfile
+
+jobs:
+  checks:
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/mobile.yml
+
+  plan:
+    runs-on: ubuntu-24.04
+    outputs:
+      lane: ${{ steps.p.outputs.lane }}
+      apps: ${{ steps.p.outputs.apps }}
+      extra: ${{ steps.p.outputs.extra }}
+    steps:
+      - id: p
+        run: |
+          ref="${GITHUB_REF_NAME}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            case "${{ inputs.action }}" in
+              beta)       echo "lane=beta" >> "$GITHUB_OUTPUT"; echo 'apps=["${{ inputs.app }}"]' >> "$GITHUB_OUTPUT" ;;
+              rollout)    echo "lane=rollout" >> "$GITHUB_OUTPUT"; echo 'apps=["${{ inputs.app }}"]' >> "$GITHUB_OUTPUT"; echo "extra=percent:${{ inputs.percent }}" >> "$GITHUB_OUTPUT" ;;
+              metadata)   echo "lane=metadata" >> "$GITHUB_OUTPUT"; echo 'apps=["${{ inputs.app }}"]' >> "$GITHUB_OUTPUT" ;;
+              whitelabel) echo "lane=build_whitelabel" >> "$GITHUB_OUTPUT"; echo 'apps=["client"]' >> "$GITHUB_OUTPUT"; echo "extra=tenant:${{ inputs.tenant }}" >> "$GITHUB_OUTPUT" ;;
+            esac
+          elif [[ "$ref" == client-v* ]]; then echo "lane=release" >> "$GITHUB_OUTPUT"; echo 'apps=["client"]' >> "$GITHUB_OUTPUT"; echo "extra=rollout:0.1" >> "$GITHUB_OUTPUT"
+          elif [[ "$ref" == coach-v* ]]; then echo "lane=release" >> "$GITHUB_OUTPUT"; echo 'apps=["coach"]' >> "$GITHUB_OUTPUT"; echo "extra=rollout:0.1" >> "$GITHUB_OUTPUT"
+          else echo "lane=beta" >> "$GITHUB_OUTPUT"; echo 'apps=["client","coach"]' >> "$GITHUB_OUTPUT"; fi
+
+  crash-gate:
+    name: Crash-free gate (≥ 99.8 %)
+    needs: plan
+    if: needs.plan.outputs.lane == 'rollout'
+    runs-on: ubuntu-24.04
+    environment: production-rollout   # manual approval + this automated gate
+    steps:
+      - uses: actions/checkout@v4
+      - name: Sentry release health
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_PROJECT: aurum-${{ inputs.app }}
+          RELEASE: ${{ vars[format('CURRENT_RELEASE_{0}', inputs.app)] }}
+        run: bash infra/fastlane/scripts/crash_gate.sh
+
+  android:
+    name: Android · ${{ matrix.app }} · ${{ needs.plan.outputs.lane }}
+    needs: [plan, checks, crash-gate]
+    if: >-
+      always() && !failure() && !cancelled()
+      && (github.event_name == 'push' || inputs.platform != 'ios')
+      && needs.plan.outputs.lane != ''
+    runs-on: ubuntu-24.04
+    environment: ${{ needs.plan.outputs.lane == 'beta' && 'mobile-beta' || 'production-rollout' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        app: ${{ fromJSON(needs.plan.outputs.apps) }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Skip when the app has not been scaffolded yet
+        id: exists
+        run: test -f apps/${{ matrix.app }}/pubspec.yaml && echo "ok=true" >> "$GITHUB_OUTPUT" || echo "::notice::apps/${{ matrix.app }} missing — skipped"
+      - uses: actions/setup-java@v4
+        if: steps.exists.outputs.ok == 'true'
+        with: { distribution: temurin, java-version: '17' }
+      - uses: subosito/flutter-action@v2.18.0
+        if: steps.exists.outputs.ok == 'true' && needs.plan.outputs.lane != 'rollout' && needs.plan.outputs.lane != 'metadata'
+        with: { flutter-version: '${{ env.FLUTTER_VERSION }}', channel: stable, cache: true }
+      - uses: ruby/setup-ruby@v1
+        if: steps.exists.outputs.ok == 'true'
+        with: { ruby-version: '${{ env.RUBY_VERSION }}', bundler-cache: true, working-directory: infra/fastlane }
+      - uses: dart-lang/setup-dart@v1
+        if: steps.exists.outputs.ok == 'true' && needs.plan.outputs.lane == 'build_whitelabel'
+      - name: fastlane ${{ needs.plan.outputs.lane }}
+        if: steps.exists.outputs.ok == 'true'
+        working-directory: infra
+        env:
+          AURUM_APP: ${{ matrix.app }}
+          PLAY_SERVICE_ACCOUNT_JSON_B64: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON_B64 }}
+          ANDROID_KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_B64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          BUILD_NUMBER: ${{ github.run_number }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          # {"<slug>": {"google_services_json_b64": "...", "google_service_info_plist_b64": "..."}}
+          WL_FIREBASE_CONFIGS_JSON: ${{ secrets.WL_FIREBASE_CONFIGS_JSON }}
+        run: |
+          bundle exec fastlane ${{ needs.plan.outputs.lane }} app:${{ matrix.app }} platform:android ${{ needs.plan.outputs.extra }}
+
+  ios:
+    name: iOS · ${{ matrix.app }} · ${{ needs.plan.outputs.lane }}
+    needs: [plan, checks, crash-gate]
+    if: >-
+      always() && !failure() && !cancelled()
+      && (github.event_name == 'push' || inputs.platform != 'android')
+      && needs.plan.outputs.lane != '' && needs.plan.outputs.lane != 'rollout'
+    runs-on: macos-15
+    environment: ${{ needs.plan.outputs.lane == 'beta' && 'mobile-beta' || 'production-rollout' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        app: ${{ fromJSON(needs.plan.outputs.apps) }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Skip when the app has not been scaffolded yet
+        id: exists
+        run: test -f apps/${{ matrix.app }}/pubspec.yaml && echo "ok=true" >> "$GITHUB_OUTPUT" || echo "::notice::apps/${{ matrix.app }} missing — skipped"
+      - uses: maxim-lobanov/setup-xcode@v1
+        if: steps.exists.outputs.ok == 'true'
+        with: { xcode-version: latest-stable }
+      - uses: subosito/flutter-action@v2.18.0
+        if: steps.exists.outputs.ok == 'true' && needs.plan.outputs.lane != 'metadata'
+        with: { flutter-version: '${{ env.FLUTTER_VERSION }}', channel: stable, cache: true }
+      - uses: ruby/setup-ruby@v1
+        if: steps.exists.outputs.ok == 'true'
+        with: { ruby-version: '${{ env.RUBY_VERSION }}', bundler-cache: true, working-directory: infra/fastlane }
+      - name: CocoaPods cache
+        if: steps.exists.outputs.ok == 'true'
+        uses: actions/cache@v4
+        with:
+          path: apps/${{ matrix.app }}/ios/Pods
+          key: pods-${{ matrix.app }}-${{ hashFiles(format('apps/{0}/ios/Podfile.lock', matrix.app)) }}
+      - name: fastlane ${{ needs.plan.outputs.lane }}
+        if: steps.exists.outputs.ok == 'true'
+        working-directory: infra
+        env:
+          AURUM_APP: ${{ matrix.app }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_P8_B64: ${{ secrets.ASC_KEY_P8_B64 }}
+          MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+          MATCH_EXTRA_APP_IDENTIFIERS: ${{ vars.MATCH_EXTRA_APP_IDENTIFIERS }}
+          BUILD_NUMBER: ${{ github.run_number }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          WL_FIREBASE_CONFIGS_JSON: ${{ secrets.WL_FIREBASE_CONFIGS_JSON }}
+        run: |
+          bundle exec fastlane ${{ needs.plan.outputs.lane }} app:${{ matrix.app }} platform:ios ${{ needs.plan.outputs.extra }}

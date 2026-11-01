@@ -1,0 +1,24 @@
+# Aurum — fastlane Appfile. Values come from CI secrets / environment so the same
+# lanes serve the Aurum apps and every white-label tenant.
+#
+#   AURUM_APP            client | coach            (default: client)
+#   APPLE_ID             App Store Connect account email (only for interactive use)
+#   APPLE_TEAM_ID        Developer Portal team id
+#   ITC_TEAM_ID          App Store Connect team id
+#   PLAY_JSON_KEY_PATH   Google Play service-account JSON (written by CI from a secret)
+
+AURUM_BUNDLE_IDS = {
+  "client" => { ios: "coach.aurum.client", android: "coach.aurum.client" },
+  "coach"  => { ios: "coach.aurum.coach",  android: "coach.aurum.coach" },
+}.freeze
+
+app = ENV.fetch("AURUM_APP", "client")
+
+app_identifier(ENV["APP_IDENTIFIER"] || AURUM_BUNDLE_IDS.fetch(app)[:ios])
+package_name(ENV["PACKAGE_NAME"] || AURUM_BUNDLE_IDS.fetch(app)[:android])
+
+apple_id(ENV["APPLE_ID"]) if ENV["APPLE_ID"]
+team_id(ENV["APPLE_TEAM_ID"]) if ENV["APPLE_TEAM_ID"]
+itc_team_id(ENV["ITC_TEAM_ID"]) if ENV["ITC_TEAM_ID"]
+
+json_key_file(ENV.fetch("PLAY_JSON_KEY_PATH", "play-service-account.json"))

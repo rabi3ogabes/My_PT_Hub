@@ -42,6 +42,10 @@ class ResolveTenant
             throw ApiException::forbidden(__('api.not_a_member'));
         }
 
+        if (! $user->is_super_admin && $tenant->setting('suspended_at')) {
+            throw new ApiException('tenant_suspended', __('api.tenant_suspended'), 423);
+        }
+
         if ($user->current_tenant_id !== $tenant->id) {
             $user->forceFill(['current_tenant_id' => $tenant->id])->saveQuietly();
         }

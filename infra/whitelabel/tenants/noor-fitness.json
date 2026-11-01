@@ -1,0 +1,62 @@
+{
+  "$comment": "EXAMPLE tenant for the white-label pipeline (fictional coach). Copy to <slug>.json for a real Studio tenant.",
+  "slug": "noor-fitness",
+  "flavor": "noorfitness",
+  "tenant_id": "01JC0Q8ZK3W5T7N9R2B4D6F8H0",
+  "app_name": "Noor Fitness",
+  "short_name": "Noor",
+  "coach_name": "Coach Noor",
+  "publishing": {
+    "mode": "aurum_account",
+    "display_suffix": "by Aurum"
+  },
+  "ios": {
+    "bundle_id": "coach.aurum.wl.noorfitness",
+    "team_id": null,
+    "app_store_id": null
+  },
+  "android": {
+    "package": "coach.aurum.wl.noorfitness"
+  },
+  "brand": {
+    "primary": "#0E3B34",
+    "accent": "#D4AF6A",
+    "background_dark": "#0B0B0F",
+    "background_light": "#FAF8F4",
+    "icon_background": "#0E3B34",
+    "font_latin": "Manrope",
+    "font_arabic": "IBM Plex Sans Arabic"
+  },
+  "assets": {
+    "icon": "infra/whitelabel/tenants/assets/noor-fitness/icon.png",
+    "icon_foreground": "infra/whitelabel/tenants/assets/noor-fitness/icon_foreground.png",
+    "splash_logo": "infra/whitelabel/tenants/assets/noor-fitness/splash_logo.png"
+  },
+  "default_locale": "ar",
+  "locales": ["ar", "en"],
+  "features": {
+    "workouts": true,
+    "nutrition": true,
+    "habits": true,
+    "checkins": true,
+    "messaging": true,
+    "community": true,
+    "calendar": true,
+    "shop": true,
+    "ai_food_photo": true,
+    "ai_coach_chat": false,
+    "health": true,
+    "marketplace": false,
+    "challenges": true
+  },
+  "deep_link_domain": "noorfitness.aurum.coach",
+  "api_base_url": "https://api.aurum.coach/api/v1",
+  "reverb_host": "ws.aurum.coach",
+  "support_email": "support@aurum.coach",
+  "privacy_url": "https://noorfitness.aurum.coach/ar/legal/privacy",
+  "store": {
+    "ar": {
+      "subtitle": "تدريب ورجيم مع كوتش نور"
+    }
+  }
+}

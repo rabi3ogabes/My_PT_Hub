@@ -1,0 +1,63 @@
+<?php
+
+return [
+    'metrics' => [
+        'steps' => 'Steps',
+        'workouts' => 'Workouts completed',
+        'habit_streak' => 'Habit streak (days)',
+        'volume' => 'Training volume (kg)',
+        'custom' => 'Custom',
+    ],
+    'report_reasons' => [
+        'spam' => 'Spam',
+        'harassment' => 'Harassment or bullying',
+        'hate' => 'Hate speech',
+        'nudity' => 'Nudity or sexual content',
+        'violence' => 'Violence',
+        'misinformation' => 'Misleading health information',
+        'self_harm' => 'Self-harm',
+        'other' => 'Something else',
+    ],
+    'badges' => [
+        'awarded' => ['title' => 'New badge unlocked', 'body' => 'You earned “:badge”. Keep it up!'],
+        'names' => [
+            'first_workout' => 'First workout',
+            'streak_7' => '7-day streak',
+            'streak_30' => '30-day streak',
+            'streak_100' => '100-day streak',
+            'pr_10' => '10 personal records',
+            'checkin_streak_4' => 'Four check-ins in a row',
+            'challenge_finisher' => 'Challenge finisher',
+        ],
+        'descriptions' => [
+            'first_workout' => 'Completed your first workout.',
+            'streak_7' => 'Trained or completed a habit seven days in a row.',
+            'streak_30' => 'Stayed active thirty days in a row.',
+            'streak_100' => 'A hundred days in a row — elite consistency.',
+            'pr_10' => 'Set ten personal records.',
+            'checkin_streak_4' => 'Submitted four check-ins in a row.',
+            'challenge_finisher' => 'Reached the goal of a challenge.',
+        ],
+    ],
+    'notifications' => [
+        'comment' => ['title' => 'New comment', 'body' => ':name commented on your post.'],
+    ],
+    'errors' => [
+        'space_not_found' => 'Community space not found.',
+        'post_not_found' => 'Post not found.',
+        'announcement_only' => 'Only the coaching team can post in this space.',
+        'moderators_only' => 'Only moderators can do this.',
+        'not_owner' => 'You can only delete your own posts.',
+        'body_required' => 'Please write something.',
+        'media_required' => 'Please add a photo or video.',
+        'workout_not_found' => 'Choose one of your completed workouts.',
+        'invalid_option' => 'This poll option does not exist.',
+        'poll_closed' => 'This poll is closed.',
+        'group_not_found' => 'Client group not found.',
+        'program_not_found' => 'Program not found.',
+        'invalid_dates' => 'The end date must be on or after the start date.',
+        'challenge_ended' => 'This challenge has ended.',
+        'challenge_not_open' => 'This challenge is not open to you.',
+        'badges_forbidden' => 'You cannot view these badges.',
+    ],
+];

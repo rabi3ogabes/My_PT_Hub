@@ -1,0 +1,38 @@
+name: SSH blue/green deploy
+description: Copies infra/deploy to the host and runs deploy.sh for an image tag (zero downtime, auto-rollback).
+inputs:
+  host: { description: Deploy host, required: true }
+  user: { description: SSH user, required: true }
+  ssh-key: { description: Private key (ed25519), required: true }
+  known-hosts: { description: known_hosts line(s) for the host, required: true }
+  registry: { description: 'Image registry prefix, e.g. ghcr.io/aurum', required: true }
+  tag: { description: Image tag, required: true }
+  ghcr-user: { description: Registry user for pulls, required: true }
+  ghcr-token: { description: Registry read token, required: true }
+  public-url: { description: Public URL for the post-deploy smoke test, required: true }
+runs:
+  using: composite
+  steps:
+    - name: Configure SSH
+      shell: bash
+      run: |
+        install -m 700 -d ~/.ssh
+        printf '%s\n' "${{ inputs.ssh-key }}" > ~/.ssh/deploy_key && chmod 600 ~/.ssh/deploy_key
+        printf '%s\n' "${{ inputs.known-hosts }}" > ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts
+    - name: Upload deploy bundle
+      shell: bash
+      run: |
+        rsync -az --delete -e "ssh -i ~/.ssh/deploy_key" infra/deploy/ "${{ inputs.user }}@${{ inputs.host }}:/opt/aurum/deploy/"
+    - name: Run deploy.sh
+      shell: bash
+      run: |
+        ssh -i ~/.ssh/deploy_key "${{ inputs.user }}@${{ inputs.host }}" \
+          "REGISTRY='${{ inputs.registry }}' TAG='${{ inputs.tag }}' GHCR_USER='${{ inputs.ghcr-user }}' GHCR_TOKEN='${{ inputs.ghcr-token }}' bash /opt/aurum/deploy/deploy.sh"
+    - name: Public smoke test
+      shell: bash
+      run: |
+        for i in $(seq 1 10); do
+          code=$(curl -s -o /dev/null -w '%{http_code}' "${{ inputs.public-url }}/up") && [ "$code" = "200" ] && echo "healthy" && exit 0
+          sleep 3
+        done
+        echo "::error::${{ inputs.public-url }}/up did not return 200 after deploy"; exit 1

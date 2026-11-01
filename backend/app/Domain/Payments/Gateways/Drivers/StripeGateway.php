@@ -160,6 +160,22 @@ final class StripeGateway extends AbstractGateway
             : $this->call('delete', '/subscriptions/'.$subscription->gateway_subscription_id);
     }
 
+    /** Pauses collection on a native subscription (invoices are voided while paused). */
+    public function pauseSubscription(ClientSubscription $subscription): void
+    {
+        if ($subscription->gateway_subscription_id) {
+            $this->call('post', '/subscriptions/'.$subscription->gateway_subscription_id, ['pause_collection[behavior]' => 'void']);
+        }
+    }
+
+    /** Resumes collection and withdraws a pending cancel-at-period-end. */
+    public function resumeSubscription(ClientSubscription $subscription): void
+    {
+        if ($subscription->gateway_subscription_id) {
+            $this->call('post', '/subscriptions/'.$subscription->gateway_subscription_id, ['pause_collection' => '', 'cancel_at_period_end' => 'false']);
+        }
+    }
+
     public function refund(Payment $payment, int $amountMinor): RefundResult
     {
         $refund = $this->call('post', '/refunds', [

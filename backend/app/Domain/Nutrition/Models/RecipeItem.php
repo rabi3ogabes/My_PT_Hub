@@ -26,6 +26,6 @@ class RecipeItem extends BaseModel
 
     public function food(): BelongsTo
     {
-        return $this->belongsTo(Food::class);
+        return $this->belongsTo(Food::class)->withTrashed();
     }
 }

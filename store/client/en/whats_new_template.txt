@@ -1,0 +1,5 @@
+{{version}}: {{one benefit headline, max 60 chars}}
+• {{New: what you can do now, in your words}}
+• {{Faster/better, with a number: "Workouts open 40% faster"}}
+• {{Fix told as an outcome: "Rest timer stays on your lock screen"}}
+Never write "bug fixes". Enjoying Aurum? A rating helps others find us.

@@ -37,11 +37,12 @@ final class Impersonator
         }
 
         ActivityLogger::log('admin.impersonate.start', $target, [
+            'admin_id' => $admin->getKey(),
             'admin_email' => $admin->email,
             'target_email' => $target->email,
         ], causerId: $admin->getKey(), tenantId: $target->current_tenant_id);
 
-        $session = request()->session();
+        $session = session()->driver();
         Auth::guard(self::GUARD)->login($target);
         $session->regenerate();
         $session->put(self::SESSION_KEY, $admin->getKey());
@@ -52,9 +53,7 @@ final class Impersonator
 
     public function isImpersonating(): bool
     {
-        $request = request();
-
-        return $request->hasSession() && $request->session()->has(self::SESSION_KEY);
+        return session()->has(self::SESSION_KEY);
     }
 
     /** Restores the admin. Returns the admin, or null when nothing was impersonated. */
@@ -64,11 +63,12 @@ final class Impersonator
             return null;
         }
 
-        $session = request()->session();
+        $session = session()->driver();
         $admin = User::query()->find($session->get(self::SESSION_KEY));
         $target = Auth::guard(self::GUARD)->user();
 
         ActivityLogger::log('admin.impersonate.stop', $target instanceof User ? $target : null, [
+            'admin_id' => $admin?->getKey(),
             'admin_email' => $admin?->email,
             'target_email' => $target instanceof User ? $target->email : null,
         ], causerId: $admin?->getKey(), tenantId: $target instanceof User ? $target->current_tenant_id : null);

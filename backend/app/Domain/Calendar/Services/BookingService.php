@@ -122,7 +122,7 @@ final class BookingService
             }
         });
 
-        $booking->load('event.coach', 'event.location');
+        $this->loadForResource($booking);
         if ($byStaff) {
             $this->notifyClient($booking, 'booked_by_coach');
         }
@@ -209,7 +209,7 @@ final class BookingService
             return $booking;
         });
 
-        return $booking->load('event.coach', 'event.location');
+        return $this->loadForResource($booking);
     }
 
     /** Claims a waitlist offer within the claim window. */
@@ -233,7 +233,7 @@ final class BookingService
             return $booking;
         });
 
-        return $booking->load('event.coach', 'event.location');
+        return $this->loadForResource($booking);
     }
 
     /**
@@ -280,7 +280,7 @@ final class BookingService
             return $booking;
         });
 
-        return $booking->load('event.coach', 'event.location');
+        return $this->loadForResource($booking);
     }
 
     /**
@@ -356,6 +356,15 @@ final class BookingService
         }
 
         return $expired;
+    }
+
+    /** Loads what BookingResource renders: the event with coach, location and seat counts. */
+    public function loadForResource(Booking $booking): Booking
+    {
+        return $booking->load(['event' => fn ($q) => $q->withTrashed()->with(['coach', 'location'])->withCount([
+            'bookings as booked_count' => fn ($b) => $b->whereIn('status', self::SEATED),
+            'bookings as waitlist_count' => fn ($b) => $b->where('status', 'waitlisted'),
+        ])]);
     }
 
     public function balance(string $clientId): int

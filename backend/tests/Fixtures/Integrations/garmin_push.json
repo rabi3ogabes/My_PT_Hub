@@ -1,0 +1,11 @@
+{
+  "activities": [
+    {"userId": "garmin-user-1", "summaryId": "act-5544", "activityId": 5544, "activityName": "Doha Corniche Run", "activityType": "RUNNING", "startTimeInSeconds": 1793336400, "durationInSeconds": 3060, "distanceInMeters": 10050.0, "activeKilocalories": 701, "averageHeartRateInBeatsPerMinute": 150}
+  ],
+  "dailies": [
+    {"userId": "garmin-user-1", "summaryId": "daily-2026-10-30", "calendarDate": "2026-10-30", "startTimeInSeconds": 1793318400, "durationInSeconds": 86400, "steps": 12450, "activeKilocalories": 820, "distanceInMeters": 11200, "restingHeartRateInBeatsPerMinute": 52}
+  ],
+  "sleeps": [
+    {"userId": "garmin-user-1", "summaryId": "sleep-2026-10-30", "startTimeInSeconds": 1793311200, "durationInSeconds": 27000}
+  ]
+}

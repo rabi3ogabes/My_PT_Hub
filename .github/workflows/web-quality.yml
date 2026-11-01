@@ -1,0 +1,97 @@
+name: Web quality
+
+on:
+  pull_request:
+    paths: ['backend/resources/**', 'backend/routes/web/**', 'backend/app/Livewire/**', 'backend/app/Http/Web/**', 'infra/lighthouse/**', '.github/workflows/web-quality.yml']
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 3 * * 1' # weekly link rot check
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lighthouse:
+    name: Lighthouse CI (marketing pages)
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: aurum
+          POSTGRES_USER: aurum
+          POSTGRES_PASSWORD: aurum
+        ports: ['5432:5432']
+        options: --health-cmd "pg_isready -U aurum" --health-interval 5s --health-retries 20
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+    env:
+      APP_ENV: production
+      APP_DEBUG: 'false'
+      APP_URL: http://127.0.0.1:8000
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_DATABASE: aurum
+      DB_USERNAME: aurum
+      DB_PASSWORD: aurum
+      REDIS_HOST: 127.0.0.1
+      CACHE_STORE: redis
+      SESSION_DRIVER: redis
+      QUEUE_CONNECTION: sync
+      SEED_DEMO: 'true'
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: pdo_pgsql, redis, intl, gd, zip, bcmath
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: composer install --no-dev --prefer-dist --no-progress --optimize-autoloader
+      - name: Build production assets
+        run: npm ci --no-audit --no-fund && npm run build
+      - name: Boot app
+        run: |
+          cp .env.example .env
+          php artisan key:generate --force
+          php artisan migrate --force --seed
+          php artisan config:cache && php artisan route:cache && php artisan view:cache
+          PHP_CLI_SERVER_WORKERS=8 php artisan serve --host=127.0.0.1 --port=8000 > "$RUNNER_TEMP/serve.log" 2>&1 &
+          for i in $(seq 1 30); do curl -fsS http://127.0.0.1:8000/up && break; sleep 1; done
+      - name: Lighthouse CI
+        working-directory: .
+        run: npx -y @lhci/cli@0.14.0 autorun --config=infra/lighthouse/lighthouserc.json
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+      - name: Server log
+        if: failure()
+        run: tail -200 "$RUNNER_TEMP/serve.log"
+
+  links:
+    name: Broken links
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check links in docs, READMEs and store listings
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --no-progress --max-concurrency 8 --accept 200,204,206,301,302,403,429
+            --exclude-path backend/vendor --exclude-path backend/node_modules
+            --exclude 'localhost' --exclude '127\.0\.0\.1' --exclude 'aurum\.coach' --exclude 'example\.(com|org)'
+            './**/*.md' './store/**/*.txt'
+          fail: true
+      - name: Crawl staging marketing site
+        if: vars.STAGING_URL != ''
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: --no-progress --max-concurrency 8 --base ${{ vars.STAGING_URL }} ${{ vars.STAGING_URL }}/en ${{ vars.STAGING_URL }}/ar ${{ vars.STAGING_URL }}/fr ${{ vars.STAGING_URL }}/es ${{ vars.STAGING_URL }}/sitemap.xml
+          fail: true

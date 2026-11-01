@@ -1,0 +1,86 @@
+name: Mobile
+
+on:
+  push:
+    branches: [main]
+    paths: ['apps/**', 'packages/**', '.github/workflows/mobile.yml']
+  pull_request:
+    paths: ['apps/**', 'packages/**', '.github/workflows/mobile.yml']
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mobile-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.47.0'
+
+jobs:
+  analyze-test:
+    name: ${{ matrix.package }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        package: [packages/core, apps/client, apps/coach]
+    defaults:
+      run:
+        working-directory: ${{ matrix.package }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Skip when the package has not been scaffolded yet
+        id: exists
+        working-directory: .
+        run: |
+          if [ -f "${{ matrix.package }}/pubspec.yaml" ]; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "present=false" >> "$GITHUB_OUTPUT"; echo "::notice::${{ matrix.package }} has no pubspec.yaml — skipped"; fi
+      - uses: subosito/flutter-action@v2.18.0
+        if: steps.exists.outputs.present == 'true'
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: pub get
+        if: steps.exists.outputs.present == 'true'
+        run: flutter pub get
+      - name: Code generation (Riverpod, Freezed, Drift, json_serializable)
+        if: steps.exists.outputs.present == 'true'
+        run: |
+          if grep -q build_runner pubspec.yaml; then dart run build_runner build --delete-conflicting-outputs; fi
+      - name: Format
+        if: steps.exists.outputs.present == 'true'
+        run: dart format --output=none --set-exit-if-changed $(git ls-files '*.dart' | grep -v -E '\.(g|freezed|gr)\.dart$' || true)
+      - name: Analyze
+        if: steps.exists.outputs.present == 'true'
+        run: flutter analyze --fatal-infos
+      - name: Test (unit, widget, golden)
+        if: steps.exists.outputs.present == 'true'
+        run: flutter test --coverage
+      - name: Upload coverage
+        if: steps.exists.outputs.present == 'true' && always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-${{ strategy.job-index }}
+          path: ${{ matrix.package }}/coverage/lcov.info
+          if-no-files-found: ignore
+
+  outdated:
+    name: Dependency report
+    runs-on: ubuntu-24.04
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2.18.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: dart pub outdated
+        run: |
+          for p in packages/core apps/client apps/coach; do
+            [ -f "$p/pubspec.yaml" ] || continue
+            echo "## $p" >> "$GITHUB_STEP_SUMMARY"
+            (cd "$p" && flutter pub get >/dev/null && dart pub outdated --no-dev-dependencies | tee -a "$GITHUB_STEP_SUMMARY") || true
+          done

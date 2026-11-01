@@ -1,0 +1,16 @@
+# Production server block (rendered by web-entrypoint.sh). TLS terminates at the
+# load balancer / Cloudflare; X-Forwarded-Proto tells Laravel the scheme.
+resolver ${DNS_RESOLVER} valid=10s ipv6=off;
+
+server {
+    listen 80 default_server;
+    server_name ${SERVER_NAME};
+    root /var/www/html/public;
+
+    set $php_upstream ${PHP_UPSTREAM};
+    set $reverb_upstream ${REVERB_UPSTREAM};
+
+    include /etc/nginx/snippets/security-headers.conf;
+    include /etc/nginx/snippets/csp.conf;
+    include /etc/nginx/snippets/laravel.conf;
+}

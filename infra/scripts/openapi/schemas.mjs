@@ -7,8 +7,18 @@
 //   '[x]'        array of x            'x?'      nullable x
 //   { ... }      inline object (all listed keys required unless suffixed with '?' in the key)
 
+const RAW_HINTS = ['items', 'properties', 'additionalProperties', 'const', 'enum', 'format', 'minimum', 'maximum', 'minLength', 'maxItems', 'description', 'pattern'];
+const JSON_TYPES = ['string', 'integer', 'number', 'boolean', 'array', 'object', 'null'];
+
+/** True when `spec` is already a JSON Schema fragment rather than a shorthand field map. */
+function isRaw(spec) {
+  if (['oneOf', 'allOf', 'anyOf', '$ref'].some((k) => k in spec)) return true;
+  if (Object.keys(spec).length === 1 && JSON_TYPES.includes(spec.type)) return true;
+  return JSON_TYPES.includes(spec.type) && RAW_HINTS.some((k) => k in spec);
+}
+
 export function T(spec) {
-  if (spec && typeof spec === 'object' && !Array.isArray(spec)) return obj(spec);
+  if (spec && typeof spec === 'object' && !Array.isArray(spec)) return isRaw(spec) ? spec : obj(spec);
   let s = String(spec);
   let nullable = false;
   if (s.endsWith('?')) { nullable = true; s = s.slice(0, -1); }
@@ -57,7 +67,6 @@ export const schemas = {
   Macros: obj(Macros),
   Translations: { type: 'object', description: 'Raw translatable value keyed by locale.', properties: { en: { type: 'string' }, ar: { type: 'string' }, fr: { type: 'string' }, es: { type: 'string' } }, additionalProperties: false },
   ErrorItem: obj({ code: 'string', message: 'string', 'field_errors?': { type: 'object', additionalProperties: { type: 'array', items: { type: 'string' } } } }),
-  Envelope: obj({ data: 'any', meta: 'json', links: 'json', errors: '[$ErrorItem]' }),
   ErrorEnvelope: obj({ data: { type: 'null' }, meta: 'json', links: 'json', errors: '[$ErrorItem]' }),
   CursorMeta: obj({ per_page: 'int', next_cursor: 'string?', prev_cursor: 'string?' }),
   PageMeta: obj({ per_page: 'int', current_page: 'int', total: 'int', last_page: 'int' }),
@@ -74,7 +83,7 @@ export const schemas = {
     id: 'ulid', type: 'business|personal', name: 'string', slug: 'string', logo_url: 'uri?', brand_color: 'string', currency: 'string', country: 'string?',
     timezone: 'string', locale: '$Locale', plan: 'free|pro|studio|enterprise', trial_ends_at: 'datetime?', onboarded: 'bool', role: 'owner|coach|assistant|client',
   }),
-  Tokens: obj({ access_token: 'string', refresh_token: 'string', token_type: 'Bearer', expires_at: 'datetime', refresh_expires_at: 'datetime' }),
+  Tokens: obj({ access_token: 'string', refresh_token: 'string', token_type: { type: 'string', const: 'Bearer' }, expires_at: 'datetime', refresh_expires_at: 'datetime' }),
   AuthSession: { allOf: [{ $ref: '#/components/schemas/Tokens' }, obj({ user: '$User', tenants: '[$Tenant]' })] },
   TwoFactorRequired: obj({ two_factor_required: { type: 'boolean', const: true }, challenge: 'string' }),
   Me: obj({ user: '$User', tenants: '[$Tenant]' }),
@@ -87,7 +96,7 @@ export const schemas = {
   InvitationPreview: obj({ code: 'string', role: 'coach|assistant|client', email: 'email?', name: 'string?', tenant: obj({ name: 'string', logo_url: 'uri?', brand_color: 'string' }), coach: obj({ name: 'string' }) }),
   Notification: obj({ id: 'string', category: 'string', title: 'string', body: 'string', link: 'string?', data: 'json', read_at: 'datetime?', created_at: 'datetime' }),
   TwoFactorSetup: obj({ secret: 'string', otpauth_url: 'string', qr_svg: 'string', recovery_codes: '[string]' }),
-  ExportStatus: obj({ status: 'queued', message: 'string' }),
+  ExportStatus: obj({ status: { type: 'string', const: 'queued' }, message: 'string' }),
 
   // ------------------------------------------------------------ marketplace
   PublicCoach: obj({
@@ -107,7 +116,7 @@ export const schemas = {
   // ------------------------------------------------------------ today
   TodayWorkout: obj({ workout_id: 'ulid', program_day_id: 'ulid?', program_assignment_id: 'ulid?', name: 'string', estimated_minutes: 'int?', exercise_count: 'int', week_number: 'int?', day_number: 'int?', status: 'pending|in_progress|completed', session_id: 'ulid?' }),
   Today: obj({
-    date: 'date', greeting_name: 'string', coach: obj({ id: 'ulid', name: 'string', avatar_url: 'uri?' }, {}).properties ? { oneOf: [obj({ id: 'ulid', name: 'string', avatar_url: 'uri?' }), { type: 'null' }] } : null,
+    date: 'date', greeting_name: 'string', coach: { oneOf: [obj({ id: 'ulid', name: 'string', avatar_url: 'uri?' }), { type: 'null' }] },
     workout: '$TodayWorkout?', streak: obj({ current: 'int', best: 'int' }), next_session: '$Booking?',
     nutrition: obj({ targets: '$Macros?', consumed: '$Macros', water_ml: 'int', water_target_ml: 'int' }),
     habits: obj({ completed: 'int', total: 'int' }), checkin_due: { oneOf: [obj({ id: 'ulid', due_on: 'date', form_name: 'string' }), { type: 'null' }] }, unread_messages: 'int',
@@ -119,7 +128,7 @@ export const schemas = {
     id: 'ulid', slug: 'string', name: 'string', primary_muscle: 'string', secondary_muscles: '[string]', equipment: '[string]', pattern: 'string?', mechanics: 'string?',
     force: 'string?', level: 'string?', is_unilateral: 'bool', is_bodyweight: 'bool', metrics: '[string]', video: '$ExerciseVideo', is_custom: 'bool', is_favorite: 'bool',
   }),
-  Exercise: { allOf: [{ $ref: '#/components/schemas/ExerciseListItem' }, obj({ instructions: '[string]', tips: '[string]', mistakes: '[string]', alternatives: '[' + '$ExerciseRef' + ']' })] },
+  Exercise: { allOf: [{ $ref: '#/components/schemas/ExerciseListItem' }, obj({ instructions: '[string]', tips: '[string]', mistakes: '[string]', alternatives: '[$ExerciseRef]' })] },
   ExerciseRef: obj({ id: 'ulid', name: 'string' }),
   ExerciseWrite: obj({ 'name?': { oneOf: [{ type: 'string' }, { $ref: '#/components/schemas/Translations' }] }, 'primary_muscle?': 'string', 'secondary_muscles?': '[string]', 'equipment?': '[string]', 'pattern?': 'string', 'mechanics?': 'compound|isolation', 'force?': 'push|pull|static', 'level?': 'beginner|intermediate|advanced', 'is_unilateral?': 'bool', 'is_bodyweight?': 'bool', 'metrics?': '[string]', 'instructions?': 'any', 'tips?': 'any', 'mistakes?': 'any', 'video_url?': 'uri' }, { required: false }),
   SetTemplate: obj({ 'id?': 'ulid', position: 'int', set_type: 'warmup|working|drop|failure|amrap', reps_min: 'int?', reps_max: 'int?', weight_kg: 'num?', percent_1rm: 'num?', rpe: 'num?', rir: 'int?', duration_seconds: 'int?', distance_m: 'num?', rest_seconds: 'int?' }),
@@ -147,7 +156,7 @@ export const schemas = {
 
   // ------------------------------------------------------------ nutrition
   Food: obj({
-    id: 'ulid', name: 'string', brand: 'string?', barcode: 'string?', source: 'usda|off|custom|regional|string', region: 'string?', category: 'string?',
+    id: 'ulid', name: 'string', brand: 'string?', barcode: 'string?', source: { type: 'string', description: 'usda | off | custom | regional | user' }, region: 'string?', category: 'string?',
     per_100g: obj({ kcal: 'num', protein_g: 'num', carbs_g: 'num', fat_g: 'num', fiber_g: 'num?', sugar_g: 'num?', sodium_mg: 'num?' }),
     servings: { type: 'array', items: obj({ unit: 'string', grams: 'num', label: 'string' }) }, diet_tags: '[string]', allergens: '[string]', is_verified: 'bool', is_custom: 'bool', is_favorite: 'bool',
   }),
@@ -195,7 +204,7 @@ export const schemas = {
   Message: obj({
     id: 'ulid', conversation_id: 'ulid', sender: { oneOf: [obj({ id: 'ulid', name: 'string', avatar_url: 'uri?' }), { type: 'null' }] }, type: 'text|voice|image|video|file|share|system',
     body: 'string?', meta: 'json', attachments: '[$Attachment]', reply_to: { oneOf: [obj({ id: 'ulid', body: 'string?', sender_name: 'string' }), { type: 'null' }] },
-    reactions: { type: 'array', items: obj({ emoji: 'string', count: 'int', mine: 'bool' }) }, channel: 'app|whatsapp|email|string', edited_at: 'datetime?', created_at: 'datetime', deleted: 'bool',
+    reactions: { type: 'array', items: obj({ emoji: 'string', count: 'int', mine: 'bool' }) }, channel: { type: 'string', description: 'app | whatsapp | email' }, edited_at: 'datetime?', created_at: 'datetime', deleted: 'bool',
   }),
   SendMessage: obj({ 'id?': 'ulid', type: 'text|voice|image|video|file|share', 'body?': 'string', 'reply_to_id?': 'ulid', 'meta?': 'json' }),
   SendMessageMultipart: obj({ 'id?': 'ulid', type: 'voice|image|video|file', file: 'binary', 'body?': 'string', 'reply_to_id?': 'ulid' }),
@@ -263,7 +272,7 @@ export const schemas = {
   // ------------------------------------------------------------ integrations
   Integration: obj({ provider: 'string', status: 'connected|error|disconnected|available', last_sync_at: 'datetime?', last_error: 'string?', scopes: '[string]' }),
   ConnectResult: obj({ authorize_url: 'uri?', status: 'connected|pending' }),
-  HealthSampleBatch: obj({ samples: { type: 'array', maxItems: 500, items: obj({ type: 'steps|active_energy|workout|heart_rate|resting_hr|hrv|sleep|weight|body_fat|nutrition|string', value: 'num', unit: 'string', start_at: 'datetime', end_at: 'datetime', source: 'apple_health|health_connect|string', external_id: 'string', 'meta?': 'json' }) } }),
+  HealthSampleBatch: obj({ samples: { type: 'array', maxItems: 500, items: obj({ type: { type: 'string', description: 'steps, active_energy, workout, heart_rate, resting_hr, hrv, sleep, weight, body_fat, nutrition' }, value: 'num', unit: 'string', start_at: 'datetime', end_at: 'datetime', source: { type: 'string', description: 'apple_health | health_connect | garmin | ...' }, external_id: 'string', 'meta?': 'json' }) } }),
   HealthSummary: obj({ days: { type: 'array', items: obj({ date: 'date', values: { type: 'object', additionalProperties: { type: 'number' } }, sources: { type: 'object', additionalProperties: { type: 'string' } } }) }, readiness: 'num?' }),
   WebhookEndpoint: obj({ id: 'ulid', url: 'uri', events: '[string]', is_active: 'bool', 'secret?': 'string' }),
   WebhookDelivery: obj({ id: 'ulid', event: 'string', response_code: 'int?', attempts: 'int', status: 'pending|delivered|failed', next_retry_at: 'datetime?', created_at: 'datetime' }),

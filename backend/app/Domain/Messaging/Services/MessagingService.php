@@ -19,6 +19,7 @@ use App\Domain\Tenancy\Models\Membership;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Http\Api\V1\Resources\Messaging\MessageResource;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Cache;
@@ -390,7 +391,7 @@ final class MessagingService
     }
 
     /** Messages from others newer than the user's read marker, as a base query aliased "m". */
-    private function unreadQuery(string $userId): \Illuminate\Database\Query\Builder
+    private function unreadQuery(string $userId): Builder
     {
         return DB::table('messages as m')
             ->join('conversation_participants as cp', function ($join) use ($userId) {

@@ -10,6 +10,7 @@ use App\Domain\Integrations\Models\Integration;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 /**
  * Garmin Health API (OAuth 2.0 PKCE). Data is pushed to our webhook as
@@ -39,7 +40,7 @@ class GarminProvider extends AbstractHealthProvider
     public function connect(string $code, array $context = []): TokenSet
     {
         $tokens = parent::connect($code, $context);
-        $userId = \Illuminate\Support\Facades\Http::withToken($tokens->accessToken)->acceptJson()->timeout(20)
+        $userId = Http::withToken($tokens->accessToken)->acceptJson()->timeout(20)
             ->get(self::API.'/user/id')->json('userId');
 
         return new TokenSet($tokens->accessToken, $tokens->refreshToken, $tokens->expiresAt, $userId ? (string) $userId : null, $tokens->scopes);

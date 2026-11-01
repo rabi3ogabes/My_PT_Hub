@@ -1,0 +1,4 @@
+<div class="inline-flex rounded-full border border-border bg-surface-sunken p-1 text-caption font-semibold" role="radiogroup" aria-label="{{ __('marketing.calculators.common.units') }}">
+    <button type="button" role="radio" :aria-checked="(unit === 'metric').toString()" @click="unit = 'metric'" class="rounded-full px-3 py-1 transition" :class="unit === 'metric' ? 'bg-surface text-text-primary shadow-e1' : 'text-text-muted'">{{ __('marketing.calculators.common.metric') }}</button>
+    <button type="button" role="radio" :aria-checked="(unit === 'imperial').toString()" @click="unit = 'imperial'" class="rounded-full px-3 py-1 transition" :class="unit === 'imperial' ? 'bg-surface text-text-primary shadow-e1' : 'text-text-muted'">{{ __('marketing.calculators.common.imperial') }}</button>
+</div>
