@@ -19,7 +19,7 @@ beforeEach(function () {
 
 function submittedCheckin($test, array $answers): CheckinResponse
 {
-    return $test->inTenant($test->tenant, function () use ($test, $answers) {
+    return app(\App\Domain\Shared\Tenancy\TenantContext::class)->run($test->tenant, function () use ($test, $answers) {
         $form = CheckinForm::query()->firstOrFail();
         foreach ([1, 4, 8] as $daysAgo) {
             WorkoutSession::query()->create(['client_id' => $test->client->id, 'status' => 'completed', 'started_at' => now()->subDays($daysAgo), 'name' => 'Session']);
@@ -57,7 +57,10 @@ it('summarises a check-in with numbers and drafts a reply in the client language
 it('adds safety risk flags from the answers and retries when a banned word is used', function () {
     $this->inTenant($this->tenant, fn () => AiSetting::query()->create(['user_id' => $this->coach->id, 'banned_words' => ['diet']]));
     $response = submittedCheckin($this, ['struggles' => "J'ai mal au genou depuis mardi"]);
-    $this->fake()->push('checkin_summary', fn ($p) => app(\App\Domain\Ai\Providers\Fake\FakeResponder::class)->structured('checkin_summary', $p->context) + [] ? array_merge(app(\App\Domain\Ai\Providers\Fake\FakeResponder::class)->structured('checkin_summary', $p->context), ['reply_draft' => 'Stick to the diet!']) : []);
+    $this->fake()->push('checkin_summary', fn ($p) => array_merge(
+        app(\App\Domain\Ai\Providers\Fake\FakeResponder::class)->structured('checkin_summary', $p->context),
+        ['reply_draft' => 'Stick to the diet!'],
+    ));
 
     $result = $this->actingAsIn($this->coach, $this->tenant)->postJson("/api/v1/ai/checkins/{$response->id}/summary")->assertCreated();
 
@@ -79,7 +82,7 @@ it('rejects pending check-ins and other tenants check-ins', function () {
 
 function conversationWith($test, array $messages): Conversation
 {
-    return $test->inTenant($test->tenant, function () use ($test, $messages) {
+    return app(\App\Domain\Shared\Tenancy\TenantContext::class)->run($test->tenant, function () use ($test, $messages) {
         $c = Conversation::query()->create(['type' => 'direct', 'created_by' => $test->coach->id]);
         foreach ([$test->coach, $test->client] as $u) {
             ConversationParticipant::query()->create(['conversation_id' => $c->id, 'user_id' => $u->id]);
