@@ -15,4 +15,13 @@ abstract class BaseModel extends Model
     use HasUlids;
 
     protected $guarded = [];
+
+    /**
+     * Store JSON with raw UTF-8 (not \uXXXX escapes) so translated content
+     * (Arabic, accented French/Spanish) is searchable with LIKE on every driver.
+     */
+    protected function asJson($value, $flags = 0)
+    {
+        return parent::asJson($value, $flags | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    }
 }

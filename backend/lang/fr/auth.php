@@ -16,4 +16,5 @@ return [
         'body' => 'Touchez le bouton ci-dessous pour vous connecter. Le lien expire dans 15 minutes et ne fonctionne qu’une fois.',
         'action' => 'Se connecter',
     ],
+    'verified' => 'Votre e-mail est vérifié. Bienvenue sur Aurum.',
 ];

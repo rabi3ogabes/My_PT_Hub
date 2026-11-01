@@ -34,7 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         // The tenant must be resolved BEFORE route-model binding so that bound
         // models are filtered by the tenant scope (prevents cross-tenant access).
-        $middleware->appendToPriorityList(\Illuminate\Auth\Middleware\Authenticate::class, ResolveTenant::class);
+        $middleware->appendToPriorityList(\Illuminate\Contracts\Auth\Middleware\AuthenticatesRequests::class, ResolveTenant::class);
         $middleware->redirectGuestsTo(fn () => route('login'));
         $middleware->validateCsrfTokens(except: ['webhooks/*', 'stripe/*']);
         $middleware->trustProxies(at: '*');

@@ -16,4 +16,5 @@ return [
         'body' => 'Toca el botón para iniciar sesión. El enlace caduca en 15 minutos y funciona una vez.',
         'action' => 'Iniciar sesión',
     ],
+    'verified' => 'Tu correo está verificado. Bienvenido a Aurum.',
 ];

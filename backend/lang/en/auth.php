@@ -16,4 +16,5 @@ return [
         'body' => 'Tap the button below to sign in. The link expires in 15 minutes and works once.',
         'action' => 'Sign in',
     ],
+    'verified' => 'Your email is verified. Welcome to Aurum.',
 ];

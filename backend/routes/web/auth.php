@@ -20,8 +20,10 @@ Route::get('email/verify/{id}/{hash}', [EmailVerificationController::class, 'ver
     ->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
 
 Route::get('invite/{code}', Auth\AcceptInvitation::class)->name('invite.show');
+Route::get('invite/{code}/qr', App\Http\Web\Auth\InviteQrController::class)->middleware('signed')->name('invite.qr');
 
 Route::middleware('auth')->group(function () {
     Route::get('email/verify', Auth\VerifyEmailNotice::class)->name('verification.notice');
     Route::post('logout', [App\Http\Web\Auth\LogoutController::class, '__invoke'])->name('logout');
 });
+Route::get('account/export/{user}/{file}', App\Http\Web\Account\ExportDownloadController::class)->middleware('signed')->name('account.export.download');

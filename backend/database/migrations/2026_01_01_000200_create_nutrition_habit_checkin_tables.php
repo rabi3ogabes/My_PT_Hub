@@ -63,7 +63,7 @@ return new class extends Migration
         Schema::create('recipe_items', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->foreignUlid('recipe_id')->constrained()->cascadeOnDelete();
-            $table->foreignUlid('food_id')->constrained()->restrictOnDelete();
+            $table->foreignUlid('food_id')->constrained('foods')->restrictOnDelete();
             $table->decimal('grams', 8, 2);
             $table->string('display_unit', 16)->nullable();
             $table->decimal('display_qty', 8, 2)->nullable();
@@ -124,7 +124,7 @@ return new class extends Migration
         Schema::create('meal_items', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->foreignUlid('meal_id')->constrained()->cascadeOnDelete();
-            $table->foreignUlid('food_id')->nullable()->constrained()->restrictOnDelete();
+            $table->foreignUlid('food_id')->nullable()->constrained('foods')->restrictOnDelete();
             $table->foreignUlid('recipe_id')->nullable()->constrained()->restrictOnDelete();
             $table->decimal('quantity', 8, 2); // grams for food, servings for recipe
             $table->string('unit', 16)->default('g');
@@ -137,7 +137,7 @@ return new class extends Migration
             $table->foreignUlid('client_id')->constrained('users')->cascadeOnDelete();
             $table->date('log_date');
             $table->string('slot', 16);
-            $table->foreignUlid('food_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignUlid('food_id')->nullable()->constrained('foods')->nullOnDelete();
             $table->foreignUlid('recipe_id')->nullable()->constrained()->nullOnDelete();
             $table->string('name')->nullable(); // quick-add label
             $table->decimal('quantity', 8, 2)->default(0);
@@ -166,7 +166,7 @@ return new class extends Migration
 
         Schema::create('food_favorites', function (Blueprint $table) {
             $table->foreignUlid('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignUlid('food_id')->constrained()->cascadeOnDelete();
+            $table->foreignUlid('food_id')->constrained('foods')->cascadeOnDelete();
             $table->primary(['user_id', 'food_id']);
         });
 
