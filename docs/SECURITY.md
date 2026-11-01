@@ -27,7 +27,7 @@ Status legend: ✅ implemented in the repository · 🟡 partially implemented /
 | 2.1.1 | Passwords ≥ 8 chars | ✅ | `Password::min(8)->letters()->numbers()` on register/reset/update |
 | 2.1.7 | Breached-password check | ⬜ | Add `->uncompromised()` (HIBP k-anonymity) — Phase 9 hardening |
 | 2.2.1 | Anti-automation | ✅ | `throttle:auth` 10/min per IP **and** per account; lockout after 5 failures for 15 min (`users.failed_logins`, `locked_until`, 423 `account_locked`) |
-| 2.2.3 | Notify on security events | 🟡 | Email on password change and 2FA change; new-device sign-in email ⬜ |
+| 2.2.3 | Notify on security events | ⬜ | Security emails on password change, 2FA change and new-device sign-in (Phase 9 hardening) |
 | 2.4.1 | Password storage | ✅ | bcrypt, `BCRYPT_ROUNDS=12` |
 | 2.5.x | Recovery | ✅ | Password reset tokens (Laravel broker, 60 min); magic links hashed (`magic_links.token_hash`), 15 min, single use |
 | 2.7/2.8 | MFA | ✅ / 🟡 | TOTP enrol/confirm/challenge/disable; secrets + recovery codes encrypted. Enforcement for owners and super-admins on billing/payments routes ⬜ (Phase 9) |
@@ -58,7 +58,7 @@ Status legend: ✅ implemented in the repository · 🟡 partially implemented /
 | Req | Control | Status | Implementation |
 |---|---|---|---|
 | 5.1.x | Input validation | ✅ | Validation on every write; enums via `in:`; ULIDs validated; only validated data reaches models |
-| 5.2.x | Sanitization | ✅ | Rich text (community, CMS) sanitized to an allow-list on save; Markdown rendered safely |
+| 5.2.x | Sanitization | 🟡 | Marketing/CMS and coach profile content sanitized on render; community post rich text allow-list sanitization ⬜ |
 | 5.3.x | Output encoding | ✅ | Blade `{{ }}` escaping; JSON responses; PDF generation from escaped templates |
 | 5.3.4 | SQL injection | ✅ | Eloquent/query builder bindings only; AI business assistant uses predefined tool functions, never model-written SQL |
 | 5.5.x | Deserialization | ✅ | No `unserialize` of user input; queued jobs signed by Laravel |
@@ -74,7 +74,7 @@ Status legend: ✅ implemented in the repository · 🟡 partially implemented /
 ### V8 Data protection
 | Req | Control | Status | Implementation |
 |---|---|---|---|
-| 8.1.x | Sensitive data not cached | ✅ | `Cache-Control: no-store` on authenticated API responses; CDN caches only marketing + public media |
+| 8.1.x | Sensitive data not cached | 🟡 | `Cache-Control: no-store` on invoices and checkout; global no-store middleware for authenticated API ⬜; CDN caches only marketing + public media |
 | 8.2.x | Client-side data | ✅ | Drift DB in app sandbox; tokens in secure storage; option to wipe on sign-out |
 | 8.3.x | Sensitive data at rest | ✅ | Encrypted casts: `messages.body`, `users.two_factor_*`, `client_profiles.date_of_birth/injuries/medical_notes`, `payment_gateways.credentials`, `integrations.*_token`, `webhook_endpoints.secret`; volume/bucket encryption |
 | 8.3.4 | Health data minimisation | ✅ | AI requests send minimum fields, no names/emails; analytics events carry no health values |
@@ -103,10 +103,10 @@ Status legend: ✅ implemented in the repository · 🟡 partially implemented /
 | 11.1.4 | Replay protection on money | ✅ | `Idempotency-Key` middleware (24 h replay, in-progress lock 409); webhook dedupe `webhook_events` |
 | 12.1.x | Upload limits | ✅ | `client_max_body_size 520m` at nginx, per-plan video quotas, MIME + extension validation, FFmpeg probes before processing |
 | 12.4.x | Untrusted files stored outside webroot | ✅ | Object storage private bucket; never executed |
-| 12.6.1 | SSRF | ✅ | Outbound webhooks: https only, private IP ranges blocked at delivery, 10 s timeout; barcode lookup only to configured OFF host |
+| 12.6.1 | SSRF | 🟡 | Webhook endpoint URLs validated (https, private ranges rejected) at registration; re-check of resolved IP at delivery time ⬜; barcode lookup only to the configured Open Food Facts host |
 | 13.1.x | API security | ✅ | Bearer auth, consistent envelope, rate limits per group (api 120/min, auth, ai, public 30/min) |
 | 13.2.x | RESTful verbs & content types | ✅ | JSON only (`Accept: application/json`), multipart only on upload endpoints |
-| 13.2.6 | Webhook authenticity | ✅ | Inbound: provider signature verification per driver; outbound: HMAC-SHA256 signature header with endpoint secret |
+| 13.2.6 | Webhook authenticity | ✅ / 🟡 | Inbound: HMAC/signature verification per payment and health driver (`app/Domain/Payments/Gateways/Drivers`, `app/Domain/Integrations/Providers`); outbound: HMAC-SHA256 signature header with the endpoint secret (delivery job, Phase 7) |
 
 ### Mobile (MASVS-aligned)
 | Control | Status | Implementation |
