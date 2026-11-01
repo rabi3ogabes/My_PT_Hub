@@ -2,6 +2,7 @@
 
 namespace App\Http\Api\V1\Client;
 
+use App\Domain\Calendar\Models\CreditLedgerEntry;
 use App\Domain\Payments\Models\ClientSubscription;
 use App\Domain\Payments\Models\Invoice;
 use App\Domain\Payments\Models\Order;
@@ -91,7 +92,7 @@ class ShopController extends ApiController
         return $this->ok([
             'orders' => OrderResource::collection($orders)->resolve(request()),
             'subscriptions' => SubscriptionResource::collection($subs)->resolve(request()),
-            'credits' => \App\Domain\Calendar\Models\CreditLedgerEntry::balanceFor($this->user()->id),
+            'credits' => CreditLedgerEntry::balanceFor($this->user()->id),
         ]);
     }
 

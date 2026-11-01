@@ -13,17 +13,13 @@ beforeEach(function () {
     $this->rice = nutritionFood('Rice', 130, 2.7, 28.2, 0.3, ['servings' => [['unit' => 'cup', 'grams' => 158]]]);
     $this->chicken = nutritionFood('Chicken', 165, 31, 0, 3.6);
     $this->date = '2026-11-01';
+    $this->activePlan = fn (array $items): array => $this->actingAsIn($this->owner, $this->tenant)->postJson('/api/v1/meal-plans', nutritionPlanPayload($items, [
+        'status' => 'active', 'client_id' => $this->client->id, 'start_date' => '2026-10-01',
+    ]))->assertCreated()->json('data');
 });
 
-function activePlanFor($test, array $items): array
-{
-    return $test->actingAsIn($test->owner, $test->tenant)->postJson('/api/v1/meal-plans', nutritionPlanPayload($items, [
-        'status' => 'active', 'client_id' => $test->client->id, 'start_date' => '2026-10-01',
-    ]))->assertCreated()->json('data');
-}
-
 it('REGRESSION: any food added to the active plan always appears in the client day', function () {
-    $plan = activePlanFor($this, [['food_id' => $this->rice->id, 'quantity' => 1, 'unit' => 'cup']]);
+    $plan = ($this->activePlan)([['food_id' => $this->rice->id, 'quantity' => 1, 'unit' => 'cup']]);
 
     // Coach adds a brand-new custom (even pending-moderation) food to the plan, plus a soft-deleted one.
     $custom = $this->inTenant($this->tenant, fn () => Food::create(['name' => ['en' => 'Coach special'], 'kcal' => 200, 'protein_g' => 20, 'moderation' => 'pending']));
@@ -78,7 +74,7 @@ it('logs food idempotently and computes macros server-side', function () {
 });
 
 it('logs a whole planned meal in one tap and flags planned items as logged', function () {
-    activePlanFor($this, [['food_id' => $this->rice->id, 'quantity' => 1, 'unit' => 'cup'], ['food_id' => $this->chicken->id, 'quantity' => 150]]);
+    ($this->activePlan)([['food_id' => $this->rice->id, 'quantity' => 1, 'unit' => 'cup'], ['food_id' => $this->chicken->id, 'quantity' => 150]]);
     $this->actingAsIn($this->client, $this->tenant);
 
     $logs = $this->postJson('/api/v1/me/food-logs/from-plan', ['log_date' => $this->date, 'slot' => 'breakfast'])->assertOk()->json('data.logs');
@@ -90,7 +86,7 @@ it('logs a whole planned meal in one tap and flags planned items as logged', fun
 
     $breakfast = collect($this->getJson("/api/v1/me/nutrition?date={$this->date}")->json('data.meals'))->firstWhere('slot', 'breakfast');
     expect(collect($breakfast['planned'])->every(fn ($p) => $p['logged'] === true))->toBeTrue()
-        ->and($breakfast['consumed']['kcal'])->toEqual(453.9);
+        ->and($breakfast['consumed']['kcal'])->toEqual(452.9);
 });
 
 it('copies a day, tracks water, recents, favourites and weekly adherence', function () {
@@ -144,7 +140,7 @@ it('lets clients delete their own logs', function () {
     $this->actingAsIn($this->client, $this->tenant);
     $id = $this->postJson('/api/v1/me/food-logs', ['log_date' => $this->date, 'slot' => 'dinner', 'food_id' => $this->chicken->id, 'quantity' => 100])->json('data.id');
     $this->deleteJson("/api/v1/me/food-logs/{$id}")->assertOk();
-    expect(FoodLog::withoutGlobalScopes()->whereKey($id)->exists())->toBeFalse();
+    expect(FoodLog::withoutGlobalScopes()->find($id)->trashed())->toBeTrue();
 });
 
 it('stores targets with safety floors and lets coaches override', function () {

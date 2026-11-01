@@ -11,7 +11,7 @@ beforeEach(function () {
     $this->oats = nutritionFood('Oats', 379, 13.2, 67.7, 6.5, ['category' => 'grains', 'servings' => [['unit' => 'cup', 'grams' => 81]]]);
     $this->egg = nutritionFood('Egg', 143, 12.6, 0.7, 9.5, ['category' => 'dairy', 'servings' => [['unit' => 'piece', 'grams' => 50]]]);
     $this->chicken = nutritionFood('Chicken breast', 165, 31, 0, 3.6, ['category' => 'meat', 'diet_tags' => ['halal']]);
-    $this->turkey = nutritionFood('Turkey breast', 135, 30, 0, 1.0, ['category' => 'meat', 'diet_tags' => ['halal']]);
+    $this->turkey = nutritionFood('Turkey breast', 150, 29, 0, 3.5, ['category' => 'meat', 'diet_tags' => ['halal']]);
     $this->beef = nutritionFood('Fatty beef', 300, 20, 0, 24, ['category' => 'meat', 'diet_tags' => ['halal']]);
 });
 
@@ -27,7 +27,7 @@ it('creates a nested plan and computes macro totals per meal and day', function 
         ->and($meal['items'][0]['kcal'])->toEqual(307.0)
         ->and($meal['items'][1]['protein_g'])->toEqual(12.6)
         ->and($meal['totals']['kcal'])->toEqual(697.5)
-        ->and($response->json('data.days.0.totals.protein_g'))->toEqual(70.0)
+        ->and($response->json('data.days.0.totals.protein_g'))->toEqual(69.8)
         ->and($response->json('data.daily_average.kcal'))->toEqual(697.5);
 });
 

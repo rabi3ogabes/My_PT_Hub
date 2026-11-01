@@ -2,10 +2,11 @@
 
 namespace App\Http\Api\V1\Resources\Crm;
 
+use App\Domain\Crm\Models\LeadActivity;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin \App\Domain\Crm\Models\LeadActivity */
+/** @mixin LeadActivity */
 class LeadActivityResource extends JsonResource
 {
     public function toArray(Request $request): array

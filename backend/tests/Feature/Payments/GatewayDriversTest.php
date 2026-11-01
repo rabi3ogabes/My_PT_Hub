@@ -1,6 +1,8 @@
 <?php
 
-use App\Domain\Payments\Models\Order;
+use App\Domain\Payments\Gateways\Drivers\MyFatoorahGateway;
+use App\Domain\Payments\Gateways\Drivers\PaymobGateway;
+use App\Domain\Payments\Gateways\Drivers\TapGateway;
 use App\Domain\Payments\Models\WebhookEvent;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Support\Facades\Http;
@@ -72,7 +74,7 @@ it('Tap: creates a redirect charge and validates the hashstring', function () {
 
     $data = ['id' => 'chg_TS1', 'amount' => 399, 'currency' => 'QAR', 'status' => 'CAPTURED', 'reference' => ['gateway' => '123', 'payment' => '456', 'order' => $order->id],
         'transaction' => ['created' => '1730000000000'], 'source' => ['payment_method' => 'APPLE_PAY'], 'customer' => ['id' => 'cus_1'], 'card' => ['id' => 'card_1']];
-    $hash = \App\Domain\Payments\Gateways\Drivers\TapGateway::hashString($data, 'sk_test_tap');
+    $hash = TapGateway::hashString($data, 'sk_test_tap');
 
     $this->postWebhook($gateway, json_encode(['amount' => 1] + $data), ['hashstring' => $hash])->assertStatus(400);
     $this->postWebhook($gateway, json_encode($data), ['hashstring' => $hash])->assertOk();
@@ -122,7 +124,7 @@ it('MyFatoorah: creates a payment link and verifies MyFatoorah-Signature', funct
 
     $data = ['InvoiceId' => 555, 'InvoiceReference' => '2026000001', 'CustomerReference' => $order->id, 'UserDefinedField' => $order->id, 'TransactionStatus' => 'SUCCESS',
         'PaymentMethod' => 'KNET', 'PaymentId' => '0708', 'InvoiceValueInDisplayCurreny' => '399.000', 'DisplayCurrency' => 'QAR'];
-    $sig = \App\Domain\Payments\Gateways\Drivers\MyFatoorahGateway::signature($data, 'mf_secret');
+    $sig = MyFatoorahGateway::signature($data, 'mf_secret');
 
     $this->postWebhook($gateway, json_encode(['EventType' => 1, 'Event' => 'TransactionsStatusChanged', 'Data' => ['TransactionStatus' => 'FAILED'] + $data]), ['MyFatoorah-Signature' => $sig])->assertStatus(400);
     $this->postWebhook($gateway, json_encode(['EventType' => 1, 'Event' => 'TransactionsStatusChanged', 'Data' => $data]), ['MyFatoorah-Signature' => $sig])->assertOk();
@@ -139,7 +141,7 @@ it('Paymob: creates a payment intention and verifies the HMAC query parameter', 
         'integration_id' => 111, 'is_3d_secure' => true, 'is_auth' => false, 'is_capture' => false, 'is_refunded' => false, 'is_standalone_payment' => true,
         'is_voided' => false, 'order' => ['id' => 9001, 'merchant_order_id' => $order->id], 'owner' => 5, 'pending' => false,
         'source_data' => ['pan' => '2346', 'sub_type' => 'MasterCard', 'type' => 'card'], 'success' => true];
-    $hmac = \App\Domain\Payments\Gateways\Drivers\PaymobGateway::hmac($obj, 'pm_hmac');
+    $hmac = PaymobGateway::hmac($obj, 'pm_hmac');
 
     $this->postWebhook($gateway, json_encode(['type' => 'TRANSACTION', 'obj' => ['amount_cents' => 100] + $obj]), [], '?hmac='.$hmac)->assertStatus(400);
     $this->postWebhook($gateway, json_encode(['type' => 'TRANSACTION', 'obj' => $obj]), [], '?hmac='.$hmac)->assertOk();
@@ -176,7 +178,7 @@ it('rejects webhook amounts lower than the order total', function () {
     [, $gateway, $order] = $this->openCheckout('tap', 'QA', 'QAR');
     $data = ['id' => 'chg_LOW', 'amount' => 1, 'currency' => 'QAR', 'status' => 'CAPTURED', 'reference' => ['gateway' => 'g', 'payment' => 'p', 'order' => $order->id], 'transaction' => ['created' => '1']];
 
-    $this->postWebhook($gateway, json_encode($data), ['hashstring' => \App\Domain\Payments\Gateways\Drivers\TapGateway::hashString($data, 'sk_test_tap')])->assertOk();
+    $this->postWebhook($gateway, json_encode($data), ['hashstring' => TapGateway::hashString($data, 'sk_test_tap')])->assertOk();
     expect($order->refresh()->status)->toBe('pending')->and($order->payments()->where('status', 'failed')->value('failure_reason'))->toBe('amount_mismatch');
 });
 
@@ -184,7 +186,7 @@ it('records every processed event once in webhook_events', function () {
     Http::fake(['api.tap.company/v2/charges' => Http::response(['id' => 'chg_E', 'transaction' => ['url' => 'https://tap.test/pay']])]);
     [, $gateway, $order] = $this->openCheckout('tap', 'QA', 'QAR');
     $data = ['id' => 'chg_E', 'amount' => 399, 'currency' => 'QAR', 'status' => 'CAPTURED', 'reference' => ['gateway' => 'g', 'payment' => 'p', 'order' => $order->id], 'transaction' => ['created' => '1']];
-    $headers = ['hashstring' => \App\Domain\Payments\Gateways\Drivers\TapGateway::hashString($data, 'sk_test_tap')];
+    $headers = ['hashstring' => TapGateway::hashString($data, 'sk_test_tap')];
 
     $this->postWebhook($gateway, json_encode($data), $headers)->assertJsonPath('status', 'processed');
     $this->postWebhook($gateway, json_encode($data), $headers)->assertJsonPath('status', 'duplicate');

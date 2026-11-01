@@ -82,7 +82,9 @@ it('retries failed deliveries with exponential backoff and gives up after max at
         ->and(OutgoingWebhooks::backoffSeconds(20))->toBe(21600);
 
     config(['integrations.webhooks.max_attempts' => 2]);
-    Http::fake(['hooks.example.com/*' => Http::response('nope', 500)]);
+    WebhookEndpoint::withoutGlobalScopes()->update(['is_active' => false]);
+    makeEndpoint($this, ['client.created'], 'https://failing.example.org/hook');
+    Http::fake(['failing.example.org/*' => Http::response('nope', 500)]);
     app(OutgoingWebhooks::class)->dispatch($this->tenant, 'client.created', ['client' => ['id' => 'c2']]);
     $failed = WebhookDelivery::where('status', 'failed')->firstOrFail();
     expect($failed->attempts)->toBe(2)->and($failed->error)->toBe('http_500')->and($failed->next_retry_at)->toBeNull();

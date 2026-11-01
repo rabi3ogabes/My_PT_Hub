@@ -25,7 +25,7 @@ it('manages contract templates', function () {
 
 it('sends a rendered contract and the client signs it with a verifiable audit trail', function () {
     $template = $this->actingAsIn($this->owner, $this->tenant)->postJson('/api/v1/contract-templates', [
-        'name' => 'Coaching agreement', 'body' => "Agreement between {business_name} and {client_name}, dated {date}.",
+        'name' => 'Coaching agreement', 'body' => 'Agreement between {business_name} and {client_name}, dated {date}.',
     ])->json('data.id');
 
     $contractId = $this->actingAsIn($this->owner, $this->tenant)->postJson('/api/v1/contracts', ['client_id' => $this->client->id, 'contract_template_id' => $template])

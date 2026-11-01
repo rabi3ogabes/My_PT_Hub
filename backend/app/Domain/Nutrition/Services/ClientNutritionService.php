@@ -10,6 +10,7 @@ use App\Domain\Nutrition\Models\NutritionTarget;
 use App\Domain\Nutrition\Models\Recipe;
 use App\Domain\Nutrition\Models\WaterLog;
 use App\Domain\Shared\Support\ApiException;
+use App\Domain\Shared\Tenancy\TenantContext;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -173,7 +174,7 @@ final class ClientNutritionService
         if (! empty($data['id'])) {
             $existing = FoodLog::withoutGlobalScopes()->withTrashed()->find($data['id']);
             if ($existing) {
-                if ($existing->client_id !== $client->id || $existing->tenant_id !== app(\App\Domain\Shared\Tenancy\TenantContext::class)->id()) {
+                if ($existing->client_id !== $client->id || $existing->tenant_id !== app(TenantContext::class)->id()) {
                     throw ApiException::conflict('id_conflict', __('nutrition.errors.id_conflict'));
                 }
 

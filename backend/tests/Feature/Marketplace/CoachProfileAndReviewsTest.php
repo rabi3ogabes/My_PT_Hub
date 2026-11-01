@@ -20,7 +20,7 @@ beforeEach(function () {
 it('lets the owner edit and publish the profile with translatable bio', function () {
     $this->profile->forceFill(['certifications' => [['name' => 'NASM CPT', 'issuer' => 'NASM', 'year' => 2019, 'verified' => true]]])->save();
 
-    $this->actingAsIn($this->owner, $this->tenant)->withHeader('Accept-Language', 'fr')->putJson('/api/v1/coach-profile', [
+    $this->actingAsIn($this->owner, $this->tenant)->putJson('/api/v1/coach-profile?lang=fr', [
         'slug' => 'sara-strength',
         'headline' => 'Strength & HYROX coach',
         'bio' => ['en' => 'I help busy professionals get strong.', 'ar' => 'أساعد المهنيين المشغولين على اكتساب القوة.', 'fr' => 'J’aide les actifs à devenir forts.', 'de' => 'ignored'],
@@ -47,7 +47,7 @@ it('lets the owner edit and publish the profile with translatable bio', function
         ->assertJsonPath('data.is_featured', false);
 
     // A plain string bio is stored under the request locale only.
-    $this->actingAsIn($this->owner, $this->tenant)->withHeader('Accept-Language', 'es')->putJson('/api/v1/coach-profile', ['bio' => 'Ayudo a profesionales.'])
+    $this->actingAsIn($this->owner, $this->tenant)->putJson('/api/v1/coach-profile?lang=es', ['bio' => 'Ayudo a profesionales.'])
         ->assertOk()->assertJsonPath('data.bio_translations.es', 'Ayudo a profesionales.')->assertJsonPath('data.bio_translations.en', 'I help busy professionals get strong.');
 
     $this->getJson('/api/v1/public/coaches/sara-strength')->assertOk()->assertJsonPath('data.headline', 'Strength & HYROX coach');

@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Calendar\Models\CreditLedgerEntry;
 use App\Domain\Payments\Models\Invoice;
 use App\Domain\Payments\Models\Order;
 use App\Domain\Payments\Services\PaymentService;
@@ -35,7 +36,7 @@ it('refunds through the gateway and issues a credit note referencing the invoice
         ->assertOk()->assertJsonPath('data.status', 'refunded');
     expect(Invoice::withoutGlobalScopes()->where('order_id', $order->id)->where('type', 'credit_note')->count())->toBe(2)
         ->and(Order::withoutGlobalScopes()->find($order->id)->revoked_at)->not->toBeNull()
-        ->and(\App\Domain\Calendar\Models\CreditLedgerEntry::withoutGlobalScopes()->where('client_id', $order->refresh()->client_id)->sum('amount'))->toBe(0);
+        ->and(CreditLedgerEntry::withoutGlobalScopes()->where('client_id', $order->refresh()->client_id)->sum('amount'))->toBe(0);
 
     expectApiError($this->actingAsIn($owner, $tenant)->postJson("/api/v1/orders/{$order->id}/refund", ['amount_minor' => 1]), 422, 'not_refundable');
 });

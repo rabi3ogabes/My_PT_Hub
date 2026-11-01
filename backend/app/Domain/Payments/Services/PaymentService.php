@@ -17,6 +17,7 @@ use App\Domain\Shared\Support\ActivityLogger;
 use App\Domain\Shared\Support\ApiException;
 use App\Domain\Shared\Tenancy\TenantContext;
 use App\Domain\Tenancy\Models\Tenant;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -47,7 +48,7 @@ final class PaymentService
                 return [$locked, $locked->payments()->where('status', 'succeeded')->latest()->first(), false];
             }
 
-            $paidAt = isset($data['paid_at']) ? \Illuminate\Support\Carbon::parse($data['paid_at']) : now();
+            $paidAt = isset($data['paid_at']) ? Carbon::parse($data['paid_at']) : now();
             $payment = Payment::create([
                 'order_id' => $locked->id,
                 'client_subscription_id' => $locked->client_subscription_id,

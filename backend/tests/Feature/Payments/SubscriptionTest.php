@@ -1,10 +1,14 @@
 <?php
 
+use App\Domain\Calendar\Models\CreditLedgerEntry;
+use App\Domain\Payments\Gateways\Drivers\TapGateway;
 use App\Domain\Payments\Models\ClientSubscription;
 use App\Domain\Payments\Models\Invoice;
 use App\Domain\Payments\Models\Order;
 use App\Domain\Payments\Services\FulfilmentService;
+use App\Domain\Payments\Services\PaymentService;
 use App\Domain\Payments\Services\SubscriptionService;
+use App\Notifications\GenericNotification;
 use Illuminate\Http\Client\Request as HttpRequest;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
@@ -32,7 +36,7 @@ beforeEach(function () {
     $orderId = $this->actingAsIn($this->client, $this->tenant)->postJson("/api/v1/me/shop/{$this->product->id}/checkout", ['price_id' => $this->price->id])->assertCreated()->json('data.order_id');
     $data = ['id' => 'chg_S1', 'amount' => 300, 'currency' => 'QAR', 'status' => 'CAPTURED', 'reference' => ['gateway' => 'g', 'payment' => 'p', 'order' => $orderId],
         'transaction' => ['created' => '1'], 'customer' => ['id' => 'cus_tap'], 'card' => ['id' => 'card_tap'], 'source' => ['payment_method' => 'VISA']];
-    $this->postWebhook($this->gateway, json_encode($data), ['hashstring' => \App\Domain\Payments\Gateways\Drivers\TapGateway::hashString($data, 'sk_test_tap')])->assertOk();
+    $this->postWebhook($this->gateway, json_encode($data), ['hashstring' => TapGateway::hashString($data, 'sk_test_tap')])->assertOk();
     $this->order = Order::withoutGlobalScopes()->findOrFail($orderId);
     $this->sub = ClientSubscription::withoutGlobalScopes()->where('order_id', $orderId)->firstOrFail();
 });
@@ -92,7 +96,7 @@ it('renews with the saved card at period end without re-delivering content', fun
         ->and(Order::withoutGlobalScopes()->where('client_subscription_id', $sub->id)->where('status', 'paid')->count())->toBe(2)
         ->and(Invoice::withoutGlobalScopes()->where('client_id', $this->client->id)->count())->toBe(2);
     // Membership renewals top up credits each period.
-    expect(\App\Domain\Calendar\Models\CreditLedgerEntry::withoutGlobalScopes()->where('client_id', $this->client->id)->sum('amount'))->toBe(8);
+    expect(CreditLedgerEntry::withoutGlobalScopes()->where('client_id', $this->client->id)->sum('amount'))->toBe(8);
     Http::assertSent(fn (HttpRequest $r) => str_ends_with($r->url(), '/v2/tokens') && $r['saved_card']['card_id'] === 'card_tap' && $r['saved_card']['customer_id'] === 'cus_tap');
     expect(app(SubscriptionService::class)->processRenewals())->toBe(0);
 });
@@ -111,7 +115,7 @@ it('runs dunning on failed renewals and auto-pauses after the final retry', func
     }
     $sub->refresh();
     expect($sub->status)->toBe('paused')->and($sub->failed_attempts)->toBe(4)->and($sub->ended_reason)->toBe('payment_failed')->and($sub->next_retry_at)->toBeNull();
-    Notification::assertSentTo($this->client, \App\Notifications\GenericNotification::class);
+    Notification::assertSentTo($this->client, GenericNotification::class);
 
     // Staff resume after the client fixes their card.
     $this->renewalStatus = 'CAPTURED';
@@ -136,7 +140,7 @@ it('advances native Stripe subscriptions from invoice.paid webhooks', function (
     $gateway = $this->connectGateway($tenant, 'stripe');
     [$product, $price] = $this->makeProduct($tenant, ['type' => 'membership'], ['type' => 'recurring', 'interval' => 'month', 'amount_minor' => 4900]);
     $order = $this->makeOrder($tenant, $product, $price);
-    app(\App\Domain\Payments\Services\PaymentService::class)->markPaid($order, ['driver' => 'stripe', 'gateway_payment_id' => 'pi_0', 'subscription_ref' => 'sub_123', 'customer_ref' => 'cus_9']);
+    app(PaymentService::class)->markPaid($order, ['driver' => 'stripe', 'gateway_payment_id' => 'pi_0', 'subscription_ref' => 'sub_123', 'customer_ref' => 'cus_9']);
     $sub = ClientSubscription::withoutGlobalScopes()->where('order_id', $order->id)->firstOrFail();
     expect($sub->gateway_subscription_id)->toBe('sub_123');
 

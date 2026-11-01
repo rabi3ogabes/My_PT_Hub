@@ -4,6 +4,9 @@
     @include('layouts.partials.head')
     <title>{{ isset($title) ? $title.' · '.config('brand.name') : config('brand.name') }}</title>
     <meta name="robots" content="noindex, nofollow">
+    @if (request()->routeIs('invite.show') && config('brand.ios_app_id'))
+        <meta name="apple-itunes-app" content="app-id={{ config('brand.ios_app_id') }}, app-argument={{ url()->current() }}">
+    @endif
 </head>
 <body class="min-h-dvh bg-background font-sans text-text-primary antialiased">
     <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-gold focus:px-4 focus:py-2 focus:text-on-gold">{{ __('web.common.skip_to_content') }}</a>

@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends BaseModel
 {
-    use BelongsToTenant, SoftDeletes, HasTranslations;
+    use BelongsToTenant, HasTranslations, SoftDeletes;
 
     protected $table = 'products';
 

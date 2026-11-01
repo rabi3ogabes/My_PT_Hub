@@ -6,6 +6,7 @@ use App\Domain\Checkins\Models\CheckinSchedule;
 use App\Domain\Checkins\Services\CheckinService;
 use App\Domain\Progress\Models\BodyMetric;
 use App\Domain\Progress\Models\ProgressPhoto;
+use App\Notifications\GenericNotification;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Notification;
@@ -56,7 +57,7 @@ it('schedules check-ins, generates due responses, reminds and escalates overdue 
     $response = CheckinResponse::withoutGlobalScopes()->sole();
     expect($response->status)->toBe('pending')->and($response->due_on->toDateString())->toBe('2026-11-02');
     expect(CheckinSchedule::withoutGlobalScopes()->find($schedule['id'])->next_due_on->toDateString())->toBe('2026-11-09');
-    Notification::assertSentTo($this->client, \App\Notifications\GenericNotification::class);
+    Notification::assertSentTo($this->client, GenericNotification::class);
 
     // Before the due time (08:00 local) no reminder; after 09:00 local one reminder only.
     expect($svc->sendReminders($this->tenant))->toBe(0);
@@ -67,7 +68,7 @@ it('schedules check-ins, generates due responses, reminds and escalates overdue 
     $this->travelTo(CarbonImmutable::parse('2026-11-03 06:00:00'));
     expect($svc->markOverdue($this->tenant))->toBe(1)->and($svc->markOverdue($this->tenant))->toBe(0);
     expect($response->fresh()->status)->toBe('overdue');
-    Notification::assertSentTo($this->owner, \App\Notifications\GenericNotification::class);
+    Notification::assertSentTo($this->owner, GenericNotification::class);
 
     $inbox = $this->getJson('/api/v1/checkins?filter[status]=overdue')->assertOk();
     expect($inbox->json('data.0.id'))->toBe($response->id)->and($inbox->json('meta.counts.overdue'))->toBe(1);
@@ -103,7 +104,7 @@ it('lets the client submit with metrics and photos, then the coach reviews with 
     expect($fresh->context['metrics'][0]['weight_kg'])->toEqual(82.4)
         ->and($fresh->context['photo_ids'])->toBe([$photo->json('data.id')])
         ->and($fresh->context)->toHaveKey('compliance');
-    Notification::assertSentTo($this->owner, \App\Notifications\GenericNotification::class);
+    Notification::assertSentTo($this->owner, GenericNotification::class);
 
     $this->actingAsIn($this->owner, $this->tenant);
     $this->getJson('/api/v1/checkins?filter[status]=unread')->assertOk()->assertJsonPath('data.0.id', $response->id)->assertJsonPath('data.0.client.id', $this->client->id);

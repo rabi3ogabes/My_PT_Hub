@@ -2,11 +2,12 @@
 
 namespace App\Http\Api\V1\Resources\Nutrition;
 
+use App\Domain\Nutrition\Models\MealPlan;
 use App\Domain\Nutrition\Services\MacroCalculator;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin \App\Domain\Nutrition\Models\MealPlan Staff view of a meal plan with live macro totals. */
+/** @mixin MealPlan Staff view of a meal plan with live macro totals. */
 class MealPlanResource extends JsonResource
 {
     public function toArray(Request $request): array

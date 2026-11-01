@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Recipe extends BaseModel
 {
-    use SharedWithTenant, SoftDeletes, HasTranslations;
+    use HasTranslations, SharedWithTenant, SoftDeletes;
 
     protected $table = 'recipes';
 

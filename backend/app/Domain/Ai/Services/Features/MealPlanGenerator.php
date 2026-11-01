@@ -88,7 +88,9 @@ final class MealPlanGenerator
         $language = $this->clients->language($client, $input['language'] ?? null, $tenant);
 
         [$foods, $recipes] = $this->candidates($dietTags, $allergies, $cuisine, $language);
-        if (count($foods) < 3) {
+        $groups = array_unique(array_column($foods, 'group'));
+        if (count($foods) < 3 || count($groups) < 3) {
+            // Without a protein, a carb and a fat source the targets cannot be verified.
             throw ApiException::invalid('food_library_empty', __('ai.errors.food_library_empty'));
         }
         $slots = $ramadan ? ['suhoor', 'iftar', 'snack'] : $this->slots($mealsPerDay);

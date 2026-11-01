@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Food extends BaseModel
 {
-    use SharedWithTenant, SoftDeletes, HasTranslations;
+    use HasTranslations, SharedWithTenant, SoftDeletes;
 
     protected $table = 'foods';
 

@@ -58,21 +58,22 @@ final class LeadService
         return LeadStage::query()->where('kind', 'open')->orderBy('position')->first() ?? LeadStage::query()->orderBy('position')->first();
     }
 
-    public function moveToStage(Lead $lead, LeadStage $stage, ?User $by): Lead
+    /** Moves the lead and records a stage activity (null when it already was in that stage). */
+    public function moveToStage(Lead $lead, LeadStage $stage, ?User $by): ?LeadActivity
     {
         if ($lead->lead_stage_id === $stage->id) {
-            return $lead;
+            return null;
         }
         $from = $lead->stage?->name;
         $lead->update(['lead_stage_id' => $stage->id]);
-        LeadActivity::create([
+        $lead->setRelation('stage', $stage);
+
+        return LeadActivity::create([
             'lead_id' => $lead->id,
             'user_id' => $by?->id,
             'type' => 'stage',
             'body' => __('crm_module.activity.stage_changed', ['from' => $from ?? '—', 'to' => $stage->name]),
         ]);
-
-        return $lead->refresh();
     }
 
     /**
@@ -82,9 +83,13 @@ final class LeadService
     {
         if ($data['type'] === 'stage') {
             $stage = LeadStage::query()->findOrFail($data['lead_stage_id'] ?? null);
-            $this->moveToStage($lead, $stage, $by);
 
-            return $lead->activities()->firstOrFail();
+            return $this->moveToStage($lead, $stage, $by) ?? LeadActivity::create([
+                'lead_id' => $lead->id,
+                'user_id' => $by->id,
+                'type' => 'stage',
+                'body' => __('crm_module.activity.stage_changed', ['from' => $stage->name, 'to' => $stage->name]),
+            ]);
         }
 
         return LeadActivity::create([

@@ -47,9 +47,13 @@ it('merges busy blocks from Google freeBusy and Microsoft getSchedule', function
 
     Http::assertSent(fn (HttpRequest $r) => str_contains($r->url(), 'getSchedule') && $r['schedules'] === ['coach@example.com']);
 
-    // Cached until a push notification invalidates it.
+    // Cached per window until a push notification invalidates it.
+    $sent = count(Http::recorded());
     app(ExternalBusyService::class)->busyBlocks($this->coach, CarbonImmutable::parse('2026-11-02T00:00:00Z'), CarbonImmutable::parse('2026-11-03T00:00:00Z'));
-    Http::assertSentCount(2);
+    expect(count(Http::recorded()))->toBe($sent);
+    app(ExternalBusyService::class)->invalidate(\App\Domain\Integrations\Models\Integration::where('provider', 'google_calendar')->first());
+    app(ExternalBusyService::class)->busyBlocks($this->coach, CarbonImmutable::parse('2026-11-02T00:00:00Z'), CarbonImmutable::parse('2026-11-03T00:00:00Z'));
+    expect(count(Http::recorded()))->toBe($sent + 1);
 });
 
 it('degrades gracefully when a calendar provider fails', function () {

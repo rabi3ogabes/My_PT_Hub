@@ -2,16 +2,18 @@
 
 namespace App\Http\Api\V1\Resources\Crm;
 
+use App\Domain\Crm\Models\Lead;
 use App\Domain\Payments\Support\MoneyJson;
+use App\Domain\Shared\Tenancy\TenantContext;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin \App\Domain\Crm\Models\Lead */
+/** @mixin Lead */
 class LeadResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        $currency = $this->relationLoaded('tenant') ? $this->tenant?->currency : app(\App\Domain\Shared\Tenancy\TenantContext::class)->get()?->currency;
+        $currency = $this->relationLoaded('tenant') ? $this->tenant?->currency : app(TenantContext::class)->get()?->currency;
 
         return [
             'id' => $this->id,

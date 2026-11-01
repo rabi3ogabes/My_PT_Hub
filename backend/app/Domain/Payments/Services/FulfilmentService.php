@@ -29,6 +29,7 @@ use App\Domain\Tenancy\Models\Invitation;
 use App\Domain\Tenancy\Models\Tenant;
 use App\Domain\Tenancy\Services\InvitationService;
 use App\Domain\Tenancy\Services\MembershipService;
+use App\Domain\Workouts\Models\ProgramAssignment;
 use App\Notifications\InvitationNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
@@ -341,8 +342,8 @@ final class FulfilmentService
             $g = $locked->meta['fulfilment'] ?? [];
             $today = now()->toDateString();
 
-            if (! empty($g['program_assignment_id']) && class_exists(\App\Domain\Workouts\Models\ProgramAssignment::class)) {
-                \App\Domain\Workouts\Models\ProgramAssignment::query()->whereKey($g['program_assignment_id'])->whereNotIn('status', ['completed'])->update(['status' => 'cancelled']);
+            if (! empty($g['program_assignment_id']) && class_exists(ProgramAssignment::class)) {
+                ProgramAssignment::query()->whereKey($g['program_assignment_id'])->whereNotIn('status', ['completed'])->update(['status' => 'cancelled']);
             }
             if (! empty($g['meal_plan_id'])) {
                 MealPlan::query()->whereKey($g['meal_plan_id'])->update(['status' => 'archived']);

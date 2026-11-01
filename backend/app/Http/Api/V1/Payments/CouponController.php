@@ -2,6 +2,7 @@
 
 namespace App\Http\Api\V1\Payments;
 
+use App\Domain\Identity\Models\User;
 use App\Domain\Payments\Models\Coupon;
 use App\Domain\Payments\Models\Product;
 use App\Domain\Payments\Support\Permission;
@@ -88,7 +89,7 @@ class CouponController extends ApiController
         if (! empty($data['product_ids']) && Product::query()->whereIn('id', $data['product_ids'])->count() !== count(array_unique($data['product_ids']))) {
             throw ApiException::invalid('validation_failed', __('validation.exists', ['attribute' => 'product_ids']), ['product_ids' => [__('validation.exists', ['attribute' => 'product_ids'])]]);
         }
-        if (! empty($data['referrer_id']) && \App\Domain\Identity\Models\User::find($data['referrer_id'])?->roleIn($this->tenant()->id) === null) {
+        if (! empty($data['referrer_id']) && User::find($data['referrer_id'])?->roleIn($this->tenant()->id) === null) {
             throw ApiException::invalid('validation_failed', __('validation.exists', ['attribute' => 'referrer_id']), ['referrer_id' => [__('validation.exists', ['attribute' => 'referrer_id'])]]);
         }
 

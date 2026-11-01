@@ -1,0 +1,1 @@
+<div class="relative my-7 flex items-center gap-4 text-caption text-text-muted" role="separator"><span class="h-px flex-1 bg-border"></span>{{ $label ?? __('web.auth.or') }}<span class="h-px flex-1 bg-border"></span></div>

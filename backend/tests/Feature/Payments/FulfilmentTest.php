@@ -10,9 +10,12 @@ use App\Domain\Messaging\Models\Message;
 use App\Domain\Nutrition\Models\Meal;
 use App\Domain\Nutrition\Models\MealPlan;
 use App\Domain\Nutrition\Models\MealPlanDay;
+use App\Domain\Payments\Gateways\Drivers\TapGateway;
 use App\Domain\Payments\Jobs\FulfilOrder;
+use App\Domain\Payments\Models\Invoice;
 use App\Domain\Payments\Models\Order;
 use App\Domain\Payments\Models\Payment;
+use App\Domain\Payments\Services\CheckoutService;
 use App\Domain\Tenancy\Models\ClientGroup;
 use App\Domain\Tenancy\Models\Invitation;
 use App\Domain\Workouts\Models\Program;
@@ -62,7 +65,7 @@ function tapPaid(string $orderId, string $chargeId = 'chg_F1'): array
 {
     $data = ['id' => $chargeId, 'amount' => 399, 'currency' => 'QAR', 'status' => 'CAPTURED', 'reference' => ['gateway' => 'g', 'payment' => 'p', 'order' => $orderId], 'transaction' => ['created' => '1']];
 
-    return [json_encode($data), ['hashstring' => \App\Domain\Payments\Gateways\Drivers\TapGateway::hashString($data, 'sk_test_tap')]];
+    return [json_encode($data), ['hashstring' => TapGateway::hashString($data, 'sk_test_tap')]];
 }
 
 it('delivers everything a package includes when the payment webhook arrives', function () {
@@ -109,7 +112,7 @@ it('processes the same webhook twice but fulfils once', function () {
     // A different event for the same payment (e.g. provider re-sent with a new id) is also a no-op.
     $other = json_decode($body, true);
     $other['transaction']['created'] = '2';
-    $this->postWebhook($this->gateway, json_encode($other), ['hashstring' => \App\Domain\Payments\Gateways\Drivers\TapGateway::hashString($other, 'sk_test_tap')])->assertOk();
+    $this->postWebhook($this->gateway, json_encode($other), ['hashstring' => TapGateway::hashString($other, 'sk_test_tap')])->assertOk();
     FulfilOrder::dispatchSync($orderId);
 
     $client = User::query()->where('email', 'twice@example.com')->firstOrFail();
@@ -120,7 +123,7 @@ it('processes the same webhook twice but fulfils once', function () {
             ->and(ProgramAssignment::query()->where('client_id', $client->id)->count())->toBe(1)
             ->and(MealPlan::query()->where('client_id', $client->id)->count())->toBe(1)
             ->and(Message::query()->where('sender_id', $this->owner->id)->count())->toBe(1)
-            ->and(\App\Domain\Payments\Models\Invoice::query()->where('order_id', $orderId)->count())->toBe(1);
+            ->and(Invoice::query()->where('order_id', $orderId)->count())->toBe(1);
     });
 });
 
@@ -151,7 +154,7 @@ it('runs the same fulfilment for a cash payment recorded by the coach, with rece
 
 it('settles a pending manual order (bank transfer) and fulfils it', function () {
     $manual = $this->connectGateway($this->tenant, 'manual', ['is_default' => false]);
-    $order = $this->inTenant($this->tenant, fn () => app(\App\Domain\Payments\Services\CheckoutService::class)
+    $order = $this->inTenant($this->tenant, fn () => app(CheckoutService::class)
         ->createOrder($this->tenant, $this->product, $this->price, ['email' => 'transfer@example.com', 'name' => 'Bank Client'], gateway: $manual));
 
     $this->actingAsIn($this->owner, $this->tenant)->postJson('/api/v1/manual-payments', ['order_id' => $order->id, 'method' => 'bank_transfer', 'reference' => 'TRX-889'])

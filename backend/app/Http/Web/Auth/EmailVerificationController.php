@@ -19,6 +19,6 @@ class EmailVerificationController extends Controller
             event(new Verified($user));
         }
 
-        return redirect()->to(auth()->check() ? '/app' : '/login')->with('status', __('auth.verified'));
+        return redirect()->to(auth()->check() ? '/app' : '/login')->with('status', __('web.auth.verified'));
     }
 }

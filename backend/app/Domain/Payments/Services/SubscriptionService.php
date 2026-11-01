@@ -11,6 +11,7 @@ use App\Domain\Payments\Support\Automations;
 use App\Domain\Payments\Support\Notify;
 use App\Domain\Shared\Support\ActivityLogger;
 use App\Domain\Shared\Support\ApiException;
+use App\Domain\Shared\Support\Money;
 use App\Domain\Shared\Tenancy\TenantContext;
 use App\Domain\Tenancy\Models\Tenant;
 use Illuminate\Support\Carbon;
@@ -280,7 +281,7 @@ final class SubscriptionService
             // Payment link renewal (manual, or gateways without saved cards).
             $order = $checkout->open($order);
             if (! $order->isPaid()) {
-                Notify::user($sub->client, 'renewal_due', ['amount' => \App\Domain\Shared\Support\Money::format($order->total_minor, $order->currency, $sub->client?->preferredLocale())],
+                Notify::user($sub->client, 'renewal_due', ['amount' => Money::format($order->total_minor, $order->currency, $sub->client?->preferredLocale())],
                     $order->checkout_url ?? url('pay/return/'.$order->id));
                 $this->renewalFailed($sub, 'awaiting_payment');
             }

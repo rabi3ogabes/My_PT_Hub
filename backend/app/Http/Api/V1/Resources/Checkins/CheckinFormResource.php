@@ -2,11 +2,12 @@
 
 namespace App\Http\Api\V1\Resources\Checkins;
 
+use App\Domain\Checkins\Models\CheckinForm;
 use App\Http\Api\V1\Support\ViewerContext;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin \App\Domain\Checkins\Models\CheckinForm */
+/** @mixin CheckinForm */
 class CheckinFormResource extends JsonResource
 {
     public function toArray(Request $request): array

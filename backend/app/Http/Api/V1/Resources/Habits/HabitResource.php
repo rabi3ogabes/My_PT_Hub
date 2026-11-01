@@ -2,11 +2,12 @@
 
 namespace App\Http\Api\V1\Resources\Habits;
 
+use App\Domain\Habits\Models\Habit;
 use App\Http\Api\V1\Support\ViewerContext;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin \App\Domain\Habits\Models\Habit */
+/** @mixin Habit */
 class HabitResource extends JsonResource
 {
     public function toArray(Request $request): array

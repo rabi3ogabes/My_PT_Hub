@@ -2,10 +2,11 @@
 
 namespace App\Http\Api\V1\Resources\Crm;
 
+use App\Domain\Crm\Models\ContractTemplate;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin \App\Domain\Crm\Models\ContractTemplate */
+/** @mixin ContractTemplate */
 class ContractTemplateResource extends JsonResource
 {
     public function toArray(Request $request): array

@@ -2,10 +2,11 @@
 
 namespace App\Http\Api\V1\Resources\Checkins;
 
+use App\Domain\Checkins\Models\CheckinResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin \App\Domain\Checkins\Models\CheckinResponse List item (client + coach inbox). */
+/** @mixin CheckinResponse List item (client + coach inbox). */
 class CheckinResponseResource extends JsonResource
 {
     public function toArray(Request $request): array

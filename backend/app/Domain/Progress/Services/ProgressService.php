@@ -5,6 +5,7 @@ namespace App\Domain\Progress\Services;
 use App\Domain\Identity\Models\User;
 use App\Domain\Progress\Models\BodyMetric;
 use App\Domain\Progress\Models\ProgressPhoto;
+use App\Domain\Shared\Tenancy\TenantContext;
 use App\Domain\Workouts\Models\PersonalRecord;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
@@ -25,7 +26,7 @@ final class ProgressService
     {
         $id = (string) Str::ulid();
         $ext = strtolower($file->guessExtension() ?: $file->getClientOriginalExtension() ?: 'jpg');
-        $tenantId = app(\App\Domain\Shared\Tenancy\TenantContext::class)->id();
+        $tenantId = app(TenantContext::class)->id();
         $path = Storage::disk(self::DISK)->putFileAs("tenants/{$tenantId}/progress/{$client->id}", $file, "{$id}.{$ext}");
 
         return ProgressPhoto::create([

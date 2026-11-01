@@ -1,6 +1,9 @@
 <?php
 
+use App\Domain\Payments\Gateways\Drivers\TapGateway;
+use App\Domain\Payments\Models\Invoice;
 use App\Domain\Payments\Models\Order;
+use App\Domain\Payments\Models\PaymentGateway;
 use App\Domain\Payments\Services\PaymentService;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
@@ -15,10 +18,10 @@ it('never exposes another tenant\'s catalogue, orders, invoices or subscriptions
     [$b, $ownerB] = $this->coachIn('QA', 'QAR');
     $this->connectGateway($a, 'manual');
     [$productA, $priceA] = $this->makeProduct($a);
-    $gatewayA = \App\Domain\Payments\Models\PaymentGateway::withoutGlobalScopes()->where('tenant_id', $a->id)->first();
+    $gatewayA = PaymentGateway::withoutGlobalScopes()->where('tenant_id', $a->id)->first();
     $orderA = $this->makeOrder($a, $productA, $priceA);
     app(PaymentService::class)->markPaid($orderA, ['driver' => 'manual']);
-    $invoiceA = \App\Domain\Payments\Models\Invoice::withoutGlobalScopes()->where('order_id', $orderA->id)->first();
+    $invoiceA = Invoice::withoutGlobalScopes()->where('order_id', $orderA->id)->first();
 
     $this->actingAsIn($ownerB, $b);
     $this->getJson("/api/v1/products/{$productA->id}")->assertNotFound();
@@ -47,7 +50,7 @@ it('cannot settle another tenant\'s order through its own gateway webhook', func
 
     // Tenant B's coach signs a "paid" event (with their own key) referencing tenant A's order.
     $data = ['id' => 'chg_x', 'amount' => 399, 'currency' => 'QAR', 'status' => 'CAPTURED', 'reference' => ['gateway' => 'g', 'payment' => 'p', 'order' => $orderA->id], 'transaction' => ['created' => '1']];
-    $this->postWebhook($gatewayB, json_encode($data), ['hashstring' => \App\Domain\Payments\Gateways\Drivers\TapGateway::hashString($data, 'sk_test_tap')])->assertStatus(422);
+    $this->postWebhook($gatewayB, json_encode($data), ['hashstring' => TapGateway::hashString($data, 'sk_test_tap')])->assertStatus(422);
     expect(Order::withoutGlobalScopes()->find($orderA->id)->status)->toBe('pending');
 });
 

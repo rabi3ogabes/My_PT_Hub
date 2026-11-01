@@ -1,7 +1,6 @@
 <?php
 
 use App\Domain\Nutrition\Models\Food;
-use App\Domain\Tenancy\Models\Tenant;
 
 if (! function_exists('nutritionFood')) {
     /** Creates a global food (per 100 g). */

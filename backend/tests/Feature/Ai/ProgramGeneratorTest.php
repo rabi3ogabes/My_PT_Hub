@@ -109,8 +109,8 @@ it('retries with validation feedback when the output is invalid, and meters each
         ->and(array_count_values($statuses))->toBe(['invalid' => 2, 'ok' => 1]);
 
     $calls = $this->fake()->callsFor('program');
-    $lastPrompt = end($calls)['prompt'];
-    expect(end($lastPrompt->messages)['content'])->toContain('not in the exercise library');
+    $messages = end($calls)['prompt']->messages;
+    expect(end($messages)['content'])->toContain('not in the exercise library');
 });
 
 it('fails cleanly after the maximum number of retries', function () {

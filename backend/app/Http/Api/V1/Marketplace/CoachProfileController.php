@@ -66,7 +66,7 @@ class CoachProfileController extends ApiController
             unset($data['bio']);
         }
         if (isset($data['specialties'])) {
-            $data['specialties'] = array_values(array_unique(array_map(fn (string $s) => Str::snake(Str::ascii(trim($s))), $data['specialties'])));
+            $data['specialties'] = array_values(array_unique(array_map(fn (string $s) => Str::slug(trim($s), '_'), $data['specialties'])));
         }
         if (isset($data['languages'])) {
             $data['languages'] = array_values(array_unique($data['languages']));

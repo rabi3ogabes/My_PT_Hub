@@ -2,9 +2,14 @@
 
 namespace App\Providers\Modules;
 
+use App\Domain\Crm\Models\Lead;
 use App\Domain\Payments\Events\OrderPaid;
 use App\Domain\Payments\Gateways\GatewayManager;
 use App\Domain\Payments\Jobs\FulfilOrder;
+use App\Domain\Payments\Models\Invoice;
+use App\Domain\Payments\Models\PaymentGateway;
+use App\Domain\Payments\Models\Product;
+use App\Domain\Payments\Models\Refund;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
@@ -21,11 +26,11 @@ class PaymentsServiceProvider extends ServiceProvider
     {
         // Audit-log subjects owned by this module (merged into the enforced morph map).
         Relation::morphMap([
-            'payment_gateway' => \App\Domain\Payments\Models\PaymentGateway::class,
-            'product' => \App\Domain\Payments\Models\Product::class,
-            'invoice' => \App\Domain\Payments\Models\Invoice::class,
-            'refund' => \App\Domain\Payments\Models\Refund::class,
-            'lead' => \App\Domain\Crm\Models\Lead::class,
+            'payment_gateway' => PaymentGateway::class,
+            'product' => Product::class,
+            'invoice' => Invoice::class,
+            'refund' => Refund::class,
+            'lead' => Lead::class,
         ]);
 
         Event::listen(OrderPaid::class, function (OrderPaid $event): void {

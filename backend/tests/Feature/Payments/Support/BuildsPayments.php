@@ -2,6 +2,9 @@
 
 namespace Tests\Feature\Payments\Support;
 
+use App\Domain\Calendar\Models\CreditLedgerEntry;
+use App\Domain\Payments\Models\ClientSubscription;
+use App\Domain\Payments\Models\Invoice;
 use App\Domain\Payments\Models\Order;
 use App\Domain\Payments\Models\PaymentGateway;
 use App\Domain\Payments\Models\Price;
@@ -9,6 +12,7 @@ use App\Domain\Payments\Models\Product;
 use App\Domain\Payments\Services\CheckoutService;
 use App\Domain\Tenancy\Models\Tenant;
 use Illuminate\Support\Str;
+use Illuminate\Testing\TestResponse;
 
 /** Fixtures shared by the Phase 5 payment tests. */
 trait BuildsPayments
@@ -80,7 +84,7 @@ trait BuildsPayments
     /**
      * Creates a tenant + gateway + product and opens a public checkout.
      *
-     * @return array{0: Tenant, 1: PaymentGateway, 2: Order, 3: \Illuminate\Testing\TestResponse}
+     * @return array{0: Tenant, 1: PaymentGateway, 2: Order, 3: TestResponse}
      */
     public function openCheckout(string $driver, string $country, string $currency, array $price = []): array
     {
@@ -102,23 +106,23 @@ trait BuildsPayments
         expect($order->status)->toBe('paid')
             ->and($order->fulfilled_at)->not->toBeNull()
             ->and($order->client_id)->not->toBeNull()
-            ->and((int) \App\Domain\Calendar\Models\CreditLedgerEntry::withoutGlobalScopes()->where('order_id', $order->id)->sum('amount'))->toBe($credits)
-            ->and(\App\Domain\Payments\Models\Invoice::withoutGlobalScopes()->where('order_id', $order->id)->count())->toBe(1);
+            ->and((int) CreditLedgerEntry::withoutGlobalScopes()->where('order_id', $order->id)->sum('amount'))->toBe($credits)
+            ->and(Invoice::withoutGlobalScopes()->where('order_id', $order->id)->count())->toBe(1);
     }
 
     /** @param array<string, mixed> $attributes */
-    public function makeSubscription(Tenant $tenant, Product $product, Price $price, array $attributes = []): \App\Domain\Payments\Models\ClientSubscription
+    public function makeSubscription(Tenant $tenant, Product $product, Price $price, array $attributes = []): ClientSubscription
     {
         $client = $this->addClient($tenant);
 
-        return $this->inTenant($tenant, fn () => \App\Domain\Payments\Models\ClientSubscription::create(array_merge([
+        return $this->inTenant($tenant, fn () => ClientSubscription::create(array_merge([
             'client_id' => $client->id, 'product_id' => $product->id, 'price_id' => $price->id, 'status' => 'active',
             'amount_minor' => 30000, 'currency' => $tenant->currency, 'interval' => 'month', 'interval_count' => 1,
             'current_period_start' => now()->subDays(5), 'current_period_end' => now()->addDays(25),
         ], $attributes)));
     }
 
-    public function postWebhook(PaymentGateway $gateway, string $body, array $headers = [], string $query = ''): \Illuminate\Testing\TestResponse
+    public function postWebhook(PaymentGateway $gateway, string $body, array $headers = [], string $query = ''): TestResponse
     {
         $server = [];
         foreach ($headers as $k => $v) {

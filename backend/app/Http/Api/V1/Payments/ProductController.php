@@ -4,12 +4,14 @@ namespace App\Http\Api\V1\Payments;
 
 use App\Domain\Checkins\Models\CheckinForm;
 use App\Domain\Habits\Models\Habit;
+use App\Domain\Identity\Models\User;
 use App\Domain\Nutrition\Models\MealPlan;
 use App\Domain\Payments\Models\Price;
 use App\Domain\Payments\Models\Product;
 use App\Domain\Payments\Support\Permission;
 use App\Domain\Shared\Support\ApiException;
 use App\Domain\Tenancy\Models\ClientGroup;
+use App\Domain\Workouts\Models\Program;
 use App\Http\Api\ApiController;
 use App\Http\Api\V1\Resources\Payments\StaffProductResource;
 use chillerlan\QRCode\Output\QROutputInterface;
@@ -194,8 +196,8 @@ class ProductController extends ApiController
                 $errors["fulfilment.$key"] = [__('validation.exists', ['attribute' => $key])];
             }
         };
-        if (! empty($f['program_id']) && class_exists(\App\Domain\Workouts\Models\Program::class)) {
-            $check('program_id', \App\Domain\Workouts\Models\Program::query()->whereKey($f['program_id'])->exists());
+        if (! empty($f['program_id']) && class_exists(Program::class)) {
+            $check('program_id', Program::query()->whereKey($f['program_id'])->exists());
         }
         if (! empty($f['meal_plan_id'])) {
             $check('meal_plan_id', MealPlan::query()->whereKey($f['meal_plan_id'])->exists());
@@ -210,7 +212,7 @@ class ProductController extends ApiController
             $check('group_id', ClientGroup::query()->whereKey($f['group_id'])->exists());
         }
         if (! empty($f['coach_id'])) {
-            $check('coach_id', \App\Domain\Identity\Models\User::query()->whereKey($f['coach_id'])->first()?->isStaffIn($this->tenant()->id) === true);
+            $check('coach_id', User::query()->whereKey($f['coach_id'])->first()?->isStaffIn($this->tenant()->id) === true);
         }
         if ($errors !== []) {
             throw ApiException::invalid('validation_failed', __('payments.errors.fulfilment_invalid'), $errors);
@@ -237,6 +239,7 @@ class ProductController extends ApiController
     /** @param list<array<string, mixed>> $prices */
     private function syncPrices(Product $product, array $prices): void
     {
+        ksort($prices);
         $keep = [];
         foreach ($prices as $data) {
             $price = ! empty($data['id']) ? $product->prices()->whereKey($data['id'])->first() : null;

@@ -1,8 +1,11 @@
 <?php
 
 use App\Domain\Progress\Models\ProgressPhoto;
+use App\Domain\Workouts\Models\Exercise;
+use App\Domain\Workouts\Models\PersonalRecord;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 
 beforeEach(function () {
     Storage::fake('private');
@@ -42,7 +45,7 @@ it('never shows a client another client\'s photos', function () {
     [$tenantB, $ownerB] = $this->createCoachTenant();
     $photo = ProgressPhoto::withoutGlobalScopes()->sole();
     $this->actingAsIn($ownerB, $tenantB);
-    $signed = \Illuminate\Support\Facades\URL::temporarySignedRoute('api.v1.clients.progress-photos.show', now()->addMinutes(5), ['client' => $this->client->id, 'photo' => $photo->id]);
+    $signed = URL::temporarySignedRoute('api.v1.clients.progress-photos.show', now()->addMinutes(5), ['client' => $this->client->id, 'photo' => $photo->id]);
     expectApiError($this->getJson($signed), 404, 'not_found');
 });
 
@@ -54,9 +57,9 @@ it('records body metrics and returns the progress summary', function () {
     expectApiError($this->postJson('/api/v1/me/body-metrics', ['measured_on' => '2026-11-01', 'measurements' => ['tail' => 10]]), 422, 'validation_failed');
 
     $this->inTenant($this->tenant, function () {
-        $exercise = \App\Domain\Workouts\Models\Exercise::create(['slug' => 'bench', 'name' => ['en' => 'Bench press']]);
-        \App\Domain\Workouts\Models\PersonalRecord::create(['client_id' => $this->client->id, 'exercise_id' => $exercise->id, 'type' => 'weight', 'value' => 90, 'achieved_at' => now()->subWeek()]);
-        \App\Domain\Workouts\Models\PersonalRecord::create(['client_id' => $this->client->id, 'exercise_id' => $exercise->id, 'type' => 'weight', 'value' => 100, 'previous_value' => 90, 'achieved_at' => now()]);
+        $exercise = Exercise::create(['slug' => 'bench', 'name' => ['en' => 'Bench press']]);
+        PersonalRecord::create(['client_id' => $this->client->id, 'exercise_id' => $exercise->id, 'type' => 'weight', 'value' => 90, 'achieved_at' => now()->subWeek()]);
+        PersonalRecord::create(['client_id' => $this->client->id, 'exercise_id' => $exercise->id, 'type' => 'weight', 'value' => 100, 'previous_value' => 90, 'achieved_at' => now()]);
     });
 
     $summary = $this->getJson('/api/v1/me/progress')->assertOk();

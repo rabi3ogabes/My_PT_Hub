@@ -119,6 +119,7 @@ trait AiFixtures
             'salad' => ['Mixed green salad', ['ar' => 'سلطة خضراء', 'fr' => 'Salade verte', 'es' => 'Ensalada verde'], 'international', 'produce', 20, 1.4, 3.6, 0.2, ['halal', 'vegan', 'vegetarian', 'gluten_free', 'dairy_free'], []],
             'avocado' => ['Avocado', ['ar' => 'أفوكادو', 'fr' => 'Avocat', 'es' => 'Aguacate'], 'international', 'produce', 160, 2, 8.5, 14.7, ['halal', 'vegan', 'vegetarian', 'gluten_free', 'dairy_free'], []],
             'egg_whites' => ['Egg whites', ['ar' => 'بياض البيض', 'fr' => 'Blancs d’œufs', 'es' => 'Claras de huevo'], 'international', 'dairy', 52, 11, 0.7, 0.2, ['halal', 'vegetarian', 'gluten_free', 'dairy_free'], ['egg']],
+            'seitan' => ['Seitan', ['ar' => 'سيتان', 'fr' => 'Seitan', 'es' => 'Seitán'], 'international', 'prepared', 370, 75, 14, 1.9, ['halal', 'vegan', 'vegetarian', 'dairy_free'], ['gluten']],
             'baguette' => ['Baguette', ['fr' => 'Baguette', 'ar' => 'باغيت', 'es' => 'Baguette'], 'french', 'bakery', 270, 9, 55, 1.5, ['halal', 'vegan', 'vegetarian', 'dairy_free'], ['gluten']],
         ];
 

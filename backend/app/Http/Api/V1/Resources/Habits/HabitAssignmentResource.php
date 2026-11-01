@@ -2,10 +2,11 @@
 
 namespace App\Http\Api\V1\Resources\Habits;
 
+use App\Domain\Habits\Models\HabitAssignment;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin \App\Domain\Habits\Models\HabitAssignment Staff view of an assignment. */
+/** @mixin HabitAssignment Staff view of an assignment. */
 class HabitAssignmentResource extends JsonResource
 {
     public function toArray(Request $request): array

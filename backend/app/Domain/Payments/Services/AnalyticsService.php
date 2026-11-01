@@ -10,8 +10,10 @@ use App\Domain\Payments\Models\CommissionRule;
 use App\Domain\Payments\Models\Order;
 use App\Domain\Payments\Models\Payment;
 use App\Domain\Payments\Models\Refund;
+use App\Domain\Shared\Support\Money;
 use App\Domain\Tenancy\Models\Membership;
 use App\Domain\Tenancy\Models\Tenant;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -67,7 +69,7 @@ final class AnalyticsService
         $leadCount = (clone $leads)->count();
         $converted = (clone $leads)->whereNotNull('converted_at')->count();
 
-        $money = fn (int $minor) => ['amount_minor' => $minor, 'currency' => $currency, 'formatted' => \App\Domain\Shared\Support\Money::format($minor, $currency)];
+        $money = fn (int $minor) => ['amount_minor' => $minor, 'currency' => $currency, 'formatted' => Money::format($minor, $currency)];
 
         return [
             'period' => ['from' => $from->toDateString(), 'to' => $to->toDateString()],
@@ -300,12 +302,12 @@ final class AnalyticsService
         }
     }
 
-    private function payments(Tenant $tenant): \Illuminate\Database\Eloquent\Builder
+    private function payments(Tenant $tenant): Builder
     {
         return Payment::withoutGlobalScopes()->where('payments.tenant_id', $tenant->id)->where('payments.status', 'succeeded')->where('payments.currency', $tenant->currency);
     }
 
-    private function refunds(Tenant $tenant): \Illuminate\Database\Eloquent\Builder
+    private function refunds(Tenant $tenant): Builder
     {
         return Refund::withoutGlobalScopes()->where('refunds.tenant_id', $tenant->id)->where('refunds.status', 'succeeded')
             ->join('payments', 'payments.id', '=', 'refunds.payment_id')->where('payments.currency', $tenant->currency);

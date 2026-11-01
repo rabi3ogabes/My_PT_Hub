@@ -2,10 +2,11 @@
 
 namespace App\Http\Api\V1\Resources\Payments;
 
+use App\Domain\Payments\Models\Coupon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin \App\Domain\Payments\Models\Coupon */
+/** @mixin Coupon */
 class CouponResource extends JsonResource
 {
     public function toArray(Request $request): array

@@ -2,12 +2,13 @@
 
 namespace App\Http\Api\V1\Resources\Nutrition;
 
+use App\Domain\Nutrition\Models\Recipe;
 use App\Http\Api\V1\Support\ViewerContext;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
- * @mixin \App\Domain\Nutrition\Models\Recipe
+ * @mixin Recipe
  *
  * Pass `scale_servings` (int) via the request attributes to scale ingredient quantities.
  */

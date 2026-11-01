@@ -8,7 +8,7 @@ use App\Domain\Shared\Tenancy\SharedWithTenant;
 
 class Habit extends BaseModel
 {
-    use SharedWithTenant, HasTranslations;
+    use HasTranslations, SharedWithTenant;
 
     protected $table = 'habits';
 

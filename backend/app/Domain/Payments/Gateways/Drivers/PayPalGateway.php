@@ -11,6 +11,7 @@ use App\Domain\Payments\Gateways\WebhookResult;
 use App\Domain\Payments\Models\Order;
 use App\Domain\Payments\Models\Payment;
 use App\Domain\Payments\Models\PaymentGateway as GatewayModel;
+use App\Domain\Shared\Support\Money;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -157,7 +158,7 @@ final class PayPalGateway extends AbstractGateway implements HandlesReturn
                 $capture = collect($resource['links'] ?? [])->first(fn ($l) => ($l['rel'] ?? '') === 'up')['href'] ?? '';
 
                 return new WebhookResult($id, WebhookResult::REFUNDED, paymentId: basename((string) $capture) ?: null,
-                    amountMinor: isset($resource['amount']['value']) ? \App\Domain\Shared\Support\Money::toMinor($resource['amount']['value'], $resource['amount']['currency_code']) : null,
+                    amountMinor: isset($resource['amount']['value']) ? Money::toMinor($resource['amount']['value'], $resource['amount']['currency_code']) : null,
                     currency: $resource['amount']['currency_code'] ?? null, payload: $event);
             default:
                 return WebhookResult::ignored($id, $event);
@@ -170,7 +171,7 @@ final class PayPalGateway extends AbstractGateway implements HandlesReturn
         $amount = $capture['amount'] ?? [];
 
         return new WebhookResult($id, WebhookResult::SUCCEEDED, orderId: $orderId, reference: $reference, paymentId: $capture['id'] ?? null,
-            amountMinor: isset($amount['value']) ? \App\Domain\Shared\Support\Money::toMinor($amount['value'], $amount['currency_code']) : null,
+            amountMinor: isset($amount['value']) ? Money::toMinor($amount['value'], $amount['currency_code']) : null,
             currency: $amount['currency_code'] ?? null, method: 'paypal', payload: $event);
     }
 

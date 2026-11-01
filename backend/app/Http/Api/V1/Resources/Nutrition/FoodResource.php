@@ -2,11 +2,12 @@
 
 namespace App\Http\Api\V1\Resources\Nutrition;
 
+use App\Domain\Nutrition\Models\Food;
 use App\Http\Api\V1\Support\ViewerContext;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin \App\Domain\Nutrition\Models\Food */
+/** @mixin Food */
 class FoodResource extends JsonResource
 {
     public function toArray(Request $request): array

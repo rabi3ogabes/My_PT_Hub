@@ -12,7 +12,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
 /** Delivers a paid order (content, credits, group, welcome message, coach notification). Idempotent. */
-final class FulfilOrder implements ShouldQueue, ShouldBeUnique
+final class FulfilOrder implements ShouldBeUnique, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 

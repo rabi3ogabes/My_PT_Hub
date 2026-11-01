@@ -41,7 +41,11 @@ class LeadController extends ApiController
             'stages.*.kind' => ['nullable', Rule::in(['open', 'won', 'lost'])],
         ]);
 
-        return $this->ok(LeadStageResource::collection($this->leads->saveStages($data['stages']))->resolve($request));
+        // Validated nested arrays are rebuilt rule by rule: restore the submitted order.
+        $stages = $data['stages'];
+        ksort($stages);
+
+        return $this->ok(LeadStageResource::collection($this->leads->saveStages(array_values($stages)))->resolve($request));
     }
 
     public function index(Request $request): JsonResponse

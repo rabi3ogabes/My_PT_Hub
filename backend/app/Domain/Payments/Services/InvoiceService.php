@@ -9,6 +9,9 @@ use App\Domain\Payments\Support\Pdf;
 use App\Domain\Shared\Support\Money;
 use App\Domain\Shared\Tenancy\TenantContext;
 use App\Domain\Tenancy\Models\Tenant;
+use chillerlan\QRCode\Output\QROutputInterface;
+use chillerlan\QRCode\QRCode;
+use chillerlan\QRCode\QROptions;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -168,8 +171,8 @@ final class InvoiceService
         try {
             $qr = null;
             if ($invoice->qr_tlv) {
-                $qr = (new \chillerlan\QRCode\QRCode(new \chillerlan\QRCode\QROptions([
-                    'outputType' => extension_loaded('gd') ? \chillerlan\QRCode\Output\QROutputInterface::GDIMAGE_PNG : \chillerlan\QRCode\Output\QROutputInterface::MARKUP_SVG,
+                $qr = (new QRCode(new QROptions([
+                    'outputType' => extension_loaded('gd') ? QROutputInterface::GDIMAGE_PNG : QROutputInterface::MARKUP_SVG,
                     'outputBase64' => true,
                     'scale' => 4,
                 ])))->render($invoice->qr_tlv);

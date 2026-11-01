@@ -3,6 +3,7 @@
 use App\Domain\Payments\Models\PaymentGateway;
 use App\Domain\Payments\Models\Price;
 use App\Domain\Payments\Models\Product;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Tests\Feature\Payments\Support\BuildsPayments;
 
@@ -25,7 +26,7 @@ it('connects gateways with encrypted credentials that are never returned', funct
         ->and($res->json('data.webhook_url'))->toContain('/webhooks/payments/tap/');
 
     $gateway = PaymentGateway::withoutGlobalScopes()->findOrFail($res->json('data.id'));
-    $raw = \Illuminate\Support\Facades\DB::table('payment_gateways')->where('id', $gateway->id)->value('credentials');
+    $raw = DB::table('payment_gateways')->where('id', $gateway->id)->value('credentials');
     expect($raw)->not->toContain('sk_live_supersecret')->and($gateway->credentials['secret_key'])->toBe('sk_live_supersecret');
 
     $index = $this->actingAsIn($this->owner, $this->tenant)->getJson('/api/v1/payment-gateways')->assertOk();

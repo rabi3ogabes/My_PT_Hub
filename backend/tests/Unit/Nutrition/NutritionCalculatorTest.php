@@ -43,13 +43,13 @@ it('rejects custom splits that do not total 100', function () {
 it('never goes below the safety floor unless the coach overrides', function () {
     $input = ['sex' => 'female', 'age' => 45, 'height_cm' => 150, 'weight_kg' => 50, 'activity' => 'sedentary', 'goal' => 'aggressive_fat_loss'];
     $result = $this->calc->calculate($input);
-    // BMR 1016.5 × 1.2 = 1219.8 × 0.75 = 914.85 → floored to 1200
+    // BMR 1051.5 × 1.2 = 1261.8 × 0.75 = 946.35 → floored to 1200
     expect($result['kcal'])->toBe(1200)
         ->and($result['safety_floor_applied'])->toBeTrue()
         ->and($result['day_types']['rest']['kcal'])->toBeGreaterThanOrEqual(1200);
 
     $override = $this->calc->calculate($input + ['override_safety' => true]);
-    expect($override['kcal'])->toBe(915)->and($override['safety_floor_applied'])->toBeFalse();
+    expect($override['kcal'])->toBe(946)->and($override['safety_floor_applied'])->toBeFalse();
 
     $male = $this->calc->calculate(['sex' => 'male', 'age' => 60, 'height_cm' => 160, 'weight_kg' => 55, 'activity' => 'sedentary', 'goal' => 'aggressive_fat_loss']);
     expect($male['kcal'])->toBe(1500)->and($male['safety_floor'])->toBe(1500);
