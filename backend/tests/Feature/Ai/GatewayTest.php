@@ -52,7 +52,8 @@ it('records cost in micros for priced models', function () {
 });
 
 it('blocks the free plan from the coach copilot once its monthly allowance is used', function () {
-    [$tenant, $coach] = $this->createCoachTenant(); // free plan: 20 requests/month, no ai_copilot
+    [$tenant, $coach] = $this->createCoachTenant();
+    $tenant->forceFill(['plan' => 'free', 'trial_ends_at' => null])->save(); // 20 requests/month, no ai_copilot
     $this->actingAsIn($coach, $tenant);
 
     askContent($this)->assertCreated(); // within the allowance
@@ -66,6 +67,7 @@ it('blocks coach features entirely when the plan has neither the feature nor an 
     SaasPlan::query()->where('code', 'free')->update(['limits' => ['clients' => 3, 'coaches' => 1, 'ai_requests_month' => 0]]);
     Cache::flush();
     [$tenant, $coach] = $this->createCoachTenant();
+    $tenant->forceFill(['plan' => 'free', 'trial_ends_at' => null])->save();
 
     $this->actingAsIn($coach, $tenant);
     $response = askContent($this);

@@ -6078,6 +6078,14 @@
         "type": "timestamp",
         "nullable": true,
         "flags": []
+      },
+      {
+        "name": "direct_key",
+        "type": "string",
+        "nullable": true,
+        "comment": "",
+        "unique": true,
+        "flags": []
       }
     ],
     "indexes": [
@@ -7901,6 +7909,21 @@
         "type": "timestamp",
         "nullable": true,
         "flags": []
+      },
+      {
+        "name": "slot_key",
+        "type": "string",
+        "nullable": true,
+        "comment": "",
+        "unique": true,
+        "flags": []
+      },
+      {
+        "name": "recurrence_id",
+        "type": "timestamp",
+        "nullable": true,
+        "comment": "",
+        "flags": []
       }
     ],
     "indexes": [
@@ -7912,7 +7935,12 @@
         "starts_at"
       ]
     ],
-    "uniques": [],
+    "uniques": [
+      [
+        "series_id",
+        "recurrence_id"
+      ]
+    ],
     "primary": [],
     "softDeletes": true,
     "source": "2026_01_01_000300_create_communication_calendar_tables.php",
@@ -9288,6 +9316,27 @@
         "type": "timestamp",
         "nullable": true,
         "flags": []
+      },
+      {
+        "name": "access_expires_at",
+        "type": "timestamp",
+        "nullable": true,
+        "comment": "",
+        "flags": []
+      },
+      {
+        "name": "revoked_at",
+        "type": "timestamp",
+        "nullable": true,
+        "comment": "",
+        "flags": []
+      },
+      {
+        "name": "client_subscription_id",
+        "type": "ulid",
+        "nullable": true,
+        "comment": "",
+        "flags": []
       }
     ],
     "indexes": [
@@ -9297,6 +9346,13 @@
       [
         "tenant_id",
         "status"
+      ],
+      [
+        "client_subscription_id"
+      ],
+      [
+        "access_expires_at",
+        "revoked_at"
       ]
     ],
     "uniques": [],
@@ -9756,6 +9812,79 @@
         "type": "timestamp",
         "nullable": true,
         "flags": []
+      },
+      {
+        "name": "payment_gateway_id",
+        "type": "ulid",
+        "nullable": true,
+        "comment": "",
+        "flags": []
+      },
+      {
+        "name": "gateway_customer_id",
+        "type": "string",
+        "nullable": true,
+        "comment": "",
+        "flags": []
+      },
+      {
+        "name": "gateway_payment_method",
+        "type": "text",
+        "nullable": true,
+        "comment": "encrypted token for off-session renewals",
+        "flags": [
+          "ENCRYPTED"
+        ]
+      },
+      {
+        "name": "next_retry_at",
+        "type": "timestamp",
+        "nullable": true,
+        "comment": "",
+        "flags": []
+      },
+      {
+        "name": "pause_requested_at",
+        "type": "timestamp",
+        "nullable": true,
+        "comment": "",
+        "flags": []
+      },
+      {
+        "name": "ended_at",
+        "type": "timestamp",
+        "nullable": true,
+        "comment": "",
+        "flags": []
+      },
+      {
+        "name": "ended_reason",
+        "type": "string",
+        "nullable": true,
+        "comment": "cancelled|payment_failed|completed",
+        "flags": []
+      },
+      {
+        "name": "revoked_at",
+        "type": "timestamp",
+        "nullable": true,
+        "comment": "",
+        "flags": []
+      },
+      {
+        "name": "installments_total",
+        "type": "tinyint",
+        "nullable": true,
+        "comment": "",
+        "flags": []
+      },
+      {
+        "name": "installments_paid",
+        "type": "tinyint",
+        "nullable": false,
+        "comment": "",
+        "default": "0",
+        "flags": []
       }
     ],
     "indexes": [
@@ -9765,6 +9894,12 @@
       [
         "tenant_id",
         "status"
+      ],
+      [
+        "payment_gateway_id"
+      ],
+      [
+        "gateway_subscription_id"
       ]
     ],
     "uniques": [],
@@ -9934,9 +10069,34 @@
         "type": "timestamp",
         "nullable": true,
         "flags": []
+      },
+      {
+        "name": "credit_note_for_id",
+        "type": "ulid",
+        "nullable": true,
+        "comment": "",
+        "flags": []
+      },
+      {
+        "name": "refund_id",
+        "type": "ulid",
+        "nullable": true,
+        "comment": "",
+        "flags": []
+      },
+      {
+        "name": "qr_tlv",
+        "type": "text",
+        "nullable": true,
+        "comment": "ZATCA phase-1 TLV (base64)",
+        "flags": []
       }
     ],
-    "indexes": [],
+    "indexes": [
+      [
+        "credit_note_for_id"
+      ]
+    ],
     "uniques": [
       [
         "tenant_id",
@@ -10767,6 +10927,13 @@
         "type": "timestamp",
         "nullable": true,
         "flags": []
+      },
+      {
+        "name": "pdf_path",
+        "type": "string",
+        "nullable": true,
+        "comment": "",
+        "flags": []
       }
     ],
     "indexes": [],
@@ -10875,6 +11042,13 @@
         "name": "updated_at",
         "type": "timestamp",
         "nullable": true,
+        "flags": []
+      },
+      {
+        "name": "language",
+        "type": "string",
+        "nullable": true,
+        "comment": "",
         "flags": []
       }
     ],
@@ -11147,6 +11321,34 @@
         "type": "timestamp",
         "nullable": true,
         "flags": []
+      },
+      {
+        "name": "edited_diff",
+        "type": "json",
+        "nullable": true,
+        "comment": "",
+        "flags": []
+      },
+      {
+        "name": "review_note",
+        "type": "text",
+        "nullable": true,
+        "comment": "",
+        "flags": []
+      },
+      {
+        "name": "applied_type",
+        "type": "string",
+        "nullable": true,
+        "comment": "",
+        "flags": []
+      },
+      {
+        "name": "applied_id",
+        "type": "ulid",
+        "nullable": true,
+        "comment": "",
+        "flags": []
       }
     ],
     "indexes": [
@@ -11154,6 +11356,11 @@
         "tenant_id",
         "feature",
         "status"
+      ],
+      [
+        "tenant_id",
+        "client_id",
+        "created_at"
       ]
     ],
     "uniques": [],
@@ -11280,9 +11487,29 @@
         "type": "timestamp",
         "nullable": true,
         "flags": []
+      },
+      {
+        "name": "failure_count",
+        "type": "smallint",
+        "nullable": false,
+        "comment": "",
+        "default": "0",
+        "flags": []
+      },
+      {
+        "name": "next_attempt_at",
+        "type": "timestamp",
+        "nullable": true,
+        "comment": "",
+        "flags": []
       }
     ],
-    "indexes": [],
+    "indexes": [
+      [
+        "provider",
+        "external_user_id"
+      ]
+    ],
     "uniques": [
       [
         "user_id",
@@ -11386,6 +11613,13 @@
         "type": "timestamp",
         "nullable": true,
         "flags": []
+      },
+      {
+        "name": "duplicate_of_id",
+        "type": "ulid",
+        "nullable": true,
+        "comment": "",
+        "flags": []
       }
     ],
     "indexes": [
@@ -11393,6 +11627,9 @@
         "user_id",
         "type",
         "start_at"
+      ],
+      [
+        "duplicate_of_id"
       ]
     ],
     "uniques": [
@@ -11548,6 +11785,20 @@
         "type": "timestamp",
         "nullable": true,
         "flags": []
+      },
+      {
+        "name": "description",
+        "type": "string",
+        "nullable": true,
+        "comment": "",
+        "flags": []
+      },
+      {
+        "name": "disabled_at",
+        "type": "timestamp",
+        "nullable": true,
+        "comment": "",
+        "flags": []
       }
     ],
     "indexes": [],
@@ -11633,9 +11884,46 @@
         "type": "timestamp",
         "nullable": true,
         "flags": []
+      },
+      {
+        "name": "response_body",
+        "type": "text",
+        "nullable": true,
+        "comment": "",
+        "flags": []
+      },
+      {
+        "name": "error",
+        "type": "string",
+        "nullable": true,
+        "comment": "",
+        "flags": []
+      },
+      {
+        "name": "duration_ms",
+        "type": "int",
+        "nullable": true,
+        "comment": "",
+        "flags": []
+      },
+      {
+        "name": "delivered_at",
+        "type": "timestamp",
+        "nullable": true,
+        "comment": "",
+        "flags": []
       }
     ],
-    "indexes": [],
+    "indexes": [
+      [
+        "status",
+        "next_retry_at"
+      ],
+      [
+        "webhook_endpoint_id",
+        "created_at"
+      ]
+    ],
     "uniques": [],
     "primary": [],
     "softDeletes": false,
@@ -11723,9 +12011,36 @@
         "type": "timestamp",
         "nullable": true,
         "flags": []
+      },
+      {
+        "name": "is_verified",
+        "type": "boolean",
+        "nullable": false,
+        "comment": "",
+        "default": "false",
+        "flags": []
+      },
+      {
+        "name": "replied_at",
+        "type": "timestamp",
+        "nullable": true,
+        "comment": "",
+        "flags": []
+      },
+      {
+        "name": "moderated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "comment": "",
+        "flags": []
       }
     ],
-    "indexes": [],
+    "indexes": [
+      [
+        "coach_profile_id",
+        "status"
+      ]
+    ],
     "uniques": [
       [
         "coach_profile_id",
@@ -12019,7 +12334,202 @@
     "primary": [],
     "softDeletes": false,
     "source": "2026_02_01_100000_add_phase2_workout_columns.php",
-    "scope": "tenant column (explicit where)",
-    "model": null
+    "scope": "tenant (global scope)",
+    "model": "Workouts\\SyncMutation"
+  },
+  {
+    "name": "poll_votes",
+    "columns": [
+      {
+        "name": "id",
+        "type": "ulid",
+        "nullable": false,
+        "comment": "",
+        "pk": true,
+        "flags": []
+      },
+      {
+        "name": "post_id",
+        "type": "ulid",
+        "nullable": false,
+        "comment": "",
+        "references": "posts",
+        "onDelete": "cascade",
+        "flags": []
+      },
+      {
+        "name": "user_id",
+        "type": "ulid",
+        "nullable": false,
+        "comment": "",
+        "references": "users",
+        "onDelete": "cascade",
+        "flags": []
+      },
+      {
+        "name": "option",
+        "type": "tinyint",
+        "nullable": false,
+        "comment": "",
+        "flags": []
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "flags": []
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "flags": []
+      }
+    ],
+    "indexes": [],
+    "uniques": [
+      [
+        "post_id",
+        "user_id"
+      ]
+    ],
+    "primary": [],
+    "softDeletes": false,
+    "source": "2026_02_01_300000_add_phase4_communication_calendar_columns.php",
+    "scope": "via posts",
+    "model": "Community\\PollVote"
+  },
+  {
+    "name": "review_requests",
+    "columns": [
+      {
+        "name": "id",
+        "type": "ulid",
+        "nullable": false,
+        "comment": "",
+        "pk": true,
+        "flags": []
+      },
+      {
+        "name": "tenant_id",
+        "type": "ulid",
+        "nullable": false,
+        "comment": "",
+        "references": "tenants",
+        "onDelete": "cascade",
+        "flags": []
+      },
+      {
+        "name": "coach_profile_id",
+        "type": "ulid",
+        "nullable": false,
+        "comment": "",
+        "references": "coach_profiles",
+        "onDelete": "cascade",
+        "flags": []
+      },
+      {
+        "name": "client_id",
+        "type": "ulid",
+        "nullable": false,
+        "comment": "",
+        "references": "users",
+        "onDelete": "cascade",
+        "flags": []
+      },
+      {
+        "name": "sent_at",
+        "type": "timestamp",
+        "nullable": false,
+        "comment": "",
+        "flags": []
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "flags": []
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "flags": []
+      }
+    ],
+    "indexes": [],
+    "uniques": [
+      [
+        "tenant_id",
+        "client_id"
+      ]
+    ],
+    "primary": [],
+    "softDeletes": false,
+    "source": "2026_02_01_600000_add_integrations_marketplace_columns.php",
+    "scope": "tenant (global scope)",
+    "model": "Marketing\\ReviewRequest"
+  },
+  {
+    "name": "calendar_event_links",
+    "columns": [
+      {
+        "name": "id",
+        "type": "ulid",
+        "nullable": false,
+        "comment": "",
+        "pk": true,
+        "flags": []
+      },
+      {
+        "name": "event_id",
+        "type": "ulid",
+        "nullable": false,
+        "comment": "",
+        "references": "events",
+        "onDelete": "cascade",
+        "flags": []
+      },
+      {
+        "name": "integration_id",
+        "type": "ulid",
+        "nullable": false,
+        "comment": "",
+        "references": "integrations",
+        "onDelete": "cascade",
+        "flags": []
+      },
+      {
+        "name": "external_id",
+        "type": "string",
+        "nullable": false,
+        "comment": "",
+        "flags": []
+      },
+      {
+        "name": "created_at",
+        "type": "timestamp",
+        "nullable": true,
+        "flags": []
+      },
+      {
+        "name": "updated_at",
+        "type": "timestamp",
+        "nullable": true,
+        "flags": []
+      }
+    ],
+    "indexes": [],
+    "uniques": [
+      [
+        "event_id",
+        "integration_id"
+      ]
+    ],
+    "primary": [],
+    "softDeletes": false,
+    "source": "2026_02_01_600000_add_integrations_marketplace_columns.php",
+    "scope": "via events",
+    "model": "Integrations\\CalendarEventLink"
   }
 ]
