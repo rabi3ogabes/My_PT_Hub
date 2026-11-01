@@ -19,6 +19,11 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(TenantContext::class);
 
+        // Module providers (app/Providers/Modules/*ServiceProvider.php) are auto-registered.
+        foreach (glob(app_path('Providers/Modules/*ServiceProvider.php')) ?: [] as $file) {
+            $this->app->register('App\\Providers\\Modules\\'.basename($file, '.php'));
+        }
+
         $this->app->singleton(SaasGateway::class, function () {
             $secret = config('services.stripe.secret');
 
