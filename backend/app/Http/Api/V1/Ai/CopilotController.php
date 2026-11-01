@@ -2,6 +2,7 @@
 
 namespace App\Http\Api\V1\Ai;
 
+use App\Domain\Ai\Services\ClientDataService;
 use App\Domain\Ai\Services\Features\BusinessAssistant;
 use App\Domain\Ai\Services\Features\CheckinCopilot;
 use App\Domain\Ai\Services\Features\ChurnAdvisor;
@@ -9,7 +10,6 @@ use App\Domain\Ai\Services\Features\MealPlanGenerator;
 use App\Domain\Ai\Services\Features\ProgramGenerator;
 use App\Domain\Ai\Services\Features\ProgressionAssistant;
 use App\Domain\Ai\Services\Features\SmartInbox;
-use App\Domain\Ai\Services\ClientDataService;
 use App\Domain\Ai\Support\Schemas;
 use App\Domain\Checkins\Models\CheckinResponse;
 use App\Domain\Messaging\Models\Conversation;

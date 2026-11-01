@@ -1,0 +1,14 @@
+{
+  "id": "priority-cancel-es",
+  "feature": "priority",
+  "description": "Inbox priority detection",
+  "input": {
+    "text": "Quiero darme de baja del coaching"
+  },
+  "expect": {
+    "priority": "urgent",
+    "reasons_include": [
+      "cancellation_intent"
+    ]
+  }
+}

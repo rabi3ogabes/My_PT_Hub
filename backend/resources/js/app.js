@@ -3,6 +3,7 @@
 import { Livewire, Alpine } from '../../vendor/livewire/livewire/dist/livewire.esm'
 import { applyTheme, storedTheme, themeStore } from './theme'
 import { calculators } from './calculators'
+import { checkoutPage } from './checkout'
 
 applyTheme(storedTheme())
 
@@ -158,6 +159,8 @@ Alpine.data('coachLead', (endpoint) => ({
         }
     },
 }))
+
+Alpine.data('checkoutPage', checkoutPage)
 
 Object.entries(calculators).forEach(([name, factory]) => Alpine.data(name, factory))
 

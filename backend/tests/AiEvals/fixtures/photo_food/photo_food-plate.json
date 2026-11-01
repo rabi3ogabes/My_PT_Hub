@@ -1,0 +1,12 @@
+{
+  "id": "photo_food-plate",
+  "feature": "photo_food",
+  "description": "Plate photo mapped to DB foods",
+  "input": {
+    "image": "generated"
+  },
+  "expect": {
+    "candidates_min": 2,
+    "mapped_min": 2
+  }
+}

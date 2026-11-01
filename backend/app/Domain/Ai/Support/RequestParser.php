@@ -2,6 +2,8 @@
 
 namespace App\Domain\Ai\Support;
 
+use App\Domain\Ai\Services\SafetyGuard;
+
 /**
  * Pulls structured hints out of free-text requests in en/ar/fr/es
  * ("4-day upper lower, dumbbells only, 45 min"). The raw text is still sent
@@ -71,7 +73,7 @@ final class RequestParser
         $out = [];
         foreach ($map as $key => $words) {
             foreach ($words as $w) {
-                if (preg_match('/(?<![\p{L}\p{N}])'.preg_quote(TextNormalizer::normalize($w), '/').'(?![\p{L}\p{N}])/u', $t)) {
+                if (preg_match(SafetyGuard::wordPattern(TextNormalizer::normalize($w)), $t)) {
                     $out[] = $key;
                     break;
                 }

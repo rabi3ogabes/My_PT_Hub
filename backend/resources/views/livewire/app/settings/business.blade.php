@@ -46,12 +46,22 @@
             @component('livewire.app.settings._section', ['title' => __('web.settings.legal'), 'lead' => __('web.settings.legal_lead')])
                 <div class="grid gap-5 rounded-[20px] border border-border bg-surface p-6 sm:grid-cols-2">
                     @foreach (\App\Livewire\App\Settings\Business::LEGAL_FIELDS as $f)
-                        @if ($f === 'invoice_footer')
+                        @if ($f === 'address')
                             <div class="sm:col-span-2"><x-ui.textarea wire:model="legal.{{ $f }}" :label="__('web.settings.legal_fields.'.$f)" rows="3" :optional="true" /></div>
                         @else
-                            <x-ui.input wire:model="legal.{{ $f }}" :label="__('web.settings.legal_fields.'.$f)" :type="$f === 'invoice_email' ? 'email' : 'text'" :optional="true" />
+                            <x-ui.input wire:model="legal.{{ $f }}" :label="__('web.settings.legal_fields.'.$f)" :type="match ($f) { 'email' => 'email', 'phone' => 'tel', default => 'text' }" :optional="true" />
                         @endif
                     @endforeach
+                </div>
+            @endcomponent
+
+            @component('livewire.app.settings._section', ['title' => __('web.settings.payments'), 'lead' => __('web.settings.payments_lead')])
+                <div class="space-y-5 rounded-[20px] border border-border bg-surface p-6">
+                    <x-ui.toggle wire:model.live="taxEnabled" :label="__('web.settings.tax_enabled')" :description="__('web.settings.tax_enabled_hint')" id="t-tax" />
+                    <div class="{{ $taxEnabled ? '' : 'pointer-events-none opacity-50' }}">
+                        <x-ui.input wire:model="taxRate" type="number" step="0.01" min="0" max="50" :label="__('web.settings.tax_rate')" :placeholder="(string) $countryRate" :hint="__('web.settings.tax_rate_hint', ['rate' => rtrim(rtrim(number_format($countryRate, 2, '.', ''), '0'), '.')])" :optional="true" />
+                    </div>
+                    <div class="border-t border-border pt-5"><x-ui.toggle wire:model="clientCanPause" :label="__('web.settings.client_can_pause')" :description="__('web.settings.client_can_pause_hint')" id="t-pause" /></div>
                 </div>
             @endcomponent
         </fieldset>

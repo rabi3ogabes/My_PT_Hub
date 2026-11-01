@@ -100,7 +100,7 @@ const OPS = {
   'POST /auth/social/{provider}': { t: 'Auth', s: 'Sign in with Apple or Google', b: obj({ token: 'string', 'name?': 'string', 'account_type?': 'coach|client|standalone', 'invite_code?': 'string' }), r: '$AuthSession', p: { provider: 'google|apple' }, e: [422] },
   'POST /auth/forgot-password': { t: 'Auth', s: 'Send a password reset email', b: obj({ email: 'email' }), r: obj({ sent: 'bool' }) },
   'POST /auth/reset-password': { t: 'Auth', s: 'Reset password with an emailed token', b: obj({ token: 'string', email: 'email', password: 'string', password_confirmation: 'string' }), r: obj({ reset: 'bool' }), e: [422] },
-  'POST /auth/refresh': { t: 'Auth', s: 'Rotate tokens with a refresh token', d: 'Refresh tokens are single-use; reuse revokes the token family (`invalid_refresh_token`).', b: obj({ refresh_token: 'string' }), r: '$Tokens', e: [401] },
+  'POST /auth/refresh': { t: 'Auth', s: 'Rotate tokens with a refresh token', d: 'Refresh tokens are single-use: every call rotates the pair and revokes the presented token; an unknown, expired or already-used token answers 401 `invalid_refresh_token`.', b: obj({ refresh_token: 'string' }), r: '$Tokens', e: [401] },
   'GET /invitations/{code}': { t: 'Auth', s: 'Preview an invitation before accepting', r: '$InvitationPreview', e: [404, 410] },
 
   // Public marketplace / checkout

@@ -1,0 +1,22 @@
+{
+  "id": "meal_plan-ramadan-gulf",
+  "feature": "meal_plan",
+  "description": "Macros verified within ±5% from the food DB",
+  "input": {
+    "kcal": 2100,
+    "protein_g": 150,
+    "carbs_g": 220,
+    "fat_g": 68,
+    "cuisine": "gulf",
+    "ramadan": true,
+    "days": 1
+  },
+  "expect": {
+    "slots": [
+      "suhoor",
+      "iftar",
+      "snack"
+    ],
+    "within_tolerance": 0.05
+  }
+}

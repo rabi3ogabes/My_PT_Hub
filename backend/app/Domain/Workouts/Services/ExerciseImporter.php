@@ -3,6 +3,8 @@
 namespace App\Domain\Workouts\Services;
 
 use App\Domain\Workouts\Models\Exercise;
+use App\Domain\Workouts\Support\Translatable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -100,7 +102,7 @@ class ExerciseImporter
         return $exercise;
     }
 
-    private function scoped(?string $tenantId): \Illuminate\Database\Eloquent\Builder
+    private function scoped(?string $tenantId): Builder
     {
         $q = Exercise::withoutGlobalScopes();
 
@@ -110,14 +112,14 @@ class ExerciseImporter
     /** @return array<string, string> */
     private function localized(array $values): array
     {
-        return array_filter(array_intersect_key($values, array_flip(\App\Domain\Workouts\Support\Translatable::LOCALES)), fn ($v) => is_string($v) && trim($v) !== '');
+        return array_filter(array_intersect_key($values, array_flip(Translatable::LOCALES)), fn ($v) => is_string($v) && trim($v) !== '');
     }
 
     /** @return array<string, list<string>> */
     private function localizedLists(array $values): array
     {
         $out = [];
-        foreach (\App\Domain\Workouts\Support\Translatable::LOCALES as $locale) {
+        foreach (Translatable::LOCALES as $locale) {
             $list = array_values(array_filter((array) ($values[$locale] ?? []), fn ($v) => is_string($v) && trim($v) !== ''));
             if ($list !== []) {
                 $out[$locale] = $list;

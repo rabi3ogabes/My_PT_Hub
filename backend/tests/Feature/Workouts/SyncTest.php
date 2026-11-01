@@ -8,11 +8,13 @@ use App\Domain\Nutrition\Models\WaterLog;
 use App\Domain\Progress\Models\BodyMetric;
 use App\Domain\Workouts\Models\SessionSet;
 use App\Domain\Workouts\Models\WorkoutSession;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Tests\Feature\Workouts\Fixtures;
 
 beforeEach(function () {
+    Model::preventLazyLoading(); // catch N+1 / lazy loads (dev behaviour)
     Carbon::setTestNow('2026-11-02 08:00:00');
     [$this->tenant, $this->owner] = $this->createCoachTenant();
     $this->client = $this->addClient($this->tenant, $this->owner, ['timezone' => 'UTC']);
@@ -20,7 +22,10 @@ beforeEach(function () {
     $this->actingAsIn($this->client, $this->tenant);
 });
 
-afterEach(fn () => Carbon::setTestNow());
+afterEach(function () {
+    Carbon::setTestNow();
+    Model::preventLazyLoading(false);
+});
 
 function syncUlid(): string
 {

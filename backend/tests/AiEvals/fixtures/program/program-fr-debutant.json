@@ -1,0 +1,16 @@
+{
+  "id": "program-fr-debutant",
+  "feature": "program",
+  "description": "Program must use library exercises only",
+  "input": {
+    "prompt": "Programme de 3 jours pour débutant avec haltères"
+  },
+  "expect": {
+    "days_per_week": 3,
+    "equipment_subset": [
+      "dumbbell",
+      "bodyweight"
+    ],
+    "library_only": true
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "id": "priority-normal-en",
+  "feature": "priority",
+  "description": "Routine message",
+  "input": {
+    "text": "Thanks coach, session went great!"
+  },
+  "expect": {
+    "priority": "normal"
+  }
+}

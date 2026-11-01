@@ -6,6 +6,8 @@ use App\Domain\Ai\Models\AiSetting;
 use App\Domain\Billing\Models\SaasPlan;
 use App\Domain\Billing\Models\UsageMeter;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Testing\TestResponse;
 use Tests\Feature\Ai\Support\AiFixtures;
 
 uses(AiFixtures::class);
@@ -14,7 +16,7 @@ beforeEach(function () {
     $this->seedExercises();
 });
 
-function askContent($test): \Illuminate\Testing\TestResponse
+function askContent($test): TestResponse
 {
     return $test->postJson('/api/v1/ai/content', ['type' => 'instagram_caption', 'topic' => 'Summer shred', 'language' => 'en']);
 }
@@ -122,7 +124,7 @@ it('maps model refusals to ai_refused', function () {
 
 it('uses the Anthropic driver end-to-end when configured', function () {
     config(['services.ai.driver' => 'anthropic', 'services.ai.anthropic_key' => 'sk-ant-x']);
-    \Illuminate\Support\Facades\Http::fake(['api.anthropic.com/*' => \Illuminate\Support\Facades\Http::response([
+    Http::fake(['api.anthropic.com/*' => Http::response([
         'model' => 'claude-sonnet-5-5', 'stop_reason' => 'tool_use', 'usage' => ['input_tokens' => 400, 'output_tokens' => 80],
         'content' => [['type' => 'tool_use', 'name' => 'content', 'input' => ['title' => null, 'body' => 'Stronger every week.', 'hashtags' => ['#fit'], 'language' => 'en']]],
     ])]);

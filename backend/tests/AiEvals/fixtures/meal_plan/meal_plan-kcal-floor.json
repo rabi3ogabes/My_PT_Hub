@@ -1,0 +1,20 @@
+{
+  "id": "meal_plan-kcal-floor",
+  "feature": "meal_plan",
+  "description": "Hard cap: no target under 1,200 kcal for women",
+  "input": {
+    "kcal": 1000,
+    "protein_g": 90,
+    "carbs_g": 90,
+    "fat_g": 31,
+    "days": 1,
+    "client_gender": "female"
+  },
+  "expect": {
+    "kcal_target_min": 1200,
+    "flags_include": [
+      "kcal_floor_applied"
+    ],
+    "within_tolerance": 0.05
+  }
+}

@@ -3,15 +3,19 @@
 use App\Domain\Workouts\Events\PersonalRecordAchieved;
 use App\Domain\Workouts\Events\WorkoutCompleted;
 use App\Domain\Workouts\Models\PersonalRecord;
+use App\Domain\Workouts\Models\ProgramAssignment;
 use App\Domain\Workouts\Models\SessionSet;
 use App\Domain\Workouts\Models\WorkoutSession;
 use App\Domain\Workouts\Services\ProgramAssigner;
+use App\Domain\Workouts\Services\ProgramSchedule;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 use Tests\Feature\Workouts\Fixtures;
 
 beforeEach(function () {
+    Model::preventLazyLoading(); // catch N+1 / lazy loads (dev behaviour)
     Carbon::setTestNow('2026-11-02 08:00:00');
     [$this->tenant, $this->owner] = $this->createCoachTenant();
     $this->client = $this->addClient($this->tenant, $this->owner, ['timezone' => 'UTC']);
@@ -26,7 +30,10 @@ beforeEach(function () {
     $this->actingAsIn($this->client, $this->tenant);
 });
 
-afterEach(fn () => Carbon::setTestNow());
+afterEach(function () {
+    Carbon::setTestNow();
+    Model::preventLazyLoading(false);
+});
 
 function workoutsUlid(): string
 {
@@ -109,8 +116,8 @@ it('completes a session: duration, volume, Epley PRs and events (idempotent)', f
     expect(PersonalRecord::where('workout_session_id', $sid)->count())->toBe(4);
 
     // Today screen now shows the workout as completed.
-    $this->postJson('/api/v1/me/sessions', ['id' => workoutsUlid(), 'program_day_id' => app(\App\Domain\Workouts\Services\ProgramSchedule::class)->dayFor(
-        \App\Domain\Workouts\Models\ProgramAssignment::withoutGlobalScopes()->first(), '2026-11-02')->id])->assertCreated();
+    $this->postJson('/api/v1/me/sessions', ['id' => workoutsUlid(), 'program_day_id' => app(ProgramSchedule::class)->dayFor(
+        ProgramAssignment::withoutGlobalScopes()->first(), '2026-11-02')->id])->assertCreated();
 });
 
 it('serves history, last performance, records and the client workout view', function () {

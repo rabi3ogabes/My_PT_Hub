@@ -7,6 +7,7 @@ use App\Domain\Shared\Tenancy\TenantContext;
 use App\Domain\Workouts\Models\ProgramAssignment;
 use App\Domain\Workouts\Models\ProgramDay;
 use App\Domain\Workouts\Models\ProgramWeek;
+use App\Domain\Workouts\Models\WorkoutSession;
 use Carbon\CarbonImmutable;
 
 /**
@@ -123,7 +124,7 @@ class ProgramSchedule
         if ($planned === 0) {
             return 0;
         }
-        $done = \App\Domain\Workouts\Models\WorkoutSession::query()->withoutGlobalScopes()
+        $done = WorkoutSession::query()->withoutGlobalScopes()
             ->where('program_assignment_id', $assignment->id)->where('status', 'completed')
             ->whereNull('deleted_at')->whereNotNull('program_day_id')
             ->distinct()->count('program_day_id');

@@ -1,0 +1,17 @@
+{
+  "id": "meal_plan-es-international",
+  "feature": "meal_plan",
+  "description": "Macros verified within ±5% from the food DB",
+  "input": {
+    "kcal": 1900,
+    "protein_g": 140,
+    "carbs_g": 190,
+    "fat_g": 64,
+    "language": "es",
+    "days": 1
+  },
+  "expect": {
+    "language": "es",
+    "within_tolerance": 0.05
+  }
+}

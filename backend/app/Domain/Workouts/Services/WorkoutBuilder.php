@@ -51,12 +51,23 @@ class WorkoutBuilder
     {
         $this->assertEditable($workout);
 
+        return $this->replace($workout, $data);
+    }
+
+    /**
+     * Applies attributes and (when present) fully replaces the block tree, without the
+     * tenant ownership check — for platform maintenance (template seeders) and update().
+     *
+     * @param  array<string, mixed>  $data
+     */
+    public function replace(Workout $workout, array $data): Workout
+    {
         return DB::transaction(function () use ($workout, $data) {
             $this->fillAttributes($workout, $data);
             if (array_key_exists('blocks', $data)) {
                 $existing = $this->existingIds($workout);
                 $workout->blocks()->delete(); // cascades to exercises and set templates
-                $this->writeBlocks($workout, $data['blocks'] ?? [], $existing);
+                $this->writeBlocks($workout, $data['blocks'] ?? [], $existing, $workout->tenant_id === null);
                 $workout->version = (int) $workout->version + 1;
             }
             $workout->save();

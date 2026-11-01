@@ -1,0 +1,13 @@
+{
+  "id": "content-1",
+  "feature": "content",
+  "description": "Content in the requested language",
+  "input": {
+    "type": "instagram_caption",
+    "topic": "Summer shred challenge",
+    "language": "en"
+  },
+  "expect": {
+    "language": "en"
+  }
+}

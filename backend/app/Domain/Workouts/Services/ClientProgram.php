@@ -6,6 +6,8 @@ use App\Domain\Identity\Models\User;
 use App\Domain\Workouts\Models\ProgramAssignment;
 use App\Domain\Workouts\Models\ProgramDay;
 use App\Domain\Workouts\Models\Workout;
+use App\Domain\Workouts\Models\WorkoutBlock;
+use App\Domain\Workouts\Models\WorkoutExercise;
 use App\Domain\Workouts\Models\WorkoutSession;
 use Carbon\CarbonImmutable;
 
@@ -52,8 +54,8 @@ class ClientProgram
         $position = $this->schedule->position($assignment, $date);
         /** @var Workout $workout */
         $workout = $day->workout;
-        $exerciseCount = \App\Domain\Workouts\Models\WorkoutExercise::query()
-            ->whereIn('workout_block_id', \App\Domain\Workouts\Models\WorkoutBlock::query()->where('workout_id', $workout->id)->select('id'))->count();
+        $exerciseCount = WorkoutExercise::query()
+            ->whereIn('workout_block_id', WorkoutBlock::query()->where('workout_id', $workout->id)->select('id'))->count();
 
         $tz = $client->timezone ?: 'UTC';
         $session = WorkoutSession::query()

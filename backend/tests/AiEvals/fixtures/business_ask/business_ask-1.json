@@ -1,0 +1,11 @@
+{
+  "id": "business_ask-1",
+  "feature": "business_ask",
+  "description": "Routes to a predefined tool; never SQL",
+  "input": {
+    "question": "Who hasn't paid this month?"
+  },
+  "expect": {
+    "tool": "unpaid_clients"
+  }
+}

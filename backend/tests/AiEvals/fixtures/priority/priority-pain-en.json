@@ -1,0 +1,14 @@
+{
+  "id": "priority-pain-en",
+  "feature": "priority",
+  "description": "Inbox priority detection",
+  "input": {
+    "text": "My shoulder has a sharp pain since yesterday"
+  },
+  "expect": {
+    "priority": "urgent",
+    "reasons_include": [
+      "pain_or_injury"
+    ]
+  }
+}

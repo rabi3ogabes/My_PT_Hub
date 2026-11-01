@@ -1,0 +1,17 @@
+{
+  "id": "program-fat-loss",
+  "feature": "program",
+  "description": "Program must use library exercises only",
+  "input": {
+    "prompt": "3 day fat loss circuit with dumbbells, 30 minutes"
+  },
+  "expect": {
+    "days_per_week": 3,
+    "goal": "fat_loss",
+    "equipment_subset": [
+      "dumbbell",
+      "bodyweight"
+    ],
+    "library_only": true
+  }
+}

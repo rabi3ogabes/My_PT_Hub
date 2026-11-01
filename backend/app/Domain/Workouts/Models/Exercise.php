@@ -2,6 +2,7 @@
 
 namespace App\Domain\Workouts\Models;
 
+use App\Domain\Identity\Models\User;
 use App\Domain\Shared\Models\BaseModel;
 use App\Domain\Shared\Models\HasTranslations;
 use App\Domain\Shared\Tenancy\SharedWithTenant;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Exercise extends BaseModel
 {
-    use SharedWithTenant, SoftDeletes, HasTranslations;
+    use HasTranslations, SharedWithTenant, SoftDeletes;
 
     protected $table = 'exercises';
 
@@ -53,7 +54,7 @@ class Exercise extends BaseModel
 
     public function favoritedBy(): BelongsToMany
     {
-        return $this->belongsToMany(\App\Domain\Identity\Models\User::class, 'exercise_favorites', 'exercise_id', 'user_id');
+        return $this->belongsToMany(User::class, 'exercise_favorites', 'exercise_id', 'user_id');
     }
 
     public function isCustom(): bool

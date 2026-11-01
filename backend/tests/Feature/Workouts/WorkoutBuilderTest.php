@@ -4,9 +4,12 @@ use App\Domain\Workouts\Models\Workout;
 use App\Domain\Workouts\Models\WorkoutBlock;
 use App\Domain\Workouts\Models\WorkoutExercise;
 use App\Domain\Workouts\Models\WorkoutSetTemplate;
+use App\Domain\Workouts\Services\WorkoutBuilder;
+use Illuminate\Database\Eloquent\Model;
 use Tests\Feature\Workouts\Fixtures;
 
 beforeEach(function () {
+    Model::preventLazyLoading(); // catch N+1 / lazy loads (dev behaviour)
     [$this->tenant, $this->owner] = $this->createCoachTenant();
     $this->ex = Fixtures::library();
     $this->actingAsIn($this->owner, $this->tenant);
@@ -111,8 +114,10 @@ it('isolates workouts between tenants (404) and keeps global templates read-only
     expectApiError($this->deleteJson('/api/v1/workouts/'.$created['id']), 404, 'not_found');
     expect(collect($this->getJson('/api/v1/workouts?scope=all')->json('data'))->pluck('id'))->not->toContain($created['id']);
 
-    $global = app(\App\Domain\Workouts\Services\WorkoutBuilder::class)->create(Fixtures::workoutPayload($this->ex, 'Global'), null, null, true);
+    $global = app(WorkoutBuilder::class)->create(Fixtures::workoutPayload($this->ex, 'Global'), null, null, true);
     $this->getJson('/api/v1/workouts/'.$global->id)->assertOk();
     expectApiError($this->putJson('/api/v1/workouts/'.$global->id, ['name' => 'x']), 403, 'forbidden');
     expect(Workout::withoutGlobalScopes()->find($global->id)->name)->toBe('Global');
 });
+
+afterEach(fn () => Model::preventLazyLoading(false));

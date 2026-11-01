@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Program extends BaseModel
 {
-    use SharedWithTenant, SoftDeletes, HasTranslations;
+    use HasTranslations, SharedWithTenant, SoftDeletes;
 
     protected $table = 'programs';
 

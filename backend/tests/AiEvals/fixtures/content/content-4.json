@@ -1,0 +1,13 @@
+{
+  "id": "content-4",
+  "feature": "content",
+  "description": "Content in the requested language",
+  "input": {
+    "type": "instagram_caption",
+    "topic": "تحدي رمضان",
+    "language": "ar"
+  },
+  "expect": {
+    "language": "ar"
+  }
+}

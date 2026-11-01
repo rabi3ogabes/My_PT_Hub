@@ -8,6 +8,7 @@ use App\Domain\Workouts\Models\ProgramDay;
 use App\Domain\Workouts\Models\ProgramWeek;
 use App\Domain\Workouts\Models\Workout;
 use App\Domain\Workouts\Support\Translatable;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -46,11 +47,22 @@ class ProgramBuilder
     {
         $this->assertEditable($program);
 
+        return $this->replace($program, $data);
+    }
+
+    /**
+     * Applies attributes and diffs weeks/days without the tenant ownership check —
+     * for platform maintenance (template seeders) and update().
+     *
+     * @param  array<string, mixed>  $data
+     */
+    public function replace(Program $program, array $data): Program
+    {
         return DB::transaction(function () use ($program, $data) {
             $this->fill($program, $data);
             $program->save();
             if (array_key_exists('weeks', $data)) {
-                $this->syncWeeks($program, $data['weeks'] ?? []);
+                $this->syncWeeks($program, $data['weeks'] ?? [], $program->tenant_id === null);
             }
 
             return $program->unsetRelation('weeks')->load(self::WITH);
@@ -86,7 +98,7 @@ class ProgramBuilder
     {
         $this->assertEditable($program);
         if ($week->program_id !== $program->id) {
-            throw new \Illuminate\Database\Eloquent\ModelNotFoundException;
+            throw new ModelNotFoundException;
         }
 
         return DB::transaction(function () use ($program, $week, $toNumber) {

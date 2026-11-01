@@ -11,6 +11,7 @@ use App\Http\Api\ApiController;
 use App\Http\Api\V1\Resources\Workouts\PersonalRecordResource;
 use App\Http\Api\V1\Resources\Workouts\SessionResource;
 use App\Http\Api\V1\Resources\Workouts\SessionSetResource;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -126,7 +127,7 @@ class SessionController extends ApiController
     private function own(WorkoutSession $session): WorkoutSession
     {
         if ($session->client_id !== $this->user()->id) {
-            throw new \Illuminate\Database\Eloquent\ModelNotFoundException;
+            throw new ModelNotFoundException;
         }
 
         return $session;

@@ -9,12 +9,15 @@ use App\Domain\Nutrition\Models\WaterLog;
 use App\Domain\Workouts\Models\ProgramAssignment;
 use App\Domain\Workouts\Models\ProgramDay;
 use App\Domain\Workouts\Services\ProgramAssigner;
+use App\Domain\Workouts\Services\ProgramBuilder;
 use App\Domain\Workouts\Services\ProgramSchedule;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Tests\Feature\Workouts\Fixtures;
 
 beforeEach(function () {
+    Model::preventLazyLoading(); // catch N+1 / lazy loads (dev behaviour)
     Carbon::setTestNow('2026-11-02 08:00:00'); // Monday
     [$this->tenant, $this->owner] = $this->createCoachTenant();
     $this->client = $this->addClient($this->tenant, $this->owner, ['timezone' => 'UTC', 'name' => 'Omar Haddad']);
@@ -26,7 +29,10 @@ beforeEach(function () {
     });
 });
 
-afterEach(fn () => Carbon::setTestNow());
+afterEach(function () {
+    Carbon::setTestNow();
+    Model::preventLazyLoading(false);
+});
 
 it('creates programs with nested weeks/days, copies a week and duplicates', function () {
     $this->actingAsIn($this->owner, $this->tenant);
@@ -176,7 +182,7 @@ it('prevents tenant B from reading tenant A programs and assignments', function 
 
 it('lists platform public templates without authentication', function () {
     $this->inTenant($this->tenant, fn () => null);
-    $template = app(\App\Domain\Workouts\Services\ProgramBuilder::class)->create([
+    $template = app(ProgramBuilder::class)->create([
         'name' => ['en' => 'Public Full Body', 'ar' => 'الجسم كامل'], 'visibility' => 'public', 'is_template' => true, 'weeks' => [],
     ], null, true);
 

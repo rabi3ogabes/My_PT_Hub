@@ -2,6 +2,7 @@
 
 use App\Domain\Ai\Models\AiOutput;
 use App\Domain\Ai\Models\AiRequest;
+use App\Domain\Ai\Providers\Fake\FakeResponder;
 use App\Domain\Workouts\Models\Exercise;
 use App\Domain\Workouts\Models\Program;
 use App\Domain\Workouts\Models\ProgramDay;
@@ -77,7 +78,7 @@ it('requires coach approval before a real program exists, then applies it', func
 
 it('maps unknown exercise names to the closest library exercise', function () {
     $this->fake()->push('program', function ($prompt) {
-        $data = app(\App\Domain\Ai\Providers\Fake\FakeResponder::class)->structured('program', $prompt->context);
+        $data = app(FakeResponder::class)->structured('program', $prompt->context);
         $data['days'][0]['workout']['blocks'][0]['exercises'][0]['exercise_id'] = 'not-a-real-id';
         $data['days'][0]['workout']['blocks'][0]['exercises'][0]['exercise_name'] = 'goblet squats with a dumbbell';
 
@@ -95,7 +96,7 @@ it('maps unknown exercise names to the closest library exercise', function () {
 it('retries with validation feedback when the output is invalid, and meters each attempt', function () {
     $this->fake()->push('program', ['name' => 'Broken']); // schema-invalid
     $this->fake()->push('program', function ($prompt) {
-        $data = app(\App\Domain\Ai\Providers\Fake\FakeResponder::class)->structured('program', $prompt->context);
+        $data = app(FakeResponder::class)->structured('program', $prompt->context);
         $data['days'][0]['workout']['blocks'][0]['exercises'][0]['exercise_id'] = 'nope';
         $data['days'][0]['workout']['blocks'][0]['exercises'][0]['exercise_name'] = 'xyzzy plyometric tornado';
 

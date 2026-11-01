@@ -1,0 +1,14 @@
+{
+  "id": "priority-pain-ar",
+  "feature": "priority",
+  "description": "Inbox priority detection",
+  "input": {
+    "text": "عندي ألم شديد في الظهر"
+  },
+  "expect": {
+    "priority": "urgent",
+    "reasons_include": [
+      "pain_or_injury"
+    ]
+  }
+}

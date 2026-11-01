@@ -16,7 +16,7 @@ class ExerciseSeeder extends Seeder
 {
     public function run(ExerciseImporter $importer): void
     {
-        $taxonomy = require database_path('data/exercise_taxonomy.php');
+        $taxonomy = (static fn () => require database_path('data/exercise_taxonomy.php'))();
 
         foreach ($taxonomy['muscle_groups'] as $key => [$region, $en, $ar, $fr, $es]) {
             $row = MuscleGroup::query()->firstOrNew(['key' => $key]);
@@ -27,7 +27,7 @@ class ExerciseSeeder extends Seeder
             $row->fill(['name' => ['en' => $en, 'ar' => $ar, 'fr' => $fr, 'es' => $es]])->save();
         }
 
-        $definitions = require database_path('data/exercises.php');
+        $definitions = (static fn () => require database_path('data/exercises.php'))();
         $result = $importer->import($definitions);
 
         $this->command?->info("Exercise library: {$result['created']} created, {$result['updated']} updated.");

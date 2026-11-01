@@ -1,9 +1,11 @@
 <?php
 
 use App\Domain\Workouts\Models\Exercise;
+use Illuminate\Database\Eloquent\Model;
 use Tests\Feature\Workouts\Fixtures;
 
 beforeEach(function () {
+    Model::preventLazyLoading(); // catch N+1 / lazy loads (dev behaviour)
     [$this->tenant, $this->owner] = $this->createCoachTenant();
     $this->ex = Fixtures::library();
 });
@@ -98,3 +100,5 @@ it('forbids clients from creating exercises but lets them browse the library', f
     $this->getJson('/api/v1/exercises?q=bench')->assertOk();
     expectApiError($this->postJson('/api/v1/exercises', ['name' => 'Nope']), 403, 'forbidden');
 });
+
+afterEach(fn () => Model::preventLazyLoading(false));

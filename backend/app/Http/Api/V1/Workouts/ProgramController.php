@@ -13,6 +13,7 @@ use App\Domain\Workouts\Support\Translatable;
 use App\Http\Api\ApiController;
 use App\Http\Api\V1\Resources\Workouts\ProgramAssignmentResource;
 use App\Http\Api\V1\Resources\Workouts\ProgramResource;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -169,7 +170,7 @@ class ProgramController extends ApiController
     private function assertVisible(Program $program): void
     {
         if ($program->tenant_id === null && $program->visibility !== 'public' && ! $this->user()->is_super_admin) {
-            throw new \Illuminate\Database\Eloquent\ModelNotFoundException;
+            throw new ModelNotFoundException;
         }
     }
 

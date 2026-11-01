@@ -4,15 +4,18 @@ namespace App\Domain\Workouts\Services;
 
 use App\Domain\Identity\Models\User;
 use App\Domain\Shared\Support\ApiException;
+use App\Domain\Shared\Tenancy\TenantContext;
 use App\Domain\Workouts\Events\PersonalRecordAchieved;
 use App\Domain\Workouts\Events\WorkoutCompleted;
 use App\Domain\Workouts\Models\Exercise;
+use App\Domain\Workouts\Models\PersonalRecord;
 use App\Domain\Workouts\Models\ProgramAssignment;
 use App\Domain\Workouts\Models\ProgramDay;
 use App\Domain\Workouts\Models\SessionSet;
 use App\Domain\Workouts\Models\Workout;
 use App\Domain\Workouts\Models\WorkoutSession;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -86,7 +89,7 @@ class SessionLogger
         }
         try {
             $session->save();
-        } catch (\Illuminate\Database\UniqueConstraintViolationException) {
+        } catch (UniqueConstraintViolationException) {
             // A concurrent retry created it first.
             return [$this->findOwnedOrConflict($client, (string) $id) ?? throw ApiException::conflict('session_conflict', __('workouts.session_conflict')), false];
         }
@@ -239,7 +242,7 @@ class SessionLogger
         DB::transaction(function () use ($session) {
             $session->total_volume_kg = $this->totalVolume($session);
             $session->save();
-            $before = \App\Domain\Workouts\Models\PersonalRecord::query()->where('workout_session_id', $session->id)
+            $before = PersonalRecord::query()->where('workout_session_id', $session->id)
                 ->whereNotNull('previous_value')->get()->map(fn ($r) => $r->exercise_id.'|'.$r->type)->all();
             foreach ($this->records->detect($session) as $record) {
                 if (! in_array($record->exercise_id.'|'.$record->type, $before, true)) {
@@ -263,7 +266,7 @@ class SessionLogger
         if (! $row) {
             return null;
         }
-        $tenantId = app(\App\Domain\Shared\Tenancy\TenantContext::class)->id();
+        $tenantId = app(TenantContext::class)->id();
         if ($row->client_id !== $client->id || $row->tenant_id !== $tenantId) {
             throw ApiException::conflict('session_conflict', __('workouts.session_conflict'));
         }

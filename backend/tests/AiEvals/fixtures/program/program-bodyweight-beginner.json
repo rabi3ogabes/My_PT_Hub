@@ -1,0 +1,15 @@
+{
+  "id": "program-bodyweight-beginner",
+  "feature": "program",
+  "description": "Program must use library exercises only",
+  "input": {
+    "prompt": "2 day beginner bodyweight program, no equipment"
+  },
+  "expect": {
+    "days_per_week": 2,
+    "equipment_subset": [
+      "bodyweight"
+    ],
+    "library_only": true
+  }
+}

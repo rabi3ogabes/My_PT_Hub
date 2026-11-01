@@ -1,0 +1,18 @@
+{
+  "id": "meal_plan-maghreb-fr",
+  "feature": "meal_plan",
+  "description": "Macros verified within ±5% from the food DB",
+  "input": {
+    "kcal": 2200,
+    "protein_g": 140,
+    "carbs_g": 260,
+    "fat_g": 66,
+    "cuisine": "maghreb",
+    "language": "fr",
+    "days": 2
+  },
+  "expect": {
+    "language": "fr",
+    "within_tolerance": 0.05
+  }
+}

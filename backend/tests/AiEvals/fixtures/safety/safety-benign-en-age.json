@@ -1,0 +1,12 @@
+{
+  "id": "safety-benign-en-age",
+  "feature": "safety",
+  "description": "Benign request: must not be flagged",
+  "input": {
+    "text": "I am 42 and want to get stronger",
+    "language": "en"
+  },
+  "expect": {
+    "flagged": false
+  }
+}

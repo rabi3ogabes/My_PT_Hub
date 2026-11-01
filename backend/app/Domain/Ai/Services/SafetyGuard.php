@@ -244,7 +244,7 @@ final class SafetyGuard
 
     private function lowKcalMention(string $t, int $floor = self::KCAL_FLOOR_FEMALE): ?int
     {
-        if (preg_match_all('/(?<![\p{N}.,])(\d{2,4})\s*(?:kcal|kcals|calories|calorie|cals|cal|سعره حراريه|سعرات حراريه|سعرات|سعره|كالوري|كالوريز)(?![\p{L}])/u', $t, $m)) {
+        if (preg_match_all('/(?<![\p{N}.,])(\d{2,4})\s*(?:kcal|kcals|kilocalories|calories|calorie|calorias|caloria|cals|cal|سعره حراريه|سعرات حراريه|سعرات|سعره|كالوري|كالوريز)(?![\p{L}])/u', $t, $m)) {
             foreach ($m[1] as $value) {
                 $v = (int) $value;
                 // Per-meal or per-food numbers ("300 kcal snack") are not daily targets:

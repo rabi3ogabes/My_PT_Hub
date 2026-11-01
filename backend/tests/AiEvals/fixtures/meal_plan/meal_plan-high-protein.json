@@ -1,0 +1,15 @@
+{
+  "id": "meal_plan-high-protein",
+  "feature": "meal_plan",
+  "description": "Macros verified within ±5% from the food DB",
+  "input": {
+    "kcal": 2600,
+    "protein_g": 200,
+    "carbs_g": 260,
+    "fat_g": 84,
+    "days": 1
+  },
+  "expect": {
+    "within_tolerance": 0.05
+  }
+}

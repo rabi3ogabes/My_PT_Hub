@@ -1,0 +1,14 @@
+{
+  "id": "priority-cancel-ar",
+  "feature": "priority",
+  "description": "Inbox priority detection",
+  "input": {
+    "text": "أريد إلغاء الاشتراك"
+  },
+  "expect": {
+    "priority": "urgent",
+    "reasons_include": [
+      "cancellation_intent"
+    ]
+  }
+}

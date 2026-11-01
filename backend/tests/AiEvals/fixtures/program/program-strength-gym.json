@@ -1,0 +1,13 @@
+{
+  "id": "program-strength-gym",
+  "feature": "program",
+  "description": "Program must use library exercises only",
+  "input": {
+    "prompt": "4 day strength program, full gym, 60 min"
+  },
+  "expect": {
+    "days_per_week": 4,
+    "goal": "strength",
+    "library_only": true
+  }
+}

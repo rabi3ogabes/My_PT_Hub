@@ -1,0 +1,13 @@
+{
+  "id": "program-es-hipertrofia",
+  "feature": "program",
+  "description": "Program must use library exercises only",
+  "input": {
+    "prompt": "Plan de 5 días de hipertrofia en el gimnasio"
+  },
+  "expect": {
+    "days_per_week": 5,
+    "goal": "muscle_gain",
+    "library_only": true
+  }
+}

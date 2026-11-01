@@ -1,0 +1,17 @@
+{
+  "id": "program-hypertrophy-dumbbells",
+  "feature": "program",
+  "description": "Program must use library exercises only",
+  "input": {
+    "prompt": "4-day hypertrophy, dumbbells only, 45 min"
+  },
+  "expect": {
+    "days_per_week": 4,
+    "goal": "muscle_gain",
+    "equipment_subset": [
+      "dumbbell",
+      "bodyweight"
+    ],
+    "library_only": true
+  }
+}

@@ -2,6 +2,7 @@
 
 namespace App\Http\Api\V1\Client;
 
+use App\Domain\Workouts\Models\PersonalRecord;
 use App\Domain\Workouts\Models\Workout;
 use App\Domain\Workouts\Models\WorkoutBlock;
 use App\Domain\Workouts\Models\WorkoutExercise;
@@ -17,7 +18,7 @@ use App\Http\Api\V1\Resources\Workouts\ProgramAssignmentResource;
 use App\Http\Api\V1\Resources\Workouts\ProgramResource;
 use App\Http\Api\V1\Resources\Workouts\SetTemplateResource;
 use App\Http\Api\V1\Resources\Workouts\WorkoutResource;
-use App\Domain\Workouts\Models\PersonalRecord;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -53,7 +54,7 @@ class ClientWorkoutController extends ApiController
     {
         $user = $this->user();
         if (! $this->program->canAccessWorkout($user, $workout)) {
-            throw new \Illuminate\Database\Eloquent\ModelNotFoundException;
+            throw new ModelNotFoundException;
         }
         $workout->load(['blocks.exercises.sets', 'blocks.exercises.exercise' => fn ($q) => $q->withTrashed()]);
 

@@ -533,7 +533,7 @@ paths:
       summary: Rotate tokens with a refresh token
       tags:
         - Auth
-      description: "Refresh tokens are single-use; reuse revokes the token family (`invalid_refresh_token`)."
+      description: "Refresh tokens are single-use: every call rotates the pair and revokes the presented token; an unknown, expired or already-used token answers 401 `invalid_refresh_token`."
       parameters:
         - $ref: "#/components/parameters/AcceptLanguage"
       requestBody:

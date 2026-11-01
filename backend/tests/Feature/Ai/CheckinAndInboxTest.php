@@ -1,12 +1,15 @@
 <?php
 
+use App\Domain\Ai\Models\AiRequest;
 use App\Domain\Ai\Models\AiSetting;
+use App\Domain\Ai\Providers\Fake\FakeResponder;
 use App\Domain\Checkins\Models\CheckinForm;
 use App\Domain\Checkins\Models\CheckinResponse;
 use App\Domain\Messaging\Models\Conversation;
 use App\Domain\Messaging\Models\ConversationParticipant;
 use App\Domain\Messaging\Models\Message;
 use App\Domain\Progress\Models\BodyMetric;
+use App\Domain\Shared\Tenancy\TenantContext;
 use App\Domain\Workouts\Models\WorkoutSession;
 use Tests\Feature\Ai\Support\AiFixtures;
 
@@ -19,7 +22,7 @@ beforeEach(function () {
 
 function submittedCheckin($test, array $answers): CheckinResponse
 {
-    return app(\App\Domain\Shared\Tenancy\TenantContext::class)->run($test->tenant, function () use ($test, $answers) {
+    return app(TenantContext::class)->run($test->tenant, function () use ($test, $answers) {
         $form = CheckinForm::query()->firstOrFail();
         foreach ([1, 4, 8] as $daysAgo) {
             WorkoutSession::query()->create(['client_id' => $test->client->id, 'status' => 'completed', 'started_at' => now()->subDays($daysAgo), 'name' => 'Session']);
@@ -58,7 +61,7 @@ it('adds safety risk flags from the answers and retries when a banned word is us
     $this->inTenant($this->tenant, fn () => AiSetting::query()->create(['user_id' => $this->coach->id, 'banned_words' => ['diet']]));
     $response = submittedCheckin($this, ['struggles' => "J'ai mal au genou depuis mardi"]);
     $this->fake()->push('checkin_summary', fn ($p) => array_merge(
-        app(\App\Domain\Ai\Providers\Fake\FakeResponder::class)->structured('checkin_summary', $p->context),
+        app(FakeResponder::class)->structured('checkin_summary', $p->context),
         ['reply_draft' => 'Stick to the diet!'],
     ));
 
@@ -67,7 +70,7 @@ it('adds safety risk flags from the answers and retries when a banned word is us
     expect(collect($result->json('data.payload.risk_flags'))->pluck('type'))->toContain('injury')
         ->and(collect($result->json('data.flags'))->pluck('type'))->toContain('injury')
         ->and($result->json('data.payload.reply_draft'))->not->toContain('diet')
-        ->and(\App\Domain\Ai\Models\AiRequest::query()->pluck('status')->all())->toBe(['invalid', 'ok']);
+        ->and(AiRequest::query()->pluck('status')->all())->toBe(['invalid', 'ok']);
 });
 
 it('rejects pending check-ins and other tenants check-ins', function () {
@@ -82,7 +85,7 @@ it('rejects pending check-ins and other tenants check-ins', function () {
 
 function conversationWith($test, array $messages): Conversation
 {
-    return app(\App\Domain\Shared\Tenancy\TenantContext::class)->run($test->tenant, function () use ($test, $messages) {
+    return app(TenantContext::class)->run($test->tenant, function () use ($test, $messages) {
         $c = Conversation::query()->create(['type' => 'direct', 'created_by' => $test->coach->id]);
         foreach ([$test->coach, $test->client] as $u) {
             ConversationParticipant::query()->create(['conversation_id' => $c->id, 'user_id' => $u->id]);

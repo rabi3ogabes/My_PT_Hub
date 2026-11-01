@@ -2,10 +2,11 @@
 
 namespace App\Http\Api\V1\Resources\Ai;
 
+use App\Domain\Ai\Models\AiOutput;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-/** @mixin \App\Domain\Ai\Models\AiOutput */
+/** @mixin AiOutput */
 class AiOutputResource extends JsonResource
 {
     public function toArray(Request $request): array

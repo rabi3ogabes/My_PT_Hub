@@ -1,0 +1,12 @@
+{
+  "id": "safety-benign-en-program",
+  "feature": "safety",
+  "description": "Benign request: must not be flagged",
+  "input": {
+    "text": "4-day upper lower with dumbbells only, 45 minutes",
+    "language": "en"
+  },
+  "expect": {
+    "flagged": false
+  }
+}

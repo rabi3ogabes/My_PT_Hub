@@ -8,6 +8,7 @@ use App\Domain\Workouts\Models\Workout;
 use App\Domain\Workouts\Services\ProgramBuilder;
 use App\Domain\Workouts\Services\WorkoutBuilder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 /** Small global library used by the workouts feature tests. */
 final class Fixtures
@@ -15,14 +16,14 @@ final class Fixtures
     public static function library(): array
     {
         DB::table('muscle_groups')->insertOrIgnore([
-            ['id' => strtolower((string) \Illuminate\Support\Str::ulid()), 'key' => 'chest', 'name' => json_encode(['en' => 'Chest']), 'region' => 'upper'],
-            ['id' => strtolower((string) \Illuminate\Support\Str::ulid()), 'key' => 'quads', 'name' => json_encode(['en' => 'Quads']), 'region' => 'lower'],
-            ['id' => strtolower((string) \Illuminate\Support\Str::ulid()), 'key' => 'triceps', 'name' => json_encode(['en' => 'Triceps']), 'region' => 'upper'],
+            ['id' => strtolower((string) Str::ulid()), 'key' => 'chest', 'name' => json_encode(['en' => 'Chest']), 'region' => 'upper'],
+            ['id' => strtolower((string) Str::ulid()), 'key' => 'quads', 'name' => json_encode(['en' => 'Quads']), 'region' => 'lower'],
+            ['id' => strtolower((string) Str::ulid()), 'key' => 'triceps', 'name' => json_encode(['en' => 'Triceps']), 'region' => 'upper'],
         ]);
         DB::table('equipment')->insertOrIgnore([
-            ['id' => strtolower((string) \Illuminate\Support\Str::ulid()), 'key' => 'barbell', 'name' => json_encode(['en' => 'Barbell'])],
-            ['id' => strtolower((string) \Illuminate\Support\Str::ulid()), 'key' => 'dumbbell', 'name' => json_encode(['en' => 'Dumbbells'])],
-            ['id' => strtolower((string) \Illuminate\Support\Str::ulid()), 'key' => 'bench', 'name' => json_encode(['en' => 'Bench'])],
+            ['id' => strtolower((string) Str::ulid()), 'key' => 'barbell', 'name' => json_encode(['en' => 'Barbell'])],
+            ['id' => strtolower((string) Str::ulid()), 'key' => 'dumbbell', 'name' => json_encode(['en' => 'Dumbbells'])],
+            ['id' => strtolower((string) Str::ulid()), 'key' => 'bench', 'name' => json_encode(['en' => 'Bench'])],
         ]);
 
         $make = fn (array $attrs) => tap(new Exercise(['tenant_id' => null] + $attrs), fn (Exercise $e) => $e->save());

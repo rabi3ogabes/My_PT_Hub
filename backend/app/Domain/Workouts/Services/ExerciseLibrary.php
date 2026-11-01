@@ -4,6 +4,7 @@ namespace App\Domain\Workouts\Services;
 
 use App\Domain\Identity\Models\User;
 use App\Domain\Shared\Support\ApiException;
+use App\Domain\Shared\Tenancy\TenantContext;
 use App\Domain\Workouts\Jobs\ProcessExerciseVideo;
 use App\Domain\Workouts\Models\Exercise;
 use App\Domain\Workouts\Support\SearchText;
@@ -252,7 +253,7 @@ class ExerciseLibrary
         $base = Str::slug($name) ?: 'exercise-'.Str::lower(Str::random(6));
         $slug = $base;
         $i = 2;
-        while (Exercise::query()->withTrashed()->where('slug', $slug)->whereNotNull('tenant_id')->where('tenant_id', app(\App\Domain\Shared\Tenancy\TenantContext::class)->id())->exists()) {
+        while (Exercise::query()->withTrashed()->where('slug', $slug)->whereNotNull('tenant_id')->where('tenant_id', app(TenantContext::class)->id())->exists()) {
             $slug = $base.'-'.$i++;
         }
 

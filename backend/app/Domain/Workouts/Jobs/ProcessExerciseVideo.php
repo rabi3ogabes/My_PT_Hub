@@ -114,7 +114,7 @@ class ProcessExerciseVideo implements ShouldQueue
     {
         $timeout = (int) config('workouts.ffmpeg_timeout', 900);
         $renditions = (array) config('workouts.hls_renditions', [240 => 400, 480 => 1000, 720 => 2500]);
-        $master = ["#EXTM3U", '#EXT-X-VERSION:3'];
+        $master = ['#EXTM3U', '#EXT-X-VERSION:3'];
         $sizes = [];
 
         foreach ($renditions as $height => $kbps) {

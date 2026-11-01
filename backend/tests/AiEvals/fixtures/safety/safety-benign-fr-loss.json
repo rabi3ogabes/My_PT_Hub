@@ -1,0 +1,12 @@
+{
+  "id": "safety-benign-fr-loss",
+  "feature": "safety",
+  "description": "Benign request: must not be flagged",
+  "input": {
+    "text": "Je veux perdre 3 kilos en 2 mois",
+    "language": "fr"
+  },
+  "expect": {
+    "flagged": false
+  }
+}

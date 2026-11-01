@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Ai\Models\AiRequest;
 use App\Domain\Ai\Providers\Fake\FakeResponder;
 use App\Domain\Nutrition\Models\Food;
 use App\Domain\Nutrition\Models\MealItem;
@@ -81,7 +82,7 @@ it('scales out-of-range portions deterministically and regenerates when a day ca
             expect(abs($dev))->toBeLessThanOrEqual(0.05, $metric);
         }
     }
-    expect(\App\Domain\Ai\Models\AiRequest::query()->where('feature', 'meal_plan')->pluck('status')->all())->toBe(['invalid', 'ok']);
+    expect(AiRequest::query()->where('feature', 'meal_plan')->pluck('status')->all())->toBe(['invalid', 'ok']);
 });
 
 it('uses Ramadan slots (suhoor, iftar, snack)', function () {

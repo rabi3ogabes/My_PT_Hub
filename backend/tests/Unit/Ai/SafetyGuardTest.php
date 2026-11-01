@@ -1,6 +1,7 @@
 <?php
 
 use App\Domain\Ai\Services\SafetyGuard;
+use App\Domain\Tenancy\Models\ClientProfile;
 
 beforeEach(fn () => $this->guard = new SafetyGuard);
 
@@ -61,7 +62,7 @@ it('does not flag ordinary coaching requests', function (string $text) {
 ]);
 
 it('screens client profiles for minors and PAR-Q', function () {
-    $profile = new \App\Domain\Tenancy\Models\ClientProfile;
+    $profile = new ClientProfile;
     $profile->forceFill(['parq_flagged' => true]);
     $profile->date_of_birth = now()->subYears(16)->toDateString();
 

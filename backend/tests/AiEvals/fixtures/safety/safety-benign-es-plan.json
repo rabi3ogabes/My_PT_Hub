@@ -1,0 +1,12 @@
+{
+  "id": "safety-benign-es-plan",
+  "feature": "safety",
+  "description": "Benign request: must not be flagged",
+  "input": {
+    "text": "Quiero un plan de comidas de 2200 calorías",
+    "language": "es"
+  },
+  "expect": {
+    "flagged": false
+  }
+}

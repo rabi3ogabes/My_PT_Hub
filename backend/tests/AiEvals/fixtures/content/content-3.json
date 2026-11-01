@@ -1,0 +1,13 @@
+{
+  "id": "content-3",
+  "feature": "content",
+  "description": "Content in the requested language",
+  "input": {
+    "type": "sales_copy",
+    "topic": "Coaching online en Dubái",
+    "language": "es"
+  },
+  "expect": {
+    "language": "es"
+  }
+}

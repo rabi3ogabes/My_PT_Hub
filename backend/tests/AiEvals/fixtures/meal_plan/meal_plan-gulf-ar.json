@@ -1,0 +1,18 @@
+{
+  "id": "meal_plan-gulf-ar",
+  "feature": "meal_plan",
+  "description": "Macros verified within ±5% from the food DB",
+  "input": {
+    "kcal": 2000,
+    "protein_g": 150,
+    "carbs_g": 200,
+    "fat_g": 67,
+    "cuisine": "gulf",
+    "language": "ar",
+    "days": 2
+  },
+  "expect": {
+    "language": "ar",
+    "within_tolerance": 0.05
+  }
+}

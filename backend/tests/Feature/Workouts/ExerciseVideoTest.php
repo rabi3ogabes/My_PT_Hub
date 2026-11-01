@@ -3,12 +3,14 @@
 use App\Domain\Workouts\Jobs\ProcessExerciseVideo;
 use App\Domain\Workouts\Models\Exercise;
 use App\Domain\Workouts\Services\ExerciseLibrary;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Process;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
+    Model::preventLazyLoading(); // catch N+1 / lazy loads (dev behaviour)
     [$this->tenant, $this->owner] = $this->createCoachTenant();
     Storage::fake('public');
     $this->actingAsIn($this->owner, $this->tenant);
@@ -74,3 +76,5 @@ it('transcodes a real fixture to HLS renditions, poster and preview', function (
     expect($master)->toContain('240p/index.m3u8')->toContain('480p/index.m3u8');
     Storage::disk('public')->assertExists($dir.'/480p/index.m3u8');
 });
+
+afterEach(fn () => Model::preventLazyLoading(false));

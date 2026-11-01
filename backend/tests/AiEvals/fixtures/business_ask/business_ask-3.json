@@ -1,0 +1,11 @@
+{
+  "id": "business_ask-3",
+  "feature": "business_ask",
+  "description": "Routes to a predefined tool; never SQL",
+  "input": {
+    "question": "Which clients are at risk of churning?"
+  },
+  "expect": {
+    "tool": "at_risk_clients"
+  }
+}

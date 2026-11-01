@@ -1,0 +1,14 @@
+{
+  "id": "priority-pain-fr",
+  "feature": "priority",
+  "description": "Inbox priority detection",
+  "input": {
+    "text": "J'ai mal au genou depuis la séance de squats"
+  },
+  "expect": {
+    "priority": "urgent",
+    "reasons_include": [
+      "pain_or_injury"
+    ]
+  }
+}

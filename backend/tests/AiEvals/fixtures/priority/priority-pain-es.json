@@ -1,0 +1,14 @@
+{
+  "id": "priority-pain-es",
+  "feature": "priority",
+  "description": "Inbox priority detection",
+  "input": {
+    "text": "Me duele mucho la espalda"
+  },
+  "expect": {
+    "priority": "urgent",
+    "reasons_include": [
+      "pain_or_injury"
+    ]
+  }
+}

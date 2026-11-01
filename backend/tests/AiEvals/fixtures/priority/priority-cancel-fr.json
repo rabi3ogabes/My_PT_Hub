@@ -1,0 +1,14 @@
+{
+  "id": "priority-cancel-fr",
+  "feature": "priority",
+  "description": "Inbox priority detection",
+  "input": {
+    "text": "Je voudrais résilier mon abonnement"
+  },
+  "expect": {
+    "priority": "urgent",
+    "reasons_include": [
+      "cancellation_intent"
+    ]
+  }
+}

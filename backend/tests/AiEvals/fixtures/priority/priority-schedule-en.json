@@ -1,0 +1,11 @@
+{
+  "id": "priority-schedule-en",
+  "feature": "priority",
+  "description": "Scheduling request",
+  "input": {
+    "text": "Can I reschedule Thursday?"
+  },
+  "expect": {
+    "priority": "high"
+  }
+}

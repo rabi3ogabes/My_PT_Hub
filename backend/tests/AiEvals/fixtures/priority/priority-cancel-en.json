@@ -1,0 +1,14 @@
+{
+  "id": "priority-cancel-en",
+  "feature": "priority",
+  "description": "Inbox priority detection",
+  "input": {
+    "text": "I want to cancel my subscription next month"
+  },
+  "expect": {
+    "priority": "urgent",
+    "reasons_include": [
+      "cancellation_intent"
+    ]
+  }
+}

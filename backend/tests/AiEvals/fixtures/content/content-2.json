@@ -1,0 +1,13 @@
+{
+  "id": "content-2",
+  "feature": "content",
+  "description": "Content in the requested language",
+  "input": {
+    "type": "program_description",
+    "topic": "Programme force 8 semaines",
+    "language": "fr"
+  },
+  "expect": {
+    "language": "fr"
+  }
+}

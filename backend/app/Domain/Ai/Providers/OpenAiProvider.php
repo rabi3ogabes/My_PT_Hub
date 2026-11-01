@@ -9,6 +9,7 @@ use App\Domain\Ai\Exceptions\AiProviderException;
 use App\Domain\Ai\Support\SchemaValidator;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
@@ -172,7 +173,7 @@ final class OpenAiProvider implements AiProvider
     private function client(): PendingRequest
     {
         return Http::withToken((string) $this->apiKey)->acceptJson()->timeout((int) config('ai.timeout_seconds', 120))
-            ->retry(2, 500, fn ($e) => $e instanceof ConnectionException || ($e instanceof \Illuminate\Http\Client\RequestException && in_array($e->response->status(), [429, 500, 502, 503], true)), throw: false);
+            ->retry(2, 500, fn ($e) => $e instanceof ConnectionException || ($e instanceof RequestException && in_array($e->response->status(), [429, 500, 502, 503], true)), throw: false);
     }
 
     private function ensureKey(): void

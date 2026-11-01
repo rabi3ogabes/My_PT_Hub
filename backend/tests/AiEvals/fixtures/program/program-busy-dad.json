@@ -1,0 +1,16 @@
+{
+  "id": "program-busy-dad",
+  "feature": "program",
+  "description": "Program must use library exercises only",
+  "input": {
+    "prompt": "3 day full body for a busy dad with dumbbells"
+  },
+  "expect": {
+    "days_per_week": 3,
+    "equipment_subset": [
+      "dumbbell",
+      "bodyweight"
+    ],
+    "library_only": true
+  }
+}
