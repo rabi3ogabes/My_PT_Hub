@@ -48,11 +48,17 @@ abstract class Booking with _$Booking {
     String? checkinCode,
     DateTime? canCancelFreeUntil,
     DateTime? createdAt,
+    String? seriesId,
+    @Default(false) bool isOccurrence,
+    DateTime? occurrenceStartsAt,
   }) = _Booking;
 
   factory Booking.fromJson(Map<String, dynamic> json) => _$BookingFromJson(json);
 
   bool get isActive => status == 'booked' || status == 'waitlisted';
+
+  /// Start of this booking (the occurrence for recurring classes).
+  DateTime get startsAt => occurrenceStartsAt ?? event.startsAt;
 
   /// Whether cancelling now is free under the coach's policy.
   bool isFreeCancellation(DateTime now) => canCancelFreeUntil == null || now.isBefore(canCancelFreeUntil!);

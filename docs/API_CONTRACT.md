@@ -127,3 +127,37 @@ Write (staff `POST/PUT /workouts`): same nested shape without ids (ids optional;
 Staff endpoints (`/dashboard`, `/clients`, `/programs`, …) reuse the shapes above. Key additions:
 - **ClientSummary**: `{id, name, email, avatar_url, status, goal, level, tags, coach: {id, name}|null, compliance_score, risk_status: green|amber|red, last_active_at, program: {id, name}|null, unread_messages, joined_at}`.
 - `GET /dashboard` → `{kpis: {active_clients, at_risk, checkins_to_review, unread_messages, sessions_today, mrr: Money, revenue_month: Money}, at_risk_clients: [ClientSummary], todays_sessions: [Event], recent_activity: [{type, client, text, at}], onboarding: {steps: [{key, done}]}}`.
+
+## Addenda (implemented additions — all additive, no renames)
+**Workouts**
+- Exercise detail: `progression_parent_id`, `progression_step`; staff also get `*_translations`, `aliases`.
+- Workout: `is_template`, `is_global`, `version`; WorkoutExercise: `progression_rule`. Program: `is_global`, `cover_url` (+ `name_translations`, `description_translations` for staff). ProgramAssignment: `shift_days`, `paused_at`. PR: `weight_kg`. Session: `program_assignment_id`.
+- `GET /me/workouts/{id}` returns set targets with progression rules applied and %1RM converted to kg when an estimated 1RM exists.
+- First-ever log of an exercise stores a baseline record (`previous_value: null`) visible on `/me/records` but not celebrated/evented.
+- Sync: pull rows carry `updated_at`; session sets carry `session_id`; rejected push results carry `message`; first pull without `since` returns the last 90 days (config `workouts.sync_initial_days`). `message` entity → rejected `use_messages_endpoint`.
+
+**Nutrition / habits / check-ins**
+- Staff-only: Food `name_translations`, `aliases`, `moderation`; Recipe `*_translations`, `is_published`, `is_custom`. `?servings=N` scales a recipe. `/me/foods/recent?favorites=1`. Quick-add food log accepts `save_food: true` (saves as user-submitted, moderation pending).
+- Meta: targets list `meta.current`, `meta.profile_inputs`; check-in inbox and compliance list `meta.counts`.
+- `GET /clients/{id}/compliance` → `{score, risk_status, at_risk, workouts_pct, nutrition_pct, habits_pct, checkins_pct, previous_score, days_inactive, last_active_on, weights, components, reasons}`.
+
+**Messaging / calendar**
+- Event: `series_id`, `is_occurrence`, `occurrence_starts_at`. `POST /me/bookings {event_id, starts_at}` books a recurring-class occurrence. Staff `PATCH|DELETE /events/{id}` take `scope: this|future|all` + `occurrence_starts_at`.
+- Booking: `waitlist_offer_expires_at`, `checked_in_at`, `client`. Conversations list: `meta.total_unread`. Credit entries: `reason_label`, `booking_id`, `expires_on`.
+- Credit balance is only enforced at booking when tenant setting `calendar.require_credits` is true.
+
+**Payments**
+- `GET /me/purchases` also returns `credits`. `GET /me/invoices` is cursor-paginated. Public checkout `POST` requires `name` + `email`; redirect URLs must be on our host. Shareable checkout page: `{APP_URL}/checkout/{tenantSlug}/{productSlug}`.
+- Tenant settings read by payments: `payments.tax_enabled`, `payments.tax_rate`, `payments.client_can_pause`, `payments.invoice_prefix.*`; invoice seller block from `tenants.legal` (`legal_name`, `vat_number`, `address`, `registration_number`).
+
+**AI**
+- Free plan: `ai_requests_month` acts as a trial allowance for coach features, then 402 `plan_limit_reached`.
+- Photo-log candidates include `low_confidence`. `GET /ai/churn` → `data: [clients]`, `meta: {weights, ai_output_id}`.
+- `POST /ai/outputs/{id}/approve {apply: true, edited_payload?}` applies program / meal_plan / progression drafts (409 `program_shared` if the client's program is shared). Form check for coached clients → `status: pending_coach_review`. `POST /me/ai/coach-chat` streams SSE when `stream=true` or `Accept: text/event-stream`.
+- Owner `PUT /ai/settings` accepts `client_tools: {client_photo_logging, self_guided_chat, client_form_check, client_weekly_recap}`.
+
+**Integrations / marketplace**
+- `POST /me/health/samples` accepts sources `apple_health|health_connect|manual` only → `{created, updated, duplicates, skipped, server_time}`. `GET /me/health/summary` → `{date, today, daily, readiness, sources}`. `GET /clients/{id}/health` → `{client, from, to, timeline, daily, readiness, sources}`.
+- Integrations catalogue item: `{provider, name, description, category, method, audience, configured, connected, status, needs_reconnect, account, connected_at, last_sync_at, last_error}`.
+- Personal API tokens carry abilities `access`, `pat`, `tenant:<id>` + scopes (`clients:read|write`, `webhooks:manage`, …); pinned to one tenant; cannot call `/api-tokens`. Outgoing webhook header `X-Aurum-Signature: t=<unix>,v1=<hmac-sha256(secret, "t.body")>`.
+- Leads from public profile → `source: profile`; from match quiz → `marketplace`; repeat within 24h updates the open lead. Review submission: signed `POST marketplace/reviews/{tenant}/{client}` link emailed 30 days after joining.

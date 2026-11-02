@@ -843,6 +843,9 @@ mixin _$Booking {
   String? get checkinCode;
   DateTime? get canCancelFreeUntil;
   DateTime? get createdAt;
+  String? get seriesId;
+  bool get isOccurrence;
+  DateTime? get occurrenceStartsAt;
 
   /// Create a copy of Booking
   /// with the given fields replaced by the non-null parameter values.
@@ -872,7 +875,13 @@ mixin _$Booking {
             (identical(other.canCancelFreeUntil, _this.canCancelFreeUntil) ||
                 other.canCancelFreeUntil == _this.canCancelFreeUntil) &&
             (identical(other.createdAt, _this.createdAt) ||
-                other.createdAt == _this.createdAt));
+                other.createdAt == _this.createdAt) &&
+            (identical(other.seriesId, _this.seriesId) ||
+                other.seriesId == _this.seriesId) &&
+            (identical(other.isOccurrence, _this.isOccurrence) ||
+                other.isOccurrence == _this.isOccurrence) &&
+            (identical(other.occurrenceStartsAt, _this.occurrenceStartsAt) ||
+                other.occurrenceStartsAt == _this.occurrenceStartsAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -888,13 +897,16 @@ mixin _$Booking {
       _this.checkinCode,
       _this.canCancelFreeUntil,
       _this.createdAt,
+      _this.seriesId,
+      _this.isOccurrence,
+      _this.occurrenceStartsAt,
     );
   }
 
   @override
   String toString() {
     final _this = this as Booking;
-    return 'Booking(id: ${_this.id}, event: ${_this.event}, status: ${_this.status}, waitlistPosition: ${_this.waitlistPosition}, checkinCode: ${_this.checkinCode}, canCancelFreeUntil: ${_this.canCancelFreeUntil}, createdAt: ${_this.createdAt})';
+    return 'Booking(id: ${_this.id}, event: ${_this.event}, status: ${_this.status}, waitlistPosition: ${_this.waitlistPosition}, checkinCode: ${_this.checkinCode}, canCancelFreeUntil: ${_this.canCancelFreeUntil}, createdAt: ${_this.createdAt}, seriesId: ${_this.seriesId}, isOccurrence: ${_this.isOccurrence}, occurrenceStartsAt: ${_this.occurrenceStartsAt})';
   }
 }
 
@@ -911,6 +923,9 @@ abstract mixin class $BookingCopyWith<$Res> {
     String? checkinCode,
     DateTime? canCancelFreeUntil,
     DateTime? createdAt,
+    String? seriesId,
+    bool isOccurrence,
+    DateTime? occurrenceStartsAt,
   });
 
   $CalendarEventCopyWith<$Res> get event;
@@ -935,6 +950,9 @@ class _$BookingCopyWithImpl<$Res> implements $BookingCopyWith<$Res> {
     Object? checkinCode = freezed,
     Object? canCancelFreeUntil = freezed,
     Object? createdAt = freezed,
+    Object? seriesId = freezed,
+    Object? isOccurrence = null,
+    Object? occurrenceStartsAt = freezed,
   }) {
     return _then(
       Booking(
@@ -965,6 +983,18 @@ class _$BookingCopyWithImpl<$Res> implements $BookingCopyWith<$Res> {
         createdAt: freezed == createdAt
             ? _self.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        seriesId: freezed == seriesId
+            ? _self.seriesId
+            : seriesId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        isOccurrence: null == isOccurrence
+            ? _self.isOccurrence
+            : isOccurrence // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        occurrenceStartsAt: freezed == occurrenceStartsAt
+            ? _self.occurrenceStartsAt
+            : occurrenceStartsAt // ignore: cast_nullable_to_non_nullable
                   as DateTime?,
       ),
     );
@@ -1082,6 +1112,9 @@ extension BookingPatterns on Booking {
       String? checkinCode,
       DateTime? canCancelFreeUntil,
       DateTime? createdAt,
+      String? seriesId,
+      bool isOccurrence,
+      DateTime? occurrenceStartsAt,
     )?
     $default, {
     required TResult orElse(),
@@ -1097,6 +1130,9 @@ extension BookingPatterns on Booking {
           _that.checkinCode,
           _that.canCancelFreeUntil,
           _that.createdAt,
+          _that.seriesId,
+          _that.isOccurrence,
+          _that.occurrenceStartsAt,
         );
       case _:
         return orElse();
@@ -1126,6 +1162,9 @@ extension BookingPatterns on Booking {
       String? checkinCode,
       DateTime? canCancelFreeUntil,
       DateTime? createdAt,
+      String? seriesId,
+      bool isOccurrence,
+      DateTime? occurrenceStartsAt,
     )
     $default,
   ) {
@@ -1140,6 +1179,9 @@ extension BookingPatterns on Booking {
           _that.checkinCode,
           _that.canCancelFreeUntil,
           _that.createdAt,
+          _that.seriesId,
+          _that.isOccurrence,
+          _that.occurrenceStartsAt,
         );
       case _:
         throw StateError('Unexpected subclass');
@@ -1168,6 +1210,9 @@ extension BookingPatterns on Booking {
       String? checkinCode,
       DateTime? canCancelFreeUntil,
       DateTime? createdAt,
+      String? seriesId,
+      bool isOccurrence,
+      DateTime? occurrenceStartsAt,
     )?
     $default,
   ) {
@@ -1182,6 +1227,9 @@ extension BookingPatterns on Booking {
           _that.checkinCode,
           _that.canCancelFreeUntil,
           _that.createdAt,
+          _that.seriesId,
+          _that.isOccurrence,
+          _that.occurrenceStartsAt,
         );
       case _:
         return null;
@@ -1200,6 +1248,9 @@ class _Booking extends Booking {
     this.checkinCode,
     this.canCancelFreeUntil,
     this.createdAt,
+    this.seriesId,
+    this.isOccurrence = false,
+    this.occurrenceStartsAt,
   }) : super._();
   factory _Booking.fromJson(Map<String, dynamic> json) =>
       _$BookingFromJson(json);
@@ -1219,6 +1270,13 @@ class _Booking extends Booking {
   final DateTime? canCancelFreeUntil;
   @override
   final DateTime? createdAt;
+  @override
+  final String? seriesId;
+  @override
+  @JsonKey()
+  final bool isOccurrence;
+  @override
+  final DateTime? occurrenceStartsAt;
 
   /// Create a copy of Booking
   /// with the given fields replaced by the non-null parameter values.
@@ -1248,7 +1306,13 @@ class _Booking extends Booking {
             (identical(other.canCancelFreeUntil, canCancelFreeUntil) ||
                 other.canCancelFreeUntil == canCancelFreeUntil) &&
             (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt));
+                other.createdAt == createdAt) &&
+            (identical(other.seriesId, seriesId) ||
+                other.seriesId == seriesId) &&
+            (identical(other.isOccurrence, isOccurrence) ||
+                other.isOccurrence == isOccurrence) &&
+            (identical(other.occurrenceStartsAt, occurrenceStartsAt) ||
+                other.occurrenceStartsAt == occurrenceStartsAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -1263,12 +1327,15 @@ class _Booking extends Booking {
       checkinCode,
       canCancelFreeUntil,
       createdAt,
+      seriesId,
+      isOccurrence,
+      occurrenceStartsAt,
     );
   }
 
   @override
   String toString() {
-    return 'Booking(id: $id, event: $event, status: $status, waitlistPosition: $waitlistPosition, checkinCode: $checkinCode, canCancelFreeUntil: $canCancelFreeUntil, createdAt: $createdAt)';
+    return 'Booking(id: $id, event: $event, status: $status, waitlistPosition: $waitlistPosition, checkinCode: $checkinCode, canCancelFreeUntil: $canCancelFreeUntil, createdAt: $createdAt, seriesId: $seriesId, isOccurrence: $isOccurrence, occurrenceStartsAt: $occurrenceStartsAt)';
   }
 }
 
@@ -1286,6 +1353,9 @@ abstract mixin class _$BookingCopyWith<$Res> implements $BookingCopyWith<$Res> {
     String? checkinCode,
     DateTime? canCancelFreeUntil,
     DateTime? createdAt,
+    String? seriesId,
+    bool isOccurrence,
+    DateTime? occurrenceStartsAt,
   });
 
   @override
@@ -1311,6 +1381,9 @@ class __$BookingCopyWithImpl<$Res> implements _$BookingCopyWith<$Res> {
     Object? checkinCode = freezed,
     Object? canCancelFreeUntil = freezed,
     Object? createdAt = freezed,
+    Object? seriesId = freezed,
+    Object? isOccurrence = null,
+    Object? occurrenceStartsAt = freezed,
   }) {
     return _then(
       _Booking(
@@ -1341,6 +1414,18 @@ class __$BookingCopyWithImpl<$Res> implements _$BookingCopyWith<$Res> {
         createdAt: freezed == createdAt
             ? _self.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
+                  as DateTime?,
+        seriesId: freezed == seriesId
+            ? _self.seriesId
+            : seriesId // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        isOccurrence: null == isOccurrence
+            ? _self.isOccurrence
+            : isOccurrence // ignore: cast_nullable_to_non_nullable
+                  as bool,
+        occurrenceStartsAt: freezed == occurrenceStartsAt
+            ? _self.occurrenceStartsAt
+            : occurrenceStartsAt // ignore: cast_nullable_to_non_nullable
                   as DateTime?,
       ),
     );

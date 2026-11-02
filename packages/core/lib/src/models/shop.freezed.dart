@@ -2787,6 +2787,7 @@ class __$OrderCopyWithImpl<$Res> implements _$OrderCopyWith<$Res> {
 mixin _$Purchases {
   List<Order> get orders;
   List<ClientSubscription> get subscriptions;
+  Credits? get credits;
 
   /// Create a copy of Purchases
   /// with the given fields replaced by the non-null parameter values.
@@ -2808,7 +2809,9 @@ mixin _$Purchases {
             const DeepCollectionEquality().equals(
               other.subscriptions,
               _this.subscriptions,
-            ));
+            ) &&
+            (identical(other.credits, _this.credits) ||
+                other.credits == _this.credits));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -2819,13 +2822,14 @@ mixin _$Purchases {
       runtimeType,
       const DeepCollectionEquality().hash(_this.orders),
       const DeepCollectionEquality().hash(_this.subscriptions),
+      _this.credits,
     );
   }
 
   @override
   String toString() {
     final _this = this as Purchases;
-    return 'Purchases(orders: ${_this.orders}, subscriptions: ${_this.subscriptions})';
+    return 'Purchases(orders: ${_this.orders}, subscriptions: ${_this.subscriptions}, credits: ${_this.credits})';
   }
 }
 
@@ -2834,7 +2838,13 @@ abstract mixin class $PurchasesCopyWith<$Res> {
   factory $PurchasesCopyWith(Purchases value, $Res Function(Purchases) _then) =
       _$PurchasesCopyWithImpl;
   @useResult
-  $Res call({List<Order> orders, List<ClientSubscription> subscriptions});
+  $Res call({
+    List<Order> orders,
+    List<ClientSubscription> subscriptions,
+    Credits? credits,
+  });
+
+  $CreditsCopyWith<$Res>? get credits;
 }
 
 /// @nodoc
@@ -2848,7 +2858,11 @@ class _$PurchasesCopyWithImpl<$Res> implements $PurchasesCopyWith<$Res> {
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
-  $Res call({Object? orders = null, Object? subscriptions = null}) {
+  $Res call({
+    Object? orders = null,
+    Object? subscriptions = null,
+    Object? credits = freezed,
+  }) {
     return _then(
       Purchases(
         orders: null == orders
@@ -2859,8 +2873,26 @@ class _$PurchasesCopyWithImpl<$Res> implements $PurchasesCopyWith<$Res> {
             ? _self.subscriptions
             : subscriptions // ignore: cast_nullable_to_non_nullable
                   as List<ClientSubscription>,
+        credits: freezed == credits
+            ? _self.credits
+            : credits // ignore: cast_nullable_to_non_nullable
+                  as Credits?,
       ),
     );
+  }
+
+  /// Create a copy of Purchases
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $CreditsCopyWith<$Res>? get credits {
+    if (_self.credits == null) {
+      return null;
+    }
+
+    return $CreditsCopyWith<$Res>(_self.credits!, (value) {
+      return _then(_self.copyWith(credits: value));
+    });
   }
 }
 
@@ -2960,6 +2992,7 @@ extension PurchasesPatterns on Purchases {
     TResult Function(
       List<Order> orders,
       List<ClientSubscription> subscriptions,
+      Credits? credits,
     )?
     $default, {
     required TResult orElse(),
@@ -2967,7 +3000,7 @@ extension PurchasesPatterns on Purchases {
     final _that = this;
     switch (_that) {
       case _Purchases() when $default != null:
-        return $default(_that.orders, _that.subscriptions);
+        return $default(_that.orders, _that.subscriptions, _that.credits);
       case _:
         return orElse();
     }
@@ -2988,13 +3021,17 @@ extension PurchasesPatterns on Purchases {
 
   @optionalTypeArgs
   TResult when<TResult extends Object?>(
-    TResult Function(List<Order> orders, List<ClientSubscription> subscriptions)
+    TResult Function(
+      List<Order> orders,
+      List<ClientSubscription> subscriptions,
+      Credits? credits,
+    )
     $default,
   ) {
     final _that = this;
     switch (_that) {
       case _Purchases():
-        return $default(_that.orders, _that.subscriptions);
+        return $default(_that.orders, _that.subscriptions, _that.credits);
       case _:
         throw StateError('Unexpected subclass');
     }
@@ -3017,13 +3054,14 @@ extension PurchasesPatterns on Purchases {
     TResult? Function(
       List<Order> orders,
       List<ClientSubscription> subscriptions,
+      Credits? credits,
     )?
     $default,
   ) {
     final _that = this;
     switch (_that) {
       case _Purchases() when $default != null:
-        return $default(_that.orders, _that.subscriptions);
+        return $default(_that.orders, _that.subscriptions, _that.credits);
       case _:
         return null;
     }
@@ -3036,6 +3074,7 @@ class _Purchases implements Purchases {
   const _Purchases({
     List<Order> orders = const <Order>[],
     List<ClientSubscription> subscriptions = const <ClientSubscription>[],
+    this.credits,
   }) : _orders = orders,
        _subscriptions = subscriptions;
   factory _Purchases.fromJson(Map<String, dynamic> json) =>
@@ -3059,6 +3098,9 @@ class _Purchases implements Purchases {
     return EqualUnmodifiableListView(_subscriptions);
   }
 
+  @override
+  final Credits? credits;
+
   /// Create a copy of Purchases
   /// with the given fields replaced by the non-null parameter values.
   @override
@@ -3081,7 +3123,8 @@ class _Purchases implements Purchases {
             const DeepCollectionEquality().equals(
               other.subscriptions,
               _subscriptions,
-            ));
+            ) &&
+            (identical(other.credits, credits) || other.credits == credits));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -3091,12 +3134,13 @@ class _Purchases implements Purchases {
       runtimeType,
       const DeepCollectionEquality().hash(_orders),
       const DeepCollectionEquality().hash(_subscriptions),
+      credits,
     );
   }
 
   @override
   String toString() {
-    return 'Purchases(orders: $orders, subscriptions: $subscriptions)';
+    return 'Purchases(orders: $orders, subscriptions: $subscriptions, credits: $credits)';
   }
 }
 
@@ -3109,7 +3153,14 @@ abstract mixin class _$PurchasesCopyWith<$Res>
   ) = __$PurchasesCopyWithImpl;
   @override
   @useResult
-  $Res call({List<Order> orders, List<ClientSubscription> subscriptions});
+  $Res call({
+    List<Order> orders,
+    List<ClientSubscription> subscriptions,
+    Credits? credits,
+  });
+
+  @override
+  $CreditsCopyWith<$Res>? get credits;
 }
 
 /// @nodoc
@@ -3123,7 +3174,11 @@ class __$PurchasesCopyWithImpl<$Res> implements _$PurchasesCopyWith<$Res> {
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $Res call({Object? orders = null, Object? subscriptions = null}) {
+  $Res call({
+    Object? orders = null,
+    Object? subscriptions = null,
+    Object? credits = freezed,
+  }) {
     return _then(
       _Purchases(
         orders: null == orders
@@ -3134,7 +3189,25 @@ class __$PurchasesCopyWithImpl<$Res> implements _$PurchasesCopyWith<$Res> {
             ? _self._subscriptions
             : subscriptions // ignore: cast_nullable_to_non_nullable
                   as List<ClientSubscription>,
+        credits: freezed == credits
+            ? _self.credits
+            : credits // ignore: cast_nullable_to_non_nullable
+                  as Credits?,
       ),
     );
+  }
+
+  /// Create a copy of Purchases
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $CreditsCopyWith<$Res>? get credits {
+    if (_self.credits == null) {
+      return null;
+    }
+
+    return $CreditsCopyWith<$Res>(_self.credits!, (value) {
+      return _then(_self.copyWith(credits: value));
+    });
   }
 }

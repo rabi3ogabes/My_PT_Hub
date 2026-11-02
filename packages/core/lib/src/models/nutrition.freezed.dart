@@ -5844,6 +5844,7 @@ mixin _$PhotoCandidate {
   double get proteinG;
   double get carbsG;
   double get fatG;
+  bool get lowConfidence;
 
   /// Create a copy of PhotoCandidate
   /// with the given fields replaced by the non-null parameter values.
@@ -5875,7 +5876,9 @@ mixin _$PhotoCandidate {
                 other.proteinG == _this.proteinG) &&
             (identical(other.carbsG, _this.carbsG) ||
                 other.carbsG == _this.carbsG) &&
-            (identical(other.fatG, _this.fatG) || other.fatG == _this.fatG));
+            (identical(other.fatG, _this.fatG) || other.fatG == _this.fatG) &&
+            (identical(other.lowConfidence, _this.lowConfidence) ||
+                other.lowConfidence == _this.lowConfidence));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -5892,13 +5895,14 @@ mixin _$PhotoCandidate {
       _this.proteinG,
       _this.carbsG,
       _this.fatG,
+      _this.lowConfidence,
     );
   }
 
   @override
   String toString() {
     final _this = this as PhotoCandidate;
-    return 'PhotoCandidate(food: ${_this.food}, name: ${_this.name}, grams: ${_this.grams}, confidence: ${_this.confidence}, kcal: ${_this.kcal}, proteinG: ${_this.proteinG}, carbsG: ${_this.carbsG}, fatG: ${_this.fatG})';
+    return 'PhotoCandidate(food: ${_this.food}, name: ${_this.name}, grams: ${_this.grams}, confidence: ${_this.confidence}, kcal: ${_this.kcal}, proteinG: ${_this.proteinG}, carbsG: ${_this.carbsG}, fatG: ${_this.fatG}, lowConfidence: ${_this.lowConfidence})';
   }
 }
 
@@ -5918,6 +5922,7 @@ abstract mixin class $PhotoCandidateCopyWith<$Res> {
     double proteinG,
     double carbsG,
     double fatG,
+    bool lowConfidence,
   });
 
   $FoodCopyWith<$Res>? get food;
@@ -5944,6 +5949,7 @@ class _$PhotoCandidateCopyWithImpl<$Res>
     Object? proteinG = null,
     Object? carbsG = null,
     Object? fatG = null,
+    Object? lowConfidence = null,
   }) {
     return _then(
       PhotoCandidate(
@@ -5979,6 +5985,10 @@ class _$PhotoCandidateCopyWithImpl<$Res>
             ? _self.fatG
             : fatG // ignore: cast_nullable_to_non_nullable
                   as double,
+        lowConfidence: null == lowConfidence
+            ? _self.lowConfidence
+            : lowConfidence // ignore: cast_nullable_to_non_nullable
+                  as bool,
       ),
     );
   }
@@ -6100,6 +6110,7 @@ extension PhotoCandidatePatterns on PhotoCandidate {
       double proteinG,
       double carbsG,
       double fatG,
+      bool lowConfidence,
     )?
     $default, {
     required TResult orElse(),
@@ -6116,6 +6127,7 @@ extension PhotoCandidatePatterns on PhotoCandidate {
           _that.proteinG,
           _that.carbsG,
           _that.fatG,
+          _that.lowConfidence,
         );
       case _:
         return orElse();
@@ -6146,6 +6158,7 @@ extension PhotoCandidatePatterns on PhotoCandidate {
       double proteinG,
       double carbsG,
       double fatG,
+      bool lowConfidence,
     )
     $default,
   ) {
@@ -6161,6 +6174,7 @@ extension PhotoCandidatePatterns on PhotoCandidate {
           _that.proteinG,
           _that.carbsG,
           _that.fatG,
+          _that.lowConfidence,
         );
       case _:
         throw StateError('Unexpected subclass');
@@ -6190,6 +6204,7 @@ extension PhotoCandidatePatterns on PhotoCandidate {
       double proteinG,
       double carbsG,
       double fatG,
+      bool lowConfidence,
     )?
     $default,
   ) {
@@ -6205,6 +6220,7 @@ extension PhotoCandidatePatterns on PhotoCandidate {
           _that.proteinG,
           _that.carbsG,
           _that.fatG,
+          _that.lowConfidence,
         );
       case _:
         return null;
@@ -6225,6 +6241,7 @@ class _PhotoCandidate implements PhotoCandidate {
     this.proteinG = 0,
     this.carbsG = 0,
     this.fatG = 0,
+    this.lowConfidence = false,
   });
   factory _PhotoCandidate.fromJson(Map<String, dynamic> json) =>
       _$PhotoCandidateFromJson(json);
@@ -6251,6 +6268,9 @@ class _PhotoCandidate implements PhotoCandidate {
   @override
   @JsonKey()
   final double fatG;
+  @override
+  @JsonKey()
+  final bool lowConfidence;
 
   /// Create a copy of PhotoCandidate
   /// with the given fields replaced by the non-null parameter values.
@@ -6279,7 +6299,9 @@ class _PhotoCandidate implements PhotoCandidate {
             (identical(other.proteinG, proteinG) ||
                 other.proteinG == proteinG) &&
             (identical(other.carbsG, carbsG) || other.carbsG == carbsG) &&
-            (identical(other.fatG, fatG) || other.fatG == fatG));
+            (identical(other.fatG, fatG) || other.fatG == fatG) &&
+            (identical(other.lowConfidence, lowConfidence) ||
+                other.lowConfidence == lowConfidence));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
@@ -6295,12 +6317,13 @@ class _PhotoCandidate implements PhotoCandidate {
       proteinG,
       carbsG,
       fatG,
+      lowConfidence,
     );
   }
 
   @override
   String toString() {
-    return 'PhotoCandidate(food: $food, name: $name, grams: $grams, confidence: $confidence, kcal: $kcal, proteinG: $proteinG, carbsG: $carbsG, fatG: $fatG)';
+    return 'PhotoCandidate(food: $food, name: $name, grams: $grams, confidence: $confidence, kcal: $kcal, proteinG: $proteinG, carbsG: $carbsG, fatG: $fatG, lowConfidence: $lowConfidence)';
   }
 }
 
@@ -6322,6 +6345,7 @@ abstract mixin class _$PhotoCandidateCopyWith<$Res>
     double proteinG,
     double carbsG,
     double fatG,
+    bool lowConfidence,
   });
 
   @override
@@ -6349,6 +6373,7 @@ class __$PhotoCandidateCopyWithImpl<$Res>
     Object? proteinG = null,
     Object? carbsG = null,
     Object? fatG = null,
+    Object? lowConfidence = null,
   }) {
     return _then(
       _PhotoCandidate(
@@ -6384,6 +6409,10 @@ class __$PhotoCandidateCopyWithImpl<$Res>
             ? _self.fatG
             : fatG // ignore: cast_nullable_to_non_nullable
                   as double,
+        lowConfidence: null == lowConfidence
+            ? _self.lowConfidence
+            : lowConfidence // ignore: cast_nullable_to_non_nullable
+                  as bool,
       ),
     );
   }

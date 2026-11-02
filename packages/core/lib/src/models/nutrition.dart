@@ -226,6 +226,7 @@ abstract class PhotoCandidate with _$PhotoCandidate {
     @Default(0) double proteinG,
     @Default(0) double carbsG,
     @Default(0) double fatG,
+    @Default(false) bool lowConfidence,
   }) = _PhotoCandidate;
 
   factory PhotoCandidate.fromJson(Map<String, dynamic> json) => _$PhotoCandidateFromJson(json);

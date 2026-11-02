@@ -309,8 +309,18 @@ class CalendarRepository extends BaseRepository {
   Future<List<Slot>> slots({String? coachId, required DateTime date}) =>
       api.getList('/me/slots', Slot.fromJson, query: {'coach_id': coachId, 'date': toApiDate(date)});
 
-  Future<Booking> bookClass(String eventId) async =>
-      Booking.fromJson((await api.post('/me/bookings', data: {'event_id': eventId})).dataMap);
+  /// Books a class; [startsAt] selects an occurrence of a recurring class.
+  Future<Booking> bookClass(String eventId, {DateTime? startsAt}) async => Booking.fromJson(
+        (await api.post(
+          '/me/bookings',
+          data: compactJson({'event_id': eventId, 'starts_at': startsAt == null ? null : toApiDateTime(startsAt)}),
+        ))
+            .dataMap,
+      );
+
+  /// Coach-chat for standalone users; set [stream] to receive SSE.
+  Future<Map<String, dynamic>> coachChat(String message, {List<Map<String, String>> history = const []}) async =>
+      (await api.post('/me/ai/coach-chat', data: {'message': message, 'history': history, 'stream': false})).dataMap;
 
   Future<Booking> bookSlot({required String coachId, required DateTime startsAt}) async => Booking.fromJson(
         (await api.post('/me/bookings', data: {'coach_id': coachId, 'starts_at': toApiDateTime(startsAt)})).dataMap,

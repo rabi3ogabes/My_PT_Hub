@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import 'calendar.dart';
 import 'common.dart';
 
 part 'shop.freezed.dart';
@@ -91,6 +92,7 @@ abstract class Purchases with _$Purchases {
   const factory Purchases({
     @Default(<Order>[]) List<Order> orders,
     @Default(<ClientSubscription>[]) List<ClientSubscription> subscriptions,
+    Credits? credits,
   }) = _Purchases;
 
   factory Purchases.fromJson(Map<String, dynamic> json) => _$PurchasesFromJson(json);

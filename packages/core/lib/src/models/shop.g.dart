@@ -136,10 +136,14 @@ _Purchases _$PurchasesFromJson(Map<String, dynamic> json) => _Purchases(
           ?.map((e) => ClientSubscription.fromJson(e as Map<String, dynamic>))
           .toList() ??
       const <ClientSubscription>[],
+  credits: json['credits'] == null
+      ? null
+      : Credits.fromJson(json['credits'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$PurchasesToJson(_Purchases instance) =>
     <String, dynamic>{
       'orders': instance.orders.map((e) => e.toJson()).toList(),
       'subscriptions': instance.subscriptions.map((e) => e.toJson()).toList(),
+      'credits': instance.credits?.toJson(),
     };

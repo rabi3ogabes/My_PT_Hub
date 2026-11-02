@@ -328,6 +328,7 @@ _PhotoCandidate _$PhotoCandidateFromJson(
       ? 0
       : const JsonDouble().fromJson(json['carbs_g']),
   fatG: json['fat_g'] == null ? 0 : const JsonDouble().fromJson(json['fat_g']),
+  lowConfidence: json['low_confidence'] as bool? ?? false,
 );
 
 Map<String, dynamic> _$PhotoCandidateToJson(_PhotoCandidate instance) =>
@@ -340,6 +341,7 @@ Map<String, dynamic> _$PhotoCandidateToJson(_PhotoCandidate instance) =>
       'protein_g': const JsonDouble().toJson(instance.proteinG),
       'carbs_g': const JsonDouble().toJson(instance.carbsG),
       'fat_g': const JsonDouble().toJson(instance.fatG),
+      'low_confidence': instance.lowConfidence,
     };
 
 _PhotoRecognition _$PhotoRecognitionFromJson(Map<String, dynamic> json) =>

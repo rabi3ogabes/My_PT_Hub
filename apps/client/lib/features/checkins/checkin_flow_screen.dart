@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:aurum_core/aurum_core.dart';
 import 'package:flutter/material.dart';
@@ -442,7 +443,7 @@ class _PhotoSlot extends StatelessWidget {
                 : Stack(
                     fit: StackFit.expand,
                     children: [
-                      Image(image: ResizeImage(FileImageProvider.of(path!), width: 400), fit: BoxFit.cover),
+                      Image(image: ResizeImage(FileImage(File(path!)), width: 400), fit: BoxFit.cover),
                       PositionedDirectional(top: 6, end: 6, child: Icon(Icons.check_circle_rounded, color: au.accent)),
                     ],
                   ),
@@ -451,9 +452,4 @@ class _PhotoSlot extends StatelessWidget {
       ),
     );
   }
-}
-
-/// Tiny indirection so the file image provider is created in one place.
-abstract final class FileImageProvider {
-  static ImageProvider of(String path) => FileImage(XFileCompat.file(path));
 }

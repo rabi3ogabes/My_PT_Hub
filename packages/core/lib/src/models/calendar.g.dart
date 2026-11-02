@@ -62,6 +62,11 @@ _Booking _$BookingFromJson(Map<String, dynamic> json) => _Booking(
   createdAt: json['created_at'] == null
       ? null
       : DateTime.parse(json['created_at'] as String),
+  seriesId: json['series_id'] as String?,
+  isOccurrence: json['is_occurrence'] as bool? ?? false,
+  occurrenceStartsAt: json['occurrence_starts_at'] == null
+      ? null
+      : DateTime.parse(json['occurrence_starts_at'] as String),
 );
 
 Map<String, dynamic> _$BookingToJson(_Booking instance) => <String, dynamic>{
@@ -72,6 +77,9 @@ Map<String, dynamic> _$BookingToJson(_Booking instance) => <String, dynamic>{
   'checkin_code': instance.checkinCode,
   'can_cancel_free_until': instance.canCancelFreeUntil?.toIso8601String(),
   'created_at': instance.createdAt?.toIso8601String(),
+  'series_id': instance.seriesId,
+  'is_occurrence': instance.isOccurrence,
+  'occurrence_starts_at': instance.occurrenceStartsAt?.toIso8601String(),
 };
 
 _Slot _$SlotFromJson(Map<String, dynamic> json) => _Slot(
