@@ -22,7 +22,7 @@ flowchart LR
       NGX["nginx<br/>static, brotli/gzip, security headers"]
       PHP["Laravel 13 · PHP-FPM 8.3<br/>API v1 · Livewire 4 · Filament 5"]
       RVB["Reverb<br/>WebSockets"]
-      HZN["Horizon workers<br/>queues: default, payments, media, ai, notifications, sync, integrations"]
+      HZN["Horizon workers<br/>Redis queues"]
       SCH["Scheduler<br/>schedule:work"]
     end
 

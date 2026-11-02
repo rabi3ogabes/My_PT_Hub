@@ -3,7 +3,7 @@
     @include('marketing.partials.page-hero', ['crumbs' => $seo->breadcrumbs, 'icon' => 'calculator', 'eyebrow' => __($k.'.audience'), 'title' => __($k.'.title'), 'lead' => __($k.'.lead'), 'actions' => false])
 
     <section class="au-container grid items-start gap-12 py-20 lg:grid-cols-[1.05fr_1fr]">
-        <div x-data="{{ $component }}" class="rounded-[28px] border border-border bg-surface p-6 shadow-e2 sm:p-8 lg:sticky lg:top-24">
+        <div x-data="{{ $alpine }}" class="rounded-[28px] border border-border bg-surface p-6 shadow-e2 sm:p-8 lg:sticky lg:top-24">
             @include('marketing.calculators.widgets.'.$calculator, ['k' => $k])
             <p class="mt-6 border-t border-border pt-4 text-caption text-text-muted">{{ __('marketing.calculators.disclaimer') }}</p>
         </div>

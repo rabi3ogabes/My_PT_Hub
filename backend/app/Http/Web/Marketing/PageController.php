@@ -194,7 +194,7 @@ class PageController
         return view('marketing.calculators.show', [
             'seo' => $seo,
             'calculator' => $calculator,
-            'component' => Catalog::CALCULATORS[$calculator],
+            'alpine' => Catalog::CALCULATORS[$calculator],
             'faq' => $faq,
             'steps' => $steps,
         ]);
