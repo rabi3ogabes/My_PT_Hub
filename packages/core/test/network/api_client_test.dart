@@ -97,7 +97,7 @@ void main() {
     adapter = ScriptedAdapter((o) async {
       calls++;
       return calls == 1
-          ? Reply(429, {'data': null, 'errors': <dynamic>[]}, {'retry-after': ['3']})
+          ? const Reply(429, {'data': null, 'errors': <dynamic>[]}, {'retry-after': ['3']})
           : Reply.ok({'ok': true});
     });
     await build().get('/me/today');

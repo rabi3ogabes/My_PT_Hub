@@ -128,7 +128,7 @@ void main() {
         fullPath: '/:any(.*)',
         pathParameters: const {},
         pageKey: const ValueKey('k'),
-        topRoute: match.lastOrNull?.route as GoRoute?,
+        topRoute: match.lastOrNull?.route,
       );
       return authRedirect(
         status,

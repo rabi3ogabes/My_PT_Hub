@@ -1,7 +1,6 @@
 import 'package:aurum_core/aurum_core.dart';
 import 'package:aurum_core/testing.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 /// A gallery of the core components, rendered in LTR + RTL, light + dark.
@@ -111,7 +110,7 @@ class _Gallery extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 AuStepper(value: 82.5, step: 2.5, unit: l10n.unitKg, onChanged: (_) {}),
-                AuTimerDisplay(time: const Duration(seconds: 75), total: const Duration(seconds: 90), size: 120, label: 'Rest'),
+                const AuTimerDisplay(time: Duration(seconds: 75), total: Duration(seconds: 90), size: 120, label: 'Rest'),
               ],
             ),
             const SizedBox(height: AuSpacing.s4),
