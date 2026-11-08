@@ -30,13 +30,13 @@ jobs:
       run:
         working-directory: ${{ matrix.package }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Skip when the package has not been scaffolded yet
         id: exists
         working-directory: .
         run: |
           if [ -f "${{ matrix.package }}/pubspec.yaml" ]; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "present=false" >> "$GITHUB_OUTPUT"; echo "::notice::${{ matrix.package }} has no pubspec.yaml — skipped"; fi
-      - uses: subosito/flutter-action@v2.18.0
+      - uses: subosito/flutter-action@v2.23.0
         if: steps.exists.outputs.present == 'true'
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
@@ -60,7 +60,7 @@ jobs:
         run: flutter test --coverage
       - name: Upload coverage
         if: steps.exists.outputs.present == 'true' && always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage-${{ strategy.job-index }}
           path: ${{ matrix.package }}/coverage/lcov.info
@@ -71,8 +71,8 @@ jobs:
     runs-on: ubuntu-24.04
     if: github.event_name == 'push'
     steps:
-      - uses: actions/checkout@v4
-      - uses: subosito/flutter-action@v2.18.0
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2.23.0
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable

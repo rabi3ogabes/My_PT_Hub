@@ -79,7 +79,7 @@ jobs:
     runs-on: ubuntu-24.04
     environment: production-rollout   # manual approval + this automated gate
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Sentry release health
         env:
           SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
@@ -102,14 +102,14 @@ jobs:
       matrix:
         app: ${{ fromJSON(needs.plan.outputs.apps) }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Skip when the app has not been scaffolded yet
         id: exists
         run: test -f apps/${{ matrix.app }}/pubspec.yaml && echo "ok=true" >> "$GITHUB_OUTPUT" || echo "::notice::apps/${{ matrix.app }} missing — skipped"
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         if: steps.exists.outputs.ok == 'true'
         with: { distribution: temurin, java-version: '17' }
-      - uses: subosito/flutter-action@v2.18.0
+      - uses: subosito/flutter-action@v2.23.0
         if: steps.exists.outputs.ok == 'true' && needs.plan.outputs.lane != 'rollout' && needs.plan.outputs.lane != 'metadata'
         with: { flutter-version: '${{ env.FLUTTER_VERSION }}', channel: stable, cache: true }
       - uses: ruby/setup-ruby@v1
@@ -148,14 +148,14 @@ jobs:
       matrix:
         app: ${{ fromJSON(needs.plan.outputs.apps) }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Skip when the app has not been scaffolded yet
         id: exists
         run: test -f apps/${{ matrix.app }}/pubspec.yaml && echo "ok=true" >> "$GITHUB_OUTPUT" || echo "::notice::apps/${{ matrix.app }} missing — skipped"
       - uses: maxim-lobanov/setup-xcode@v1
         if: steps.exists.outputs.ok == 'true'
         with: { xcode-version: latest-stable }
-      - uses: subosito/flutter-action@v2.18.0
+      - uses: subosito/flutter-action@v2.23.0
         if: steps.exists.outputs.ok == 'true' && needs.plan.outputs.lane != 'metadata'
         with: { flutter-version: '${{ env.FLUTTER_VERSION }}', channel: stable, cache: true }
       - uses: ruby/setup-ruby@v1
@@ -163,7 +163,7 @@ jobs:
         with: { ruby-version: '${{ env.RUBY_VERSION }}', bundler-cache: true, working-directory: infra/fastlane }
       - name: CocoaPods cache
         if: steps.exists.outputs.ok == 'true'
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: apps/${{ matrix.app }}/ios/Pods
           key: pods-${{ matrix.app }}-${{ hashFiles(format('apps/{0}/ios/Podfile.lock', matrix.app)) }}
