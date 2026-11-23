@@ -23,7 +23,7 @@ dependencies:
   mobile_scanner: ^7.4.3
   image_picker: ^1.2.4
   camera: ^0.12.2
-  record: ^7.1.2
+  record: ^7.2.0
   local_auth: ^3.0.2
   url_launcher: ^6.3.3
   app_links: ^7.2.2
